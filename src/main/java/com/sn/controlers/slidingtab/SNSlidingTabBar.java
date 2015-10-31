@@ -52,7 +52,7 @@ public class SNSlidingTabBar extends SNLinearLayout {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if (items == null) {
             if (fragmentManager == null)
-                new IllegalStateException("Must be set fragment manager.");
+                throw new IllegalStateException("Must be set fragment manager.");
             items = new ArrayList<SNElement>();
             int childCount = getChildCount();
             for (int i = 0; i < childCount; i++) {
@@ -76,12 +76,23 @@ public class SNSlidingTabBar extends SNLinearLayout {
             for (SNElement item : items) {
                 holder.tabItemBox.add(item);
                 String fragmentName = item.toView(SNSlidingTabItem.class).getFragmentName();
-                String all_f_name = $.packageName() + ".fragments." + fragmentName;
+                String all_f_name = "";
+                if (fragmentName.contains($.packageName())) {
+                    all_f_name = fragmentName;
+                } else {
+                    if (fragmentName.contains(".")) {
+                        all_f_name = $.packageName() + fragmentName;
+                    } else {
+                        all_f_name = $.packageName() + ".app.controllers.fragments." + fragmentName;
+                    }
+                }
                 Fragment fragment = null;
                 try {
                     fragment = SNUtility.instanceObject(Fragment.class, all_f_name);
+                    if (fragment == null)
+                        throw new IllegalStateException(SNUtility.format("The {0} instance is error.", all_f_name));
                 } catch (Exception ex) {
-                    new IllegalStateException(SNUtility.format("The {0} instance is error.", all_f_name));
+                    throw new IllegalStateException(SNUtility.format("The {0} instance is error.", all_f_name));
                 }
                 fragments.add(fragment);
             }

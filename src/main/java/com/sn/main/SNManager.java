@@ -27,23 +27,20 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.sn.activity.SNLoadingActivity;
 
-import com.sn.annotation.SNBindId;
+import com.sn.annotation.SNIOC;
+import com.sn.annotation.SNInjectView;
 import com.sn.interfaces.SNOnClickListener;
 import com.sn.interfaces.SNOnHttpResultListener;
 import com.sn.models.SNSize;
 import com.sn.postting.alert.SNAlert;
+import com.sn.util.SNBindInjectManager;
 import com.sn.util.SNUtility;
 
-import java.lang.ref.WeakReference;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.HeaderElement;
-import cz.msebera.android.httpclient.ParseException;
-import cz.msebera.android.httpclient.client.methods.HttpHead;
 
 /**
  * @author Siner QQ348078707
@@ -248,7 +245,7 @@ public class SNManager extends SNConfig {
      */
     public void contentView(SNElement element, LayoutParams layoutParams, Object _holder) {
         activity.setContentView(element.toView(), layoutParams);
-        holder(_holder);
+        inject(_holder);
     }
 
     /**
@@ -259,7 +256,7 @@ public class SNManager extends SNConfig {
      */
     public void contentView(SNElement element, Object _holder) {
         activity.setContentView(element.toView());
-        holder(_holder);
+        inject(_holder);
     }
 
     /**
@@ -298,7 +295,7 @@ public class SNManager extends SNConfig {
      */
     public void contentView(int layoutResID, Object _holder) {
         activity.setContentView(layoutResID);
-        holder(_holder);
+        inject(_holder);
     }
 
     /**
@@ -306,18 +303,34 @@ public class SNManager extends SNConfig {
      *
      * @param _holder view inject holder object,refer to : document->view inject
      */
-    public void holder(Object _holder) {
+    public void inject(Object _holder) {
         if (_holder != null) {
             Field[] fields = _holder.getClass().getDeclaredFields();
             for (Field field : fields) {
                 String fieldName = field.getName();
-                if (field.isAnnotationPresent(SNBindId.class)) {
+                if (field.isAnnotationPresent(SNInjectView.class)) {
                     try {
-                        SNBindId bindId = (SNBindId) field.getAnnotation(SNBindId.class);
+                        SNInjectView bindId = (SNInjectView) field.getAnnotation(SNInjectView.class);
                         field.setAccessible(true);
                         field.set(_holder, create(bindId.id()));
                     } catch (Exception ex) {
 
+                    }
+                } else if (field.isAnnotationPresent(SNIOC.class)) {
+
+                    SNIOC ioc = (SNIOC) field.getAnnotation(SNIOC.class);
+                    Class c = field.getType();
+                    Class t = SNBindInjectManager.instance().to(c);
+                    if (t != null) {
+                        try {
+                            Constructor c1 = t.getDeclaredConstructor(SNManager.class);
+                            c1.setAccessible(true);
+                            Object obj = c1.newInstance(this);
+                            field.setAccessible(true);
+                            field.set(_holder, obj);
+                        } catch (Exception ex) {
+                            throw new IllegalStateException("IOC class constructor parameter must be SNManager class.");
+                        }
                     }
                 } else {
                     int id = resourceId(fieldName);
@@ -506,7 +519,7 @@ public class SNManager extends SNConfig {
      */
     public SNElement layoutInflateResId(int resId, ViewGroup root, Object _holder) {
         SNElement r = create(activity.getLayoutInflater().inflate(resId, root));
-        r.holder(_holder);
+        r.inject(_holder);
         return r;
     }
 
@@ -543,7 +556,7 @@ public class SNManager extends SNConfig {
      */
     public SNElement layoutInflateResId(int resId, ViewGroup root, boolean _attachToRoot, Object _holder) {
         SNElement r = create(activity.getLayoutInflater().inflate(resId, root, _attachToRoot));
-        r.holder(_holder);
+        r.inject(_holder);
         return r;
     }
 
@@ -566,7 +579,7 @@ public class SNManager extends SNConfig {
      */
     public SNElement layoutInflateResId(int resId, Object _holder) {
         SNElement r = create(activity.getLayoutInflater().inflate(resId, null, false));
-        r.holder(_holder);
+        r.inject(_holder);
         return r;
     }
 
@@ -773,6 +786,7 @@ public class SNManager extends SNConfig {
     public int colorResId(int resId) {
         return activity.getResources().getColor(resId);
     }
+
     /**
      * get string by id
      *
@@ -782,6 +796,7 @@ public class SNManager extends SNConfig {
     public String stringResId(int resId) {
         return activity.getResources().getString(resId);
     }
+
     /**
      * get drawable object by id
      *
@@ -1156,7 +1171,7 @@ public class SNManager extends SNConfig {
                     } catch (Exception e) {
                         r = null;
                     }
-                    onHttpResultListener.onFailure(statusCode,r);
+                    onHttpResultListener.onFailure(statusCode, r);
                 }
             }
         });

@@ -6,9 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Created by xuhui on 15/8/23.
+ * @SNBindId(id=R.id.listView)
+ *
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-public @interface SNBindId {
+public @interface SNInjectView {
     int id();
 }

@@ -12,7 +12,6 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
-import com.sn.interfaces.SNOnHttpResultListener;
 import com.sn.main.SNConfig;
 import com.sn.models.SNSize;
 
@@ -24,23 +23,15 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
-import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by xuhui on 15/8/4.
@@ -473,6 +464,31 @@ public class SNUtility {
     public static <T> T instanceObject(Class<T> _c, String name) throws Exception {
         Class c = Class.forName(name);
         return (T) c.newInstance();
+    }
+
+    /**
+     * 判断两个class是不是同一个类
+     * @param s
+     * @param t
+     * @return boolean
+     */
+    public static boolean classIsEqual(Class s,Class t){
+        return s.getCanonicalName()==t.getCanonicalName();
+    }
+
+    /**
+     * 判断两个类型能不能转换
+     * @param convert
+     * @param to
+     * @return boolean
+     */
+    public static boolean classAllowConvert(Class convert,Class to){
+        Class[] class_array=to.getInterfaces();
+        for (Class item:class_array) {
+            if (classIsEqual(item,convert))
+                return true;
+        }
+        return false;
     }
     //endregion
 }
