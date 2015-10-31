@@ -1,1 +1,125 @@
-build_gradle copy to build.gradle
+将build_gradle文件拷贝一份，起名为build.gradle
+
+一、Activity的使用
+1、SNActivity
+   框架最基本的activity，可调用$(SNManager)进行操作activity，具体用法请参考文档或代码
+
+2、SNNavigationSlidingActivity
+   包含SNActivity的功能，继承于com.jeremyfeinstein.slidingmenu.lib.app.SlidingActivity
+   支持导航条和左滑视图的Activity
+
+   加载导航条：
+   loadNavBar(int height,int background_color_id)
+   loadNavBarResId(int height_id,int background_id)
+
+   加载左侧视图：
+   /**
+     * load left view
+     * @param left_id left layout id
+     * @param offset_value offset value
+     * @param shadow_width_value shadow width value
+     * @param shadow_drawable_id shadow drawable style
+     * @param fade fade value
+     */
+   loadLeft(int left_id, int offset_value, int shadow_width_value,  int shadow_drawable_id, float fade)
+   /**
+     * load left view
+     * @param left_id left layout id
+     * @param offset_id offset id
+     * @param shadow_width_id shadow width id
+     * @param shadow_drawable_id shadow drawable id
+     * @param fade fade value
+     */
+   loadLeftResId(int left_id, int offset_id, int shadow_width_id, int shadow_drawable_id, float fade)
+
+
+
+
+
+
+
+二、SNElement的使用
+   View的伪装对象，支持所有View的功能，详细功能可参考文档或代码
+   手动伪装:$.create $.id $.findView
+   注入伪装:$.setContent(view class or layout id,inject class);
+   获取原型：elem.toView();
+
+
+
+
+
+
+
+
+三、注入
+1、视图注入
+   A、创建注入类,属性名称必须和layout中的id对应，如果不对应请加入标签@SNInjectView
+      class DemoInject{
+          @SNInjectView(id=R.id.tvTest)
+          public SNElement test;
+      }
+   B、实例化注入对象
+      DemoInject di=new DemoInject();
+   C、调用$.inject或者$.setContent注入
+      $.inject(di);
+   D、注入成功后即可调用对象
+      String text=di.test.text();
+2、依赖注入
+   A、需要绑定注入对象，建议写到Application中的onCreate
+      SNBindInjectManager.instance().bind(ITest.class, Test.class);
+
+   B、与视图注入不同的是属性必须添加标签@SNIOC,注入的对象(Test)必须包含只有一个SNManager参数的构造函数,且必须实现注入者
+      public class Test implements ITest{
+          SNManager $;
+          public Test(SNManager _$){
+              this.$=_$;
+          };
+      }
+      class DemoInject{
+          @SNIOC
+          public ITest test;
+      }
+   C、调用$.inject或者$.setContent注入
+      同视图注入
+   D、注入成功后即可调用对象
+      di.test.xxx();
+
+
+
+
+
+
+
+四、fragment的使用
+1、SNFragment
+2、SNLazyFragment
+
+
+
+
+
+五、控件的使用
+1、SNFragmentScrollable
+2、SNPercentLinearLayout、SNPercentRelativeLayout
+3、SNScrollable
+4、SNSlipNavigation
+5、XList
+6、slidingtab
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

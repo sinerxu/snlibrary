@@ -71,6 +71,14 @@ public class SNNavigationSlidingActivity extends SlidingActivity {
         $.slidingFade(fade);
     }
 
+    /**
+     * load left view
+     * @param left_id left layout id
+     * @param offset_value offset value
+     * @param shadow_width_value shadow width value
+     * @param shadow_drawable_id shadow drawable style
+     * @param fade fade value
+     */
     public void loadLeft(int left_id, int offset_value, int shadow_width_value,  int shadow_drawable_id, float fade) {
 
         $.slidingMode(SlidingMenu.LEFT);

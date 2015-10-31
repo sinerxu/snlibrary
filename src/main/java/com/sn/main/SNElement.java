@@ -206,6 +206,26 @@ public class SNElement extends SNManager {
         add(create(view));
         return this;
     }
+
+    /**
+     * 转成view
+     *
+     * @return
+     */
+    public View toView() {
+        return elem;
+    }
+
+    /**
+     * 转成view
+     *
+     * @param _c  view对象的类型
+     * @param <T> view对象的类型
+     * @return
+     */
+    public <T> T toView(Class<T> _c) {
+        return (T) elem;
+    }
     // endregion
 
     // region listener
@@ -390,25 +410,6 @@ public class SNElement extends SNManager {
         return this;
     }
 
-    /**
-     * 转成view
-     *
-     * @return
-     */
-    public View toView() {
-        return elem;
-    }
-
-    /**
-     * 转成view
-     *
-     * @param _c  view对象的类型
-     * @param <T> view对象的类型
-     * @return
-     */
-    public <T> T toView(Class<T> _c) {
-        return (T) elem;
-    }
 
     /**
      * 获取SNAdapter适配器
