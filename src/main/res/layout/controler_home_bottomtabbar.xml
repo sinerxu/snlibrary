@@ -1,0 +1,26 @@
+
+
+
+<com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTab xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/HomeBottomTabStyle">
+
+    <com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabContainer
+        android:id="@+id/tabContainer"
+        style="@style/HomeBottomTabContentStyle">
+
+    </com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabContainer>
+
+    <com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabItemBox
+        android:id="@+id/tabItemBox"
+        style="@style/HomeBottomTabItemBoxStyle">
+
+
+        <com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabItemHover
+            android:id="@+id/tabItemHover"
+            style="@style/SizeWrapStyle">
+
+        </com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabItemHover>
+
+    </com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabItemBox>
+</com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTab>

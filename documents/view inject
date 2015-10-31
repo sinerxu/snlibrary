@@ -1,0 +1,18 @@
+In Activity.java:
+1.create ElementHolder class:
+class ElementHolder {
+    SNElement tvTest1;
+    SNElement tvTest2;
+    SNElement tvTest3;
+}
+
+2.create object, and call holder,object must be instance.
+ElementHolder holder=new ElementHolder();
+$.holder(holder);
+or
+$.contentView(resid,holder);
+or
+$.contentView(elem,lp,holder);
+or
+
+$.layoutInflateResId(xx,holder)

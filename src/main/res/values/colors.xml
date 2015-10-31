@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sliding_menu_item_down">#ff39393b</color>
+    <color name="sliding_menu_item_release">#00000000</color>
+    <color name="sliding_menu_background">#ff2c2c2e</color>
+    <color name="sliding_menu_body_background">#fff5f5f5</color>
+    <color name="black">#000000</color><!--黑色 -->
+    <color name="titletextcolor">#ff1E90FF</color><!--黑色 -->
+    <color name="btntextcolor">#ff1E90FF</color><!--dialog中按钮字体颜色 -->
+</resources>

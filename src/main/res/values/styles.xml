@@ -1,0 +1,90 @@
+<resources>
+
+
+    <style name="mystyle" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@drawable/uialert_bg</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <style name="SizeWrapStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+
+    <style name="VerticalSplit">
+        <item name="android:background">#d7d6db</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+
+
+    <style name="HorizontalSplit">
+        <item name="android:background">#d7d6db</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">1dp</item>
+    </style>
+
+
+
+    <style name="LeftHorizontalSplit">
+        <item name="android:background">#4d4d4d</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">1dp</item>
+    </style>
+
+    <style name="LeftVerticalSplit">
+        <item name="android:background">#4d4d4d</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+    <!--HomeBottomTab START-->
+    <style name="HomeBottomTabStyle">
+        <item name="android:background">#fff</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <style name="HomeBottomTabContentStyle">
+        <item name="android:isScrollContainer">false</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_marginBottom">60dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <style name="HomeBottomTabItemBoxStyle">
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:background">#efefef</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">65dp</item>
+    </style>
+    <declare-styleable name="SNHomeSlidingTabItem">
+        <attr name="android:text" />
+        <attr name="android:src" />
+        <attr name="right_split" format="boolean" />
+    </declare-styleable>
+    <!--HomeBottomTab END-->
+
+    <!--HomeSlidingTab START-->
+    <style name="HomeSlidingTabStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">#fff</item>
+    </style>
+    <style name="HomeSlidingTabBoxStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_alignParentTop">true</item>
+    </style>
+    <style name="HomeSlidingTabContentStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_marginTop">40dp</item>
+    </style>
+    <!--HomeBottomTab END-->
+</resources>

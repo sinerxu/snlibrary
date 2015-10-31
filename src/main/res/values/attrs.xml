@@ -1,0 +1,78 @@
+<!--
+  Copyright 2011 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<resources>
+
+    <declare-styleable name="SlidingMenu">
+        <attr name="mode">
+            <enum name="left" value="0" />
+            <enum name="right" value="1" />
+        </attr>
+        <attr name="viewAbove" format="reference" />
+        <attr name="viewBehind" format="reference" />
+        <attr name="behindOffset" format="dimension" />
+        <attr name="behindWidth" format="dimension" />
+        <attr name="behindScrollScale" format="float" />
+        <attr name="touchModeAbove">
+            <enum name="margin" value="0" />
+            <enum name="fullscreen" value="1" />
+            <enum name="none" value="2" />
+        </attr>
+        <attr name="touchModeBehind">
+            <enum name="margin" value="0" />
+            <enum name="fullscreen" value="1" />
+            <enum name="none" value="2" />
+        </attr>
+        <attr name="shadowDrawable" format="reference" />
+        <attr name="shadowWidth" format="dimension" />
+        <attr name="fadeEnabled" format="boolean" />
+        <attr name="fadeDegree" format="float" />
+        <attr name="selectorEnabled" format="boolean" />
+        <attr name="selectorDrawable" format="reference" />
+    </declare-styleable>
+    <declare-styleable name="SNNavTitleBar">
+        <attr name="nav_title" format="string"></attr>
+        <attr name="nav_logo" format="reference"></attr>
+    </declare-styleable>
+    <declare-styleable name="SNPercentLayout">
+        <attr name="percent_width" format="string"></attr>
+        <attr name="percent_height" format="string"></attr>
+    </declare-styleable>
+    <declare-styleable name="SNScrollable">
+        <attr name="layout_auto_height" format="boolean"></attr>
+    </declare-styleable>
+    <declare-styleable name="SNSlidingTabContainer">
+        <attr name="android:isScrollContainer"></attr>
+    </declare-styleable>
+
+    <declare-styleable name="SNSlidingTabItem">
+        <attr name="fragment" format="string"></attr>
+    </declare-styleable>
+    <declare-styleable name="SNHomeBottomTabItem">
+        <attr name="android:text" />
+        <attr name="android:src" />
+        <attr name="android:textColor" />
+        <attr name="selected_src" format="reference" />
+        <attr name="selected_color" format="color" />
+    </declare-styleable>
+    <declare-styleable name="SNSlidingTabBar">
+        <attr name="style" format="enum">
+            <enum name="home_bottom" value="0"></enum>
+            <enum name="home_sliding" value="1"></enum>
+            <enum name="under_line_sliding" value="2"></enum>
+        </attr>
+    </declare-styleable>
+</resources>
