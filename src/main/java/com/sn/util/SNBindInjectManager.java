@@ -44,11 +44,11 @@ public class SNBindInjectManager {
      */
     public Class to(Class bind) {
         if (bindInjects != null) {
-            for (String key : bindInjects.keySet()) {
+            String key=bind.getCanonicalName();
+            if (bindInjects.containsKey(key))
+            {
                 SNBindInject item = bindInjects.get(key);
-                if (SNUtility.classIsEqual(item.bind, bind)) {
-                    return item.to;
-                }
+                return item.to;
             }
         }
         return null;

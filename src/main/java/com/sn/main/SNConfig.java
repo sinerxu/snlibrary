@@ -21,6 +21,13 @@ public class SNConfig {
     public static final int SN_ANIMATE_ACTIVITY_SN = 2;
     public static final int SN_ANIMATE_ACTIVITY_FADE = 3;
     public static final int SN_ANIMATE_ACTIVITY_SLIDE = 4;
+    public static final int SN_ANIMATE_ACTIVITY_SCALE = 5;
+    public static final int SN_ANIMATE_ACTIVITY_SCALE_ROTATE = 6;
+    public static final int SN_ANIMATE_ACTIVITY_SCALE_TRANSLATE = 7;
+    public static final int SN_ANIMATE_ACTIVITY_PUSH_POP_HORIZONTAL = 8;
+    public static final int SN_ANIMATE_ACTIVITY_PUSH_POP_VERTICAL = 9;
+    public static final int SN_ANIMATE_ACTIVITY_ZOOM = 10;
+    public static final int SN_ANIMATE_ACTIVITY_TEST = 1000;
     //endregion
 
 

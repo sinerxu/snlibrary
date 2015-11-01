@@ -31,6 +31,7 @@ import com.sn.annotation.SNIOC;
 import com.sn.annotation.SNInjectView;
 import com.sn.interfaces.SNOnClickListener;
 import com.sn.interfaces.SNOnHttpResultListener;
+import com.sn.lib.R;
 import com.sn.models.SNSize;
 import com.sn.postting.alert.SNAlert;
 import com.sn.util.SNBindInjectManager;
@@ -408,7 +409,12 @@ public class SNManager extends SNConfig {
     public void finishActivity(int animated) {
 
         activity.finish();
-        activityAnimateType(animated);
+        activityAnimateType(animated, true);
+    }
+
+
+    void activityAnimateType(int animated) {
+        activityAnimateType(animated, false);
     }
 
     /**
@@ -416,13 +422,61 @@ public class SNManager extends SNConfig {
      *
      * @param animated
      */
-    void activityAnimateType(int animated) {
+    void activityAnimateType(int animated, boolean isFinish) {
         if (animated == SNManager.SN_ANIMATE_ACTIVITY_NO || animated == SNManager.SN_ANIMATE_ACTIVITY_SN) {
             activity.overridePendingTransition(0, 0);
         } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_FADE) {
             activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_SLIDE) {
             activity.overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+        } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_SCALE) {
+            if (isFinish)
+                activity.overridePendingTransition(R.anim.finish_scale_one,
+                        R.anim.finish_scale_two);
+            else
+                activity.overridePendingTransition(R.anim.start_scale_one,
+                        R.anim.start_scale_two);
+        } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_SCALE_ROTATE) {
+            if (isFinish)
+                activity.overridePendingTransition(R.anim.finish_scale_rotate_one,
+                        R.anim.finish_scale_rotate_two);
+            else
+                activity.overridePendingTransition(R.anim.start_scale_rotate_one,
+                        R.anim.start_scale_rotate_two);
+        } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_SCALE_TRANSLATE) {
+            if (isFinish)
+                activity.overridePendingTransition(R.anim.finish_scale_translate_one,
+                        R.anim.finish_scale_translate_two);
+            else
+                activity.overridePendingTransition(R.anim.start_scale_translate_one,
+                        R.anim.start_scale_translate_two);
+        } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_PUSH_POP_HORIZONTAL) {
+            if (isFinish)
+                activity.overridePendingTransition(R.anim.finish_pop_horizontal_one,
+                        R.anim.finish_pop_horizontal_two);
+            else
+                activity.overridePendingTransition(R.anim.start_push_horizontal_one,
+                        R.anim.start_push_horizontal_two);
+        } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_PUSH_POP_VERTICAL) {
+            if (isFinish)
+                activity.overridePendingTransition(R.anim.finish_push_vertical_one,
+                        R.anim.finish_push_vertical_two);
+            else
+                activity.overridePendingTransition(R.anim.start_push_vertical_one,
+                        R.anim.start_push_vertical_two);
+        } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_ZOOM) {
+            if (isFinish)
+                activity.overridePendingTransition(R.anim.finish_zoom_one,
+                        R.anim.finish_zoom_two);
+            else
+                activity.overridePendingTransition(R.anim.start_zoom_one,
+                        R.anim.start_zoom_two);
+        } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_TEST) {
+            if (isFinish)
+                activity.overridePendingTransition(R.anim.finish_zoom_one,
+                        R.anim.finish_zoom_two);
+            else
+                activity.overridePendingTransition(R.anim.start_zoom_one, R.anim.start_zoom_two);
         }
     }
 

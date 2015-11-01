@@ -52,7 +52,7 @@ public class SNAdapter extends BaseAdapter {
 		// TODO Auto-generated method stub
 		SNViewHolder viewHolder = null;
 		if (view == null) {
-			viewHolder = onLoadView.onViewBind(pos);
+			viewHolder = onLoadView.onCreateViewHolder(pos);
 			view = viewHolder.view.toView();
 			view.setTag(viewHolder);
 		} else {
@@ -64,7 +64,7 @@ public class SNAdapter extends BaseAdapter {
 			}
 			viewHolder.pos = pos;
 			viewHolder.viewGroup = $.create(viewGroup);
-			view = onLoadView.onDataBind(viewHolder).toView();
+			view = onLoadView.onFillViewHolder(viewHolder).toView();
 		}
 		return view;
 	}

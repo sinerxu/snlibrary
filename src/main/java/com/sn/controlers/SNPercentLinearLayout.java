@@ -3,12 +3,8 @@ package com.sn.controlers;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.widget.LinearLayout;
 
 import com.sn.lib.R;
-import com.sn.main.SNElement;
-import com.sn.main.SNManager;
 import com.sn.util.SNUtility;
 
 /**
