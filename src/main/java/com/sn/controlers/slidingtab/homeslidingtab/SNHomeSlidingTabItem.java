@@ -28,7 +28,7 @@ public class SNHomeSlidingTabItem extends SNSlidingTabItem {
         icon = a.getDrawable(R.styleable.SNHomeSlidingTabItem_android_src);
         rightSplit = a.getBoolean(R.styleable.SNHomeSlidingTabItem_right_split, true);
         a.recycle();
-        if (!SNUtility.isNullOrEmpty(text))
+        if (!$.util.strIsNullOrEmpty(text))
             $this.id(R.id.text).text(text);
         if (icon != null)
             $this.id(R.id.icon).image(icon);

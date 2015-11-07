@@ -7,11 +7,7 @@ import android.support.v4.app.Fragment;
 import android.util.AttributeSet;
 
 import com.sn.main.SNManager;
-import com.sn.util.SNUtility;
 
-/**
- * Created by xuhui on 15/8/9.
- */
 public class SNFragment extends Fragment {
     public SNManager $;
 

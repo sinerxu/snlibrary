@@ -24,7 +24,7 @@ public class SNBindInjectManager {
      * @param to
      */
     public void bind(Class bind, Class to) {
-        if (SNUtility.classAllowConvert(bind, to)) {
+        if (SNUtility.instance().refClassAllowConvert(bind, to)) {
             if (bindInjects == null) {
                 bindInjects = new HashMap<String, SNBindInject>();
             }

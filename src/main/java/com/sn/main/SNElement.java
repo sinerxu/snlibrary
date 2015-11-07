@@ -18,6 +18,7 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -29,7 +30,9 @@ import com.sn.interfaces.SNAdapterListener;
 import com.sn.interfaces.SNAdapterOnItemClickListener;
 import com.sn.interfaces.SNAnimationListener;
 import com.sn.interfaces.SNOnClickListener;
+import com.sn.interfaces.SNOnImageLoadListener;
 import com.sn.interfaces.SNOnLongClickListener;
+import com.sn.interfaces.SNOnSetImageListenter;
 import com.sn.interfaces.SNOnTouchListener;
 import com.sn.models.SNMargins;
 import com.sn.models.SNSize;
@@ -545,6 +548,9 @@ public class SNElement extends SNManager {
 
     // region style
 
+
+    // region common
+
     /**
      * set visible
      *
@@ -637,84 +643,6 @@ public class SNElement extends SNManager {
 
     }
 
-    /**
-     * 获取TextView文本
-     *
-     * @return
-     */
-    public String text() {
-        if (elem instanceof TextView) {
-            TextView textView = (TextView) elem;
-            return (String) textView.getText();
-        }
-        return "";
-    }
-
-    /**
-     * 设置TextView文本
-     *
-     * @param text
-     * @return
-     */
-    public SNElement text(CharSequence text) {
-        if (elem instanceof TextView) {
-            TextView textView = (TextView) elem;
-            textView.setText(text);
-        }
-        return this;
-    }
-
-    /**
-     * 设置TextView文本
-     *
-     * @param text
-     * @return
-     */
-    public SNElement text(String text) {
-        if (elem instanceof TextView) {
-            TextView textView = (TextView) elem;
-            textView.setText(text);
-        }
-        return this;
-    }
-
-    /**
-     * 设置TextView文本
-     *
-     * @param resid res id
-     * @return
-     */
-    public SNElement text(int resid) {
-        if (elem instanceof TextView) {
-            TextView textView = (TextView) elem;
-            textView.setText(resid);
-        }
-        return this;
-    }
-
-    /**
-     * 设置TextView文本颜色
-     *
-     * @param resId res id
-     * @return
-     */
-    public SNElement textColorResId(int resId) {
-        return textColor(colorResId(resId));
-    }
-
-    /**
-     * 设置TextView文本颜色
-     *
-     * @param color 颜色值
-     * @return
-     */
-    public SNElement textColor(int color) {
-        if (elem instanceof TextView) {
-            TextView textView = (TextView) elem;
-            textView.setTextColor(color);
-        }
-        return this;
-    }
 
     /**
      * 设置背景样式
@@ -726,8 +654,6 @@ public class SNElement extends SNManager {
         if (elem != null) {
             if (id != 0) {
                 elem.setBackgroundResource(id);
-            } else {
-                elem.setBackgroundDrawable(null);
             }
         }
         return this;
@@ -741,7 +667,7 @@ public class SNElement extends SNManager {
      */
     public SNElement background(Drawable drawable) {
         if (elem != null) {
-            elem.setBackgroundDrawable(drawable);
+            elem.setBackground(drawable);
         }
         return this;
     }
@@ -945,6 +871,104 @@ public class SNElement extends SNManager {
         return this;
     }
 
+    //endregion
+
+    //region button and textview
+
+    /**
+     * 获取TextView文本
+     *
+     * @return
+     */
+    public String text() {
+        if (elem instanceof TextView) {
+            TextView textView = (TextView) elem;
+            return (String) textView.getText();
+        }
+        return "";
+    }
+
+    /**
+     * 设置TextView文本
+     *
+     * @param text
+     * @return
+     */
+    public SNElement text(CharSequence text) {
+        if (elem instanceof TextView) {
+            TextView textView = (TextView) elem;
+            textView.setText(text);
+        } else if (elem instanceof Button) {
+            Button button = (Button) elem;
+            button.setText(text);
+        }
+        return this;
+    }
+
+    /**
+     * 设置TextView文本
+     *
+     * @param text
+     * @return
+     */
+    public SNElement text(String text) {
+        if (elem instanceof TextView) {
+            TextView textView = (TextView) elem;
+            textView.setText(text);
+        } else if (elem instanceof Button) {
+            Button button = (Button) elem;
+            button.setText(text);
+        }
+        return this;
+    }
+
+    /**
+     * 设置TextView文本
+     *
+     * @param resid res id
+     * @return
+     */
+    public SNElement text(int resid) {
+        if (elem instanceof TextView) {
+            TextView textView = (TextView) elem;
+            textView.setText(resid);
+        } else if (elem instanceof Button) {
+            Button button = (Button) elem;
+            button.setText(resid);
+        }
+        return this;
+    }
+
+    /**
+     * 设置TextView文本颜色
+     *
+     * @param resId res id
+     * @return
+     */
+    public SNElement textColorResId(int resId) {
+        return textColor(colorResId(resId));
+    }
+
+    /**
+     * 设置TextView文本颜色
+     *
+     * @param color 颜色值
+     * @return
+     */
+    public SNElement textColor(int color) {
+        if (elem instanceof TextView) {
+            TextView textView = (TextView) elem;
+            textView.setTextColor(color);
+        } else if (elem instanceof Button) {
+            Button button = (Button) elem;
+            button.setTextColor(color);
+        }
+        return this;
+    }
+    //endregion
+
+    //region image view
+
     /**
      * get ImageView max width
      *
@@ -1006,8 +1030,8 @@ public class SNElement extends SNManager {
      * @return SNElement
      */
     public SNElement maxSize(SNSize size) {
-        maxHeight(size.height);
-        maxWidth(size.width);
+        maxHeight(size.getHeight());
+        maxWidth(size.getWidth());
         return this;
     }
 
@@ -1072,6 +1096,92 @@ public class SNElement extends SNManager {
         }
         return this;
     }
+
+
+    public SNElement image(String url, Bitmap def_bm) {
+        return image(url, def_bm, null, null);
+    }
+    public SNElement image(String url, Bitmap def_bm, SNOnSetImageListenter onSetImageListenter) {
+        return image(url, def_bm, null, onSetImageListenter);
+    }
+    public SNElement image(String url, Bitmap def_bm, final Bitmap err_bm) {
+        image(url,def_bm,err_bm,null);
+        return this;
+    }
+    /**
+     * 设置远程图片
+     *
+     * @param url                 url
+     * @param def_bm              默认图片
+     * @param err_bm              错误图片
+     * @param onSetImageListenter 设置图片样式
+     * @return SNElement
+     */
+    public SNElement image(String url, Bitmap def_bm, final Bitmap err_bm, final SNOnSetImageListenter onSetImageListenter) {
+        if (def_bm != null) {
+            if (onSetImageListenter != null)
+                def_bm = onSetImageListenter.onLoadBitmap(def_bm);
+            image(def_bm);
+        }
+        util.imgLoad(url, new SNOnImageLoadListener() {
+            @Override
+            public void onSuccess(Bitmap map) {
+                if (onSetImageListenter != null)
+                    map = onSetImageListenter.onLoadBitmap(map);
+                image(map);
+            }
+            @Override
+            public void onFailure() {
+                if (err_bm != null) {
+                    Bitmap err_bm_2 = null;
+                    if (onSetImageListenter != null)
+                        err_bm_2 = onSetImageListenter.onLoadBitmap(err_bm);
+                    if (err_bm_2 != null)
+                        image(err_bm_2);
+                }
+            }
+        });
+        return this;
+    }
+
+
+    public SNElement image(String url) {
+        image(url, 0, 0, null);
+        return this;
+    }
+    public SNElement image(String url, int def_redId) {
+        image(url, def_redId, 0, null);
+        return this;
+    }
+    public SNElement image(String url, int def_redId, final SNOnSetImageListenter onSetImageListenter) {
+        image(url, def_redId, 0, onSetImageListenter);
+        return this;
+    }
+    public SNElement image(String url, int def_redId, final int err_resId) {
+        image(url, def_redId, err_resId, null);
+        return this;
+    }
+    /**
+     * 设置远程图片
+     *
+     * @param url                 url
+     * @param def_redId           默认图片
+     * @param err_resId           错误图片
+     * @param onSetImageListenter 设置图片样式
+     * @return SNElement
+     */
+    public SNElement image(String url, int def_redId, final int err_resId, final SNOnSetImageListenter onSetImageListenter) {
+        Bitmap def = null;
+        if (def_redId != 0)
+            def = bitmapResId(def_redId);
+        Bitmap err = null;
+        if (err_resId != 0)
+            err = bitmapResId(err_resId);
+        image(url, def, err, onSetImageListenter);
+        return this;
+    }
+
+    //endregion
 
     // endregion
 
@@ -1453,7 +1563,7 @@ public class SNElement extends SNManager {
     public SNElement pullStop(String time) {
         pullStopRefresh();
         pullStopLoadMore();
-        if (!SNUtility.isNullOrEmpty(time)) {
+        if (!util.strIsNullOrEmpty(time)) {
             pullRefreshTime(time);
         }
         return this;
@@ -1487,9 +1597,9 @@ public class SNElement extends SNManager {
     }
 
 
-
     /**
      * set pull hint message
+     *
      * @param message
      * @return
      */
@@ -1504,6 +1614,7 @@ public class SNElement extends SNManager {
         }
         return this;
     }
+
     public SNElement pullHintMessage(int messageResId) {
         if (elem != null) {
             if (elem instanceof XListView) {

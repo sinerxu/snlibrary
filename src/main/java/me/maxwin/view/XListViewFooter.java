@@ -144,7 +144,7 @@ public class XListViewFooter extends LinearLayout {
      * @param msg string msg
      */
     public void showHintMessage(String msg) {
-        if (SNUtility.isNotNullOrEmpty(msg)) {
+        if ($.util.strIsNotNullOrEmpty(msg)) {
             mHintView.setVisibility(View.VISIBLE);
             mHintView.setText(msg);
         }

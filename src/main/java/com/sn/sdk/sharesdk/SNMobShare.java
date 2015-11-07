@@ -2,6 +2,7 @@ package com.sn.sdk.sharesdk;
 
 import android.app.Activity;
 
+import com.sn.main.SNManager;
 import com.sn.util.SNUtility;
 import com.sn.sdk.interfaces.SNShareListener;
 
@@ -19,13 +20,14 @@ public class SNMobShare extends SNShare implements PlatformActionListener {
     final String LCAT = "SNMobShare Error";
     static boolean isInitShareSDK;
     static SNMobShare snMobShare;
-
+    SNManager $;
 
     public static SNShare instance(Activity _activity, int _shareSDKType) {
         SNMobShare _result = null;
         if (snMobShare == null)
             snMobShare = new SNMobShare(_activity);
         _result = snMobShare;
+
         return _result;
     }
 
@@ -35,6 +37,7 @@ public class SNMobShare extends SNShare implements PlatformActionListener {
             isInitShareSDK = true;
             //初始化shareSDK
             ShareSDK.initSDK(_activity);
+            $=new SNManager(_activity);
         }
     }
 
@@ -50,8 +53,8 @@ public class SNMobShare extends SNShare implements PlatformActionListener {
         if (imageUrl.indexOf("http") > -1) {
             oks.setImageUrl(imageUrl);
         } else {
-            imageUrl = SNUtility.copyFileIntoSDCard(this.context, imageUrl);
-            if (!SNUtility.isNullOrEmpty(imageUrl)) {
+            imageUrl = $.util.fileCopyFileIntoSDCard(this.context, imageUrl);
+            if (!$.util.strIsNullOrEmpty(imageUrl)) {
                 oks.setImagePath(imageUrl);
             }
         }

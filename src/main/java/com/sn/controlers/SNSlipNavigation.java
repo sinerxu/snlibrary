@@ -317,7 +317,7 @@ public class SNSlipNavigation extends ViewGroup {
                             * Math.abs(menuView.left()));
                 }
                 Log.e("@@@@@@@@@@@@@@",
-                        SNUtility.format("velocityX={0},speed={1},left={2},1000/Math.abs(velocityX)={3}",
+                        $.util.strFormat("velocityX={0},speed={1},left={2},1000/Math.abs(velocityX)={3}",
                                 velocityX, speed,
                                 Math.abs(menuView.left()),
                                 1000 / (float) Math.abs(velocityX)));

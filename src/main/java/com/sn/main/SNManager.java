@@ -1,14 +1,23 @@
 package com.sn.main;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.NinePatchDrawable;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
@@ -50,10 +59,12 @@ public class SNManager extends SNConfig {
 
     Activity activity;
     Context context;
+    public SNUtility util;
 
     public SNManager(Context context) {
         this.activity = (Activity) context;
         this.context = context;
+        util = SNUtility.instance();
     }
 
     public static SNManager instence(Context context) {
@@ -459,8 +470,8 @@ public class SNManager extends SNConfig {
                         R.anim.start_push_horizontal_two);
         } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_PUSH_POP_VERTICAL) {
             if (isFinish)
-                activity.overridePendingTransition(R.anim.finish_push_vertical_one,
-                        R.anim.finish_push_vertical_two);
+                activity.overridePendingTransition(R.anim.finish_pop_vertical_one,
+                        R.anim.finish_pop_vertical_two);
             else
                 activity.overridePendingTransition(R.anim.start_push_vertical_one,
                         R.anim.start_push_vertical_two);
@@ -509,6 +520,21 @@ public class SNManager extends SNConfig {
     }
     // endregion
 
+    //region Intent
+    public Intent weChatIntent(){
+        Intent intent = new Intent();
+        intent.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI"));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setAction(Intent.ACTION_VIEW);
+        return intent;
+    }
+    public Intent cameraIntent(Uri opUri){
+        Intent intent = new Intent (MediaStore.ACTION_IMAGE_CAPTURE);//action is capture
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, opUri);
+        return intent;
+    }
+    //endregion
+
     //region suport fragment
 
     /**
@@ -551,6 +577,8 @@ public class SNManager extends SNConfig {
         float dp = pxValue / (metrics.densityDpi / 160f);
         return dp;
     }
+
+
 
     /**
      * get TypedArray
@@ -862,6 +890,16 @@ public class SNManager extends SNConfig {
     }
 
     /**
+     * get bitmap object by id
+     * @param resId
+     * @return Bitmap
+     */
+    public Bitmap bitmapResId(int resId){
+        Drawable drawable=drawableResId(resId);
+        return util.imgParse(drawable);
+    }
+
+    /**
      * get dimen value by id
      *
      * @param resId dimen id
@@ -1161,7 +1199,7 @@ public class SNManager extends SNConfig {
      */
     public void post(String url, HashMap<String, String> bodys, String contentType, HashMap<String, String> requestHeader,
                      final SNOnHttpResultListener onHttpResultListener) {
-        AsyncHttpClient client = SNUtility.makeAsyncHttpClient(requestHeader, contentType);
+        AsyncHttpClient client = util.httpCreateAsyncHttpClient(requestHeader, contentType);
 
         client.post(this.context, url, new RequestParams(bodys), new AsyncHttpResponseHandler() {
             @Override
@@ -1188,7 +1226,7 @@ public class SNManager extends SNConfig {
      * @param onHttpResultListener call back
      */
     public void post(String url, HashMap<String, String> bodys, SNOnHttpResultListener onHttpResultListener) {
-        post(url, bodys, SN_HTTP_REQUEST_CONTENT_TYPE_TEXT, null, onHttpResultListener);
+        post(url, bodys, SN_HTTP_REQUEST_CONTENT_TYPE_FORM, null, onHttpResultListener);
     }
 
     /**
@@ -1201,7 +1239,7 @@ public class SNManager extends SNConfig {
      * @param onHttpResultListener call back
      */
     public void get(String url, HashMap<String, String> requestParams, String contentType, HashMap<String, String> requestHeader, final SNOnHttpResultListener onHttpResultListener) {
-        AsyncHttpClient client = SNUtility.makeAsyncHttpClient(requestHeader, contentType);
+        AsyncHttpClient client = util.httpCreateAsyncHttpClient(requestHeader, contentType);
         client.get(url, new RequestParams(requestParams), new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -1239,8 +1277,8 @@ public class SNManager extends SNConfig {
      * @param onHttpResultListener call back
      */
     public void get(String url, HashMap<String, String> requestHeader, final SNOnHttpResultListener onHttpResultListener) {
-        AsyncHttpClient client = SNUtility.makeAsyncHttpClient(requestHeader, SNConfig.SN_HTTP_REQUEST_CONTENT_TYPE_TEXT);
-        client.get(url, new AsyncHttpResponseHandler() {
+        AsyncHttpClient client = util.httpCreateAsyncHttpClient(requestHeader, SNConfig.SN_HTTP_REQUEST_CONTENT_TYPE_FORM);
+        client.get(this.context,url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 if (onHttpResultListener != null) {
@@ -1280,5 +1318,10 @@ public class SNManager extends SNConfig {
     }
     //endregion
 
+    //region create manager
+    public LocationManager locationManager(){
+        return (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+    }
+    //endregion
 
 }

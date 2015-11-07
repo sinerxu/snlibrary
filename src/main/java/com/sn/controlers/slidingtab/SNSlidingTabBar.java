@@ -3,7 +3,6 @@ package com.sn.controlers.slidingtab;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
 import android.view.View;
@@ -88,11 +87,11 @@ public class SNSlidingTabBar extends SNLinearLayout {
                 }
                 Fragment fragment = null;
                 try {
-                    fragment = SNUtility.instanceObject(Fragment.class, all_f_name);
+                    fragment = $.util.refInstanceObject(Fragment.class, all_f_name);
                     if (fragment == null)
-                        throw new IllegalStateException(SNUtility.format("The {0} instance is error.", all_f_name));
+                        throw new IllegalStateException($.util.strFormat("The {0} instance is error.", all_f_name));
                 } catch (Exception ex) {
-                    throw new IllegalStateException(SNUtility.format("The {0} instance is error.", all_f_name));
+                    throw new IllegalStateException($.util.strFormat("The {0} instance is error.", all_f_name));
                 }
                 fragments.add(fragment);
             }

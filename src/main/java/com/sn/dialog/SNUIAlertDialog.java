@@ -13,9 +13,7 @@ import android.widget.TextView;
 
 import com.sn.lib.R;
 
-/**
- * Created by xuhui on 15/8/6.
- */
+
 public class SNUIAlertDialog extends Dialog {
     public SNUIAlertDialog(Context context) {
 

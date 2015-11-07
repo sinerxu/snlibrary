@@ -223,7 +223,7 @@ public class SNNavTitleBar extends ViewGroup {
     }
 
     void updateTitle() {
-        if (!SNUtility.isNullOrEmpty(title)) {
+        if (!$.util.strIsNullOrEmpty(title)) {
             $title.text(title);
             $title.visible(SNManager.SN_UI_VISIBLE);
             $logo.visible(SNManager.SN_UI_NONE);

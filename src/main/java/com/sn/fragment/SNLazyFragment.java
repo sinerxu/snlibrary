@@ -7,11 +7,8 @@ import android.view.ViewGroup;
 
 import com.sn.lib.R;
 import com.sn.main.SNElement;
-import com.sn.util.SNUtility;
 
-/**
- * Created by xuhui on 15/8/16.
- */
+
 public class SNLazyFragment extends SNFragment {
     public SNElement $box;
     public SNElement $main;

@@ -89,7 +89,7 @@ public class SNHomeBottomTabItem extends SNSlidingTabItem {
         array.recycle();
 //        if (SNUtility.isNullOrEmpty(fragmentName))
 //            new IllegalStateException("The fragment name is require.");
-        if (!SNUtility.isNullOrEmpty(text))
+        if (!$.util.strIsNullOrEmpty(text))
             setText(text);
         if (src != null)
             setSrc(src);

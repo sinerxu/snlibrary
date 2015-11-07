@@ -29,7 +29,7 @@ public class SNPercentLinearLayout extends SNLinearLayout {
 
         String pWidth = typedArray.getString(R.styleable.SNPercentLayout_percent_width);
 
-        if (!SNUtility.isNullOrEmpty(pWidth)) {
+        if (!$.util.strIsNullOrEmpty(pWidth)) {
             pWidth = pWidth.replace("%", "");
             try {
                 rWidth = Double.parseDouble(pWidth) * 0.01;
@@ -40,7 +40,7 @@ public class SNPercentLinearLayout extends SNLinearLayout {
         }
 
         String pHeight = typedArray.getString(R.styleable.SNPercentLayout_percent_height);
-        if (!SNUtility.isNullOrEmpty(pHeight)) {
+        if (!$.util.strIsNullOrEmpty(pHeight)) {
             pHeight = pHeight.replace("%", "");
             try {
                 rHeight = Double.parseDouble(pHeight) * 0.01;

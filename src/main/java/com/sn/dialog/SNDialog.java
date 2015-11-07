@@ -1,9 +1,9 @@
 package com.sn.dialog;
 
-import com.sn.main.SNManager;
-
 import android.app.Dialog;
 import android.content.Context;
+
+import com.sn.main.SNManager;
 
 public class SNDialog extends Dialog {
     SNManager $;

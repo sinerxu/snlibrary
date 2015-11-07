@@ -23,11 +23,12 @@ public class SNPercentRelativeLayout extends SNRelativeLayout {
 
     public SNPercentRelativeLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+
         TypedArray typedArray = $.loadStyle(attrs, R.styleable.SNPercentLayout);
 
         String pWidth = typedArray.getString(R.styleable.SNPercentLayout_percent_width);
 
-        if (!SNUtility.isNullOrEmpty(pWidth)) {
+        if (!$.util.strIsNullOrEmpty(pWidth)) {
             pWidth = pWidth.replace("%", "");
             try {
                 rWidth = Double.parseDouble(pWidth) * 0.01;
@@ -38,7 +39,7 @@ public class SNPercentRelativeLayout extends SNRelativeLayout {
         }
 
         String pHeight = typedArray.getString(R.styleable.SNPercentLayout_percent_height);
-        if (!SNUtility.isNullOrEmpty(pHeight)) {
+        if (!$.util.strIsNullOrEmpty(pHeight)) {
             pHeight = pHeight.replace("%", "");
             try {
                 rHeight = Double.parseDouble(pHeight) * 0.01;
@@ -48,7 +49,7 @@ public class SNPercentRelativeLayout extends SNRelativeLayout {
         }
 
         typedArray.recycle();
-        Log.e(LCAT, SNUtility.format("width:{0},height:{1}", rHeight, rWidth));
+        Log.e(LCAT, $.util.strFormat("width:{0},height:{1}", rHeight, rWidth));
     }
 
     @Override

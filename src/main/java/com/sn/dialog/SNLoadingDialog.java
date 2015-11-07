@@ -6,11 +6,8 @@ import android.view.KeyEvent;
 
 import com.sn.lib.R;
 import com.sn.main.SNElement;
-import com.sn.main.SNManager;
 
-/**
- * Created by xuhui on 15/8/11.
- */
+
 public class SNLoadingDialog extends SNDialog {
 
     public static SNLoadingDialog currentLoadingDialog;
