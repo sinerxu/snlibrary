@@ -19,6 +19,7 @@ import android.graphics.drawable.NinePatchDrawable;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Base64;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -43,9 +44,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.HashMap;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
 
 public class SNUtility {
     private static final String LCAP = "SNUtility Log";
@@ -63,10 +73,11 @@ public class SNUtility {
 
     SNImageLoadHandler handler;
 
-    class SNImageLoadResult{
-        public SNOnImageLoadListener  onImageLoadListener;
+    class SNImageLoadResult {
+        public SNOnImageLoadListener onImageLoadListener;
         public Bitmap bitmap;
     }
+
     /**
      * Avoid leaks by using a non-anonymous handler class.
      */
@@ -81,10 +92,10 @@ public class SNUtility {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (msg.obj != null && msg.obj instanceof SNImageLoadResult) {
-                SNImageLoadResult result=(SNImageLoadResult)msg.obj;
-                if (result.onImageLoadListener!=null && result.bitmap!=null)
+                SNImageLoadResult result = (SNImageLoadResult) msg.obj;
+                if (result.onImageLoadListener != null && result.bitmap != null)
                     result.onImageLoadListener.onSuccess(result.bitmap);
-                else if(result.onImageLoadListener!=null){
+                else if (result.onImageLoadListener != null) {
                     result.onImageLoadListener.onFailure();
                 }
             }
@@ -92,7 +103,6 @@ public class SNUtility {
     }
 
     //region http request(http)
-
     private String httpEncodeParams(String params) {
         String[] ps = params.split("[&]");
         if (ps.length > 0) {
@@ -210,7 +220,7 @@ public class SNUtility {
     /**
      * jsong to Object
      *
-     * @param json json str
+     * @param json     json str
      * @param classOfT Class
      * @return
      */
@@ -248,6 +258,7 @@ public class SNUtility {
 
     /**
      * json to JSONArray
+     *
      * @param json json str
      * @return JSONArray
      */
@@ -320,7 +331,7 @@ public class SNUtility {
      * @param url                  url
      * @param _onImageLoadListener onImageLoadListener
      */
-    public void imgLoad(final String url,final SNOnImageLoadListener _onImageLoadListener) {
+    public void imgLoad(final String url, final SNOnImageLoadListener _onImageLoadListener) {
         if (handler == null)
             handler = new SNImageLoadHandler(this);
 
@@ -331,9 +342,9 @@ public class SNUtility {
                 // TODO Auto-generated method stub
                 try {
                     Bitmap bitmap = imgLoadFromUrl(url, true);
-                    SNImageLoadResult result=new SNImageLoadResult();
-                    result.onImageLoadListener=_onImageLoadListener;
-                    result.bitmap=bitmap;
+                    SNImageLoadResult result = new SNImageLoadResult();
+                    result.onImageLoadListener = _onImageLoadListener;
+                    result.bitmap = bitmap;
                     msg.obj = result;
                 } catch (Exception e) {
                     msg.obj = null;
@@ -471,6 +482,7 @@ public class SNUtility {
 
     /**
      * 图片有圆角
+     *
      * @param bitmap Bitmap
      * @param pixels px
      * @return
@@ -507,6 +519,7 @@ public class SNUtility {
 
     /**
      * Bitmap to InputStream
+     *
      * @param bm Bitmap
      * @return InputStream
      */
@@ -520,7 +533,8 @@ public class SNUtility {
 
     /**
      * Bitmap to InputStream
-     * @param bm Bitmap
+     *
+     * @param bm      Bitmap
      * @param quality quality
      * @return InputStream
      */
@@ -533,6 +547,7 @@ public class SNUtility {
 
     /**
      * Drawable to InputStream
+     *
      * @param d
      * @return
      */
@@ -540,8 +555,10 @@ public class SNUtility {
         Bitmap bitmap = this.imgParse(d);
         return this.imgInputStream(bitmap);
     }
+
     /**
      * InputStream to Bitmap
+     *
      * @param is InputStream
      * @return
      */
@@ -551,6 +568,7 @@ public class SNUtility {
 
     /**
      * byte[] to Bitmap
+     *
      * @param b bytes
      * @return
      */
@@ -560,8 +578,10 @@ public class SNUtility {
         }
         return null;
     }
+
     /**
      * InputStream to Drawable
+     *
      * @param is InputStream
      * @return Drawable
      */
@@ -572,6 +592,7 @@ public class SNUtility {
 
     /**
      * Bitmap to Drawable
+     *
      * @param bitmap
      * @return
      */
@@ -580,8 +601,10 @@ public class SNUtility {
         Drawable d = (Drawable) bd;
         return d;
     }
+
     /**
-     *  Drawable to  Bitmap
+     * Drawable to  Bitmap
+     *
      * @param drawable Drawable
      * @return
      */
@@ -610,6 +633,7 @@ public class SNUtility {
 
     /**
      * byte[] to InputStream
+     *
      * @param b byte[]
      * @return InputStream
      */
@@ -620,6 +644,7 @@ public class SNUtility {
 
     /**
      * InputStream to byte[]
+     *
      * @param is InputStream
      * @return byte[]
      */
@@ -639,7 +664,8 @@ public class SNUtility {
     }
 
     /**
-     *  Bitmap to bytes
+     * Bitmap to bytes
+     *
      * @param bm Bitmap
      * @return bytes
      */
@@ -651,6 +677,7 @@ public class SNUtility {
 
     /**
      * Drawable to bytes
+     *
      * @param d Drawable
      * @return bytes
      */
@@ -823,6 +850,199 @@ public class SNUtility {
     }
     //endregion
 
-    //region
+    //region encode and decode
+    //region base64(base64)
+
+    /**
+     * byte[] base64 encode
+     *
+     * @param bytes
+     * @return byte[]
+     */
+    public byte[] base64Encode(byte[] bytes) {
+        try {
+            return Base64.encode(bytes, Base64.DEFAULT);
+        } catch (Exception ex) {
+            logError(SNUtility.class, ex.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * bytes base64
+     *
+     * @param bytes byte[]
+     * @return String
+     */
+    public String base64EncodeStr(byte[] bytes) {
+        byte[] bytes_b64 = base64Encode(bytes);
+        if (bytes_b64 != null)
+            return new String(bytes_b64);
+        else return null;
+    }
+
+    /**
+     * strings base64
+     *
+     * @param s String
+     * @return String
+     */
+    public String base64EncodeStr(String s) {
+        return base64EncodeStr(s.getBytes());
+    }
+
+    /**
+     * byte[] base64 decode to byte[]
+     *
+     * @param bytesB64 byte[]
+     * @return byte[]
+     */
+    public byte[] base64Decode(byte[] bytesB64) {
+        try {
+            return Base64.decode(bytesB64, Base64.DEFAULT);
+        } catch (Exception ex) {
+            logError(SNUtility.class, ex.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * bytes base64 Decode to String
+     * @param bytesB64 byte[]
+     * @return String
+     */
+    public String base64DecodeStr(byte[] bytesB64) {
+        byte[] bytes = base64Decode(bytesB64);
+        if (bytes != null)
+            return new String(bytes);
+        else return null;
+    }
+
+    /**
+     * strBase64 base64 decode to byte[]
+     * @param strBase64 String
+     * @return byte[]
+     */
+    public byte[] base64Decode(String strBase64){
+        return base64Decode(strBase64.getBytes());
+    }
+
+    /**
+     * strBase64 base64 decode to String
+     * @param strBase64 String
+     * @return String
+     */
+    public String base64DecodeStr(String strBase64){
+        return base64DecodeStr(strBase64.getBytes());
+    }
+    //endregion()
+
+    //region md5(md5)
+    public String md5(String string) {
+        byte[] hash;
+        try {
+            hash = MessageDigest.getInstance("MD5").digest(string.getBytes("UTF-8"));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Huh, MD5 should be supported?", e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Huh, UTF-8 should be supported?", e);
+        }
+
+        StringBuilder hex = new StringBuilder(hash.length * 2);
+        for (byte b : hash) {
+            if ((b & 0xFF) < 0x10) hex.append("0");
+            hex.append(Integer.toHexString(b & 0xFF));
+        }
+        return hex.toString();
+    }
+    //endregion
+
+    //region des(des)
+    private final static String DES = "DES";
+    /**
+     * Description 根据键值进行加密
+     * @param data
+     * @param key  加密键byte数组
+     * @return
+     * @throws Exception
+     */
+    public  String desEncrypt(String data, String key) throws Exception {
+        byte[] bt = desEncrypt(data.getBytes(), key.getBytes());
+        String strs = base64EncodeStr(bt);
+        return strs;
+    }
+
+    /**
+     * Description 根据键值进行解密
+     * @param data
+     * @param key  加密键byte数组
+     * @return
+     * @throws IOException
+     * @throws Exception
+     */
+    public  String desDecrypt(String data, String key) throws IOException,
+            Exception {
+        if (data == null)
+            return null;
+
+        byte[] buf =base64Decode(data);
+        byte[] bt =desDecrypt(buf,key.getBytes());
+        return new String(bt);
+    }
+
+    /**
+     * Description 根据键值进行加密
+     * @param data
+     * @param key  加密键byte数组
+     * @return
+     * @throws Exception
+     */
+    private byte[] desEncrypt(byte[] data, byte[] key) throws Exception {
+        // 生成一个可信任的随机数源
+        SecureRandom sr = new SecureRandom();
+
+        // 从原始密钥数据创建DESKeySpec对象
+        DESKeySpec dks = new DESKeySpec(key);
+
+        // 创建一个密钥工厂，然后用它把DESKeySpec转换成SecretKey对象
+        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(DES);
+        SecretKey securekey = keyFactory.generateSecret(dks);
+
+        // Cipher对象实际完成加密操作
+        Cipher cipher = Cipher.getInstance(DES);
+
+        // 用密钥初始化Cipher对象
+        cipher.init(Cipher.ENCRYPT_MODE, securekey, sr);
+
+        return cipher.doFinal(data);
+    }
+
+    /**
+     * Description 根据键值进行解密
+     * @param data
+     * @param key  加密键byte数组
+     * @return
+     * @throws Exception
+     */
+    private byte[] desDecrypt(byte[] data, byte[] key) throws Exception {
+        // 生成一个可信任的随机数源
+        SecureRandom sr = new SecureRandom();
+
+        // 从原始密钥数据创建DESKeySpec对象
+        DESKeySpec dks = new DESKeySpec(key);
+
+        // 创建一个密钥工厂，然后用它把DESKeySpec转换成SecretKey对象
+        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(DES);
+        SecretKey securekey = keyFactory.generateSecret(dks);
+
+        // Cipher对象实际完成解密操作
+        Cipher cipher = Cipher.getInstance(DES);
+
+        // 用密钥初始化Cipher对象
+        cipher.init(Cipher.DECRYPT_MODE, securekey, sr);
+
+        return cipher.doFinal(data);
+    }
+    //endregion
     //endregion
 }
