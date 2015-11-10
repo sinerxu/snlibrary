@@ -1,4 +1,4 @@
-package com.sn.util;
+package com.sn.core;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,7 +17,7 @@ import android.util.Log;
  * @version 1.0
  * @data 2012-2-20
  */
-public class SNLog {
+public class SNLogManager {
     private static Boolean MYLOG_SWITCH = true; // 日志文件总开关
     private static Boolean MYLOG_WRITE_TO_FILE = true;// 日志写入文件开关
     private static char MYLOG_TYPE = 'v';// 输入日志类型，w代表只输出告警信息等，v代表输出所有信息

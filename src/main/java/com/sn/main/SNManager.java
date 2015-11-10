@@ -7,16 +7,10 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.PixelFormat;
 import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.NinePatchDrawable;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -34,8 +28,6 @@ import com.jeremyfeinstein.slidingmenu.lib.app.SlidingActivity;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-import com.sn.activity.SNLoadingActivity;
-
 import com.sn.annotation.SNIOC;
 import com.sn.annotation.SNInjectView;
 import com.sn.interfaces.SNOnClickListener;
@@ -43,8 +35,9 @@ import com.sn.interfaces.SNOnHttpResultListener;
 import com.sn.lib.R;
 import com.sn.models.SNSize;
 import com.sn.postting.alert.SNAlert;
-import com.sn.util.SNBindInjectManager;
-import com.sn.util.SNUtility;
+import com.sn.core.SNBindInjectManager;
+import com.sn.core.SNLoadingDialogManager;
+import com.sn.core.SNUtility;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -155,33 +148,14 @@ public class SNManager extends SNConfig {
      * 弹出加载层，用户等待
      */
     public void openLoading() {
-        startActivity(SNLoadingActivity.class, SNManager.SN_ANIMATE_ACTIVITY_NO);
+        SNLoadingDialogManager.instance(context).show();
     }
 
     /**
      * 关闭加载层，用户结束等待
      */
     public void closeLoading() {
-        final Handler handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                SNLoadingActivity.currentLoadingActivity.close();
-            }
-        };
-        new Thread() {
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-                while (true) {
-                    if (SNLoadingActivity.currentLoadingActivity != null) {
-                        handler.sendEmptyMessage(0);
-                        break;
-                    }
-                }
-            }
-        }.start();
-
+        SNLoadingDialogManager.instance(context).close();
     }
 
     // endregion

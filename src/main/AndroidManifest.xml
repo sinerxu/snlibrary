@@ -18,9 +18,6 @@
 
     <application>
         <activity
-            android:name="com.sn.activity.SNLoadingActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"></activity>
-        <activity
             android:name="com.mob.tools.MobUIShell"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"

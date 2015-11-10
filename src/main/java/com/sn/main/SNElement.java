@@ -38,7 +38,6 @@ import com.sn.models.SNMargins;
 import com.sn.models.SNSize;
 import com.sn.models.SNViewHolder;
 import com.sn.override.SNAdapter;
-import com.sn.util.SNUtility;
 
 import java.util.ArrayList;
 import java.util.List;

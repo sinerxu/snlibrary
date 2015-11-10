@@ -5,7 +5,6 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 
 import com.sn.lib.R;
-import com.sn.util.SNUtility;
 
 /**
  * 扩展百分比布局

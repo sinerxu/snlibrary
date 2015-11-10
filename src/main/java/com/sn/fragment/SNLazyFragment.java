@@ -30,23 +30,17 @@ public class SNLazyFragment extends SNFragment {
     }
 
 
-    /**
-     * 第一次onResume中的调用onUserVisible避免操作与onFirstUserVisible操作重复
-     */
-    private boolean isFirstResume = true;
-    private boolean isFirstVisible = true;
-    private boolean isFirstInvisible = true;
+
+
+    private boolean alreadyFirstVisible = false;
+    private boolean alreadyFirstInvisible = false;
 
 
     @Override
     public void onResume() {
         //SNUtility.logDebug(SNLazyFragment.class, "onResume");
         super.onResume();
-        if (isFirstResume) {
-            isFirstResume = false;
-            return;
-        }
-        if (getUserVisibleHint()) {
+        if (alreadyFirstVisible&&getUserVisibleHint()) {
             onUserVisible();
         }
     }
@@ -66,15 +60,15 @@ public class SNLazyFragment extends SNFragment {
         //SNUtility.logDebug(SNLazyFragment.class, "setUserVisibleHint");
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            if (isFirstVisible) {
-                isFirstVisible = false;
+            if (!alreadyFirstVisible) {
+                alreadyFirstVisible = true;
                 initPrepare();
             } else {
                 onUserVisible();
             }
         } else {
-            if (isFirstInvisible) {
-                isFirstInvisible = false;
+            if (!alreadyFirstInvisible) {
+                alreadyFirstInvisible = true;
                 onFirstUserInvisible();
             } else {
                 onUserInvisible();

@@ -1,4 +1,4 @@
-package com.sn.util;
+package com.sn.core;
 
 import com.sn.interfaces.SNXListListener;
 import com.sn.main.SNElement;

@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 
 import com.sn.controlers.slidingtab.SNSlidingTabItem;
 import com.sn.lib.R;
-import com.sn.util.SNUtility;
 
 /**
  * @style style="?attr/theme_home_bottomtabitem_style"    需要添加的的样式

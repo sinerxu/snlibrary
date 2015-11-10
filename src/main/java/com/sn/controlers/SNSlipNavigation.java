@@ -13,7 +13,6 @@ import android.view.animation.Animation;
 import com.sn.interfaces.SNAnimationListener;
 import com.sn.main.SNElement;
 import com.sn.main.SNManager;
-import com.sn.util.SNUtility;
 
 /**
  * @author Siner QQ348078707

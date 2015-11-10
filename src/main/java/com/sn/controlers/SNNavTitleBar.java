@@ -12,7 +12,6 @@ import com.sn.lib.R;
 import com.sn.main.SNConfig;
 import com.sn.main.SNElement;
 import com.sn.main.SNManager;
-import com.sn.util.SNUtility;
 
 public class SNNavTitleBar extends ViewGroup {
     static final String LCAT = "SNNavTitleBar Log";

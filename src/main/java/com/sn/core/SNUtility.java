@@ -1,7 +1,6 @@
-package com.sn.util;
+package com.sn.core;
 
 import android.content.Context;
-import android.graphics.AvoidXfermode;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -760,7 +759,7 @@ public class SNUtility {
      * @param msg
      */
     public void logDebug(Class c, String msg) {
-        SNLog.d(logName(c), msg);
+        SNLogManager.d(logName(c), msg);
     }
 
     /**
@@ -770,7 +769,7 @@ public class SNUtility {
      * @param msg
      */
     public void logError(Class c, String msg) {
-        SNLog.e(logName(c), msg);
+        SNLogManager.e(logName(c), msg);
     }
 
     /**
@@ -780,7 +779,7 @@ public class SNUtility {
      * @param msg
      */
     public void logInfo(Class c, String msg) {
-        SNLog.i(logName(c), msg);
+        SNLogManager.i(logName(c), msg);
     }
 
     /**
@@ -790,7 +789,7 @@ public class SNUtility {
      * @param msg
      */
     public void logVerbose(Class c, String msg) {
-        SNLog.v(logName(c), msg);
+        SNLogManager.v(logName(c), msg);
     }
 
     /**
@@ -800,7 +799,7 @@ public class SNUtility {
      * @param msg
      */
     public void logWarn(Class c, String msg) {
-        SNLog.w(logName(c), msg);
+        SNLogManager.w(logName(c), msg);
     }
 
 

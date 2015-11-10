@@ -6,7 +6,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 
 import com.sn.lib.R;
-import com.sn.util.SNUtility;
 
 /**
  * 扩展百分比布局

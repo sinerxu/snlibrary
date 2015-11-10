@@ -14,7 +14,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.sn.main.SNManager;
-import com.sn.util.SNUtility;
 
 public class XListViewFooter extends LinearLayout {
     SNManager $;

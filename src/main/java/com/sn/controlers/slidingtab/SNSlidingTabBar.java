@@ -13,7 +13,6 @@ import com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabItem;
 import com.sn.controlers.slidingtab.homeslidingtab.SNHomeSlidingTabItem;
 import com.sn.lib.R;
 import com.sn.main.SNElement;
-import com.sn.util.SNUtility;
 
 import java.util.ArrayList;
 import java.util.List;

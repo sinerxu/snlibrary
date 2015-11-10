@@ -18,6 +18,7 @@ public class SNActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         $ = SNManager.instence(SNActivity.this);
+
     }
 
     @Override

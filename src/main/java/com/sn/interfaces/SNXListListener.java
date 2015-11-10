@@ -1,7 +1,6 @@
 package com.sn.interfaces;
 
-import com.sn.main.SNManager;
-import com.sn.util.SNXListManager;
+import com.sn.core.SNXListManager;
 
 /**
  * Created by xuhui on 15/10/25.

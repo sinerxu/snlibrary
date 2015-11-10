@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 
 import com.sn.controlers.slidingtab.SNSlidingTabItem;
 import com.sn.lib.R;
-import com.sn.util.SNUtility;
 
 /**
  * Created by xuhui on 15/8/12.

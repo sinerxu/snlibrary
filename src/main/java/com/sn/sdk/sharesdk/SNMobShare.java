@@ -3,7 +3,6 @@ package com.sn.sdk.sharesdk;
 import android.app.Activity;
 
 import com.sn.main.SNManager;
-import com.sn.util.SNUtility;
 import com.sn.sdk.interfaces.SNShareListener;
 
 import java.util.HashMap;
