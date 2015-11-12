@@ -128,6 +128,7 @@ public class SNXListManager<T> {
     public void refresh() {
         this.page = 1;
         this.isDone = false;
+        listView.pullReset();
         if (listener != null)
             listener.onRefresh(this);
     }

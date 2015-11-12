@@ -46,6 +46,7 @@ import java.util.List;
 
 import me.maxwin.view.XListView;
 import me.maxwin.view.XListView.IXListViewListener;
+import me.maxwin.view.XListViewFooter;
 
 /**
  * @author Siner QQ348078707
@@ -1608,6 +1609,21 @@ public class SNElement extends SNManager {
         return this;
     }
 
+    /**
+     * 复原listview的状态
+     * @return
+     */
+    public SNElement pullReset() {
+        if (elem != null) {
+            if (elem instanceof XListView) {
+                XListView temp = (XListView) elem;
+                temp.getFooterView().setState(XListViewFooter.STATE_NORMAL);
+            } else {
+                errorNullOrNotInstance("XListView");
+            }
+        }
+        return this;
+    }
 
     /**
      * set pull hint message
