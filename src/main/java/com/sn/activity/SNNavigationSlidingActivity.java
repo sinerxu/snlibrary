@@ -28,12 +28,12 @@ public class SNNavigationSlidingActivity extends SlidingActivity {
 
     @Override
     public void setContentView(int id) {
-        //首先设置主题
-
         super.setContentView(R.layout.activity_navigation_sliding);
+        //首先设置主题
         initBase();
         $.layoutInflateResId(id, container.toView(ViewGroup.class));
         Log.d(LCAP, "看看到底执行多少遍？");
+
     }
 
     void initBase() {

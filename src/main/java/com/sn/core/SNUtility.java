@@ -217,6 +217,29 @@ public class SNUtility {
     //region JSON(json)
 
     /**
+     * 判断name是否在json中存在或者不是null
+     *
+     * @param object JSONObject
+     * @param name   String
+     * @return boolean
+     */
+    public boolean jsonIsNullOrNoHas(JSONObject object, String name) {
+        if (object.isNull(name) || !object.has(name)) return true;
+        else return false;
+    }
+
+    /**
+     * 判断name是否有值
+     *
+     * @param object JSONObject
+     * @param name   String
+     * @return boolean
+     */
+    public boolean jsonNotIsNullOrNoHas(JSONObject object, String name) {
+        return !jsonIsNullOrNoHas(object, name);
+    }
+
+    /**
      * jsong to Object
      *
      * @param json     json str
@@ -907,6 +930,7 @@ public class SNUtility {
 
     /**
      * bytes base64 Decode to String
+     *
      * @param bytesB64 byte[]
      * @return String
      */
@@ -919,19 +943,21 @@ public class SNUtility {
 
     /**
      * strBase64 base64 decode to byte[]
+     *
      * @param strBase64 String
      * @return byte[]
      */
-    public byte[] base64Decode(String strBase64){
+    public byte[] base64Decode(String strBase64) {
         return base64Decode(strBase64.getBytes());
     }
 
     /**
      * strBase64 base64 decode to String
+     *
      * @param strBase64 String
      * @return String
      */
-    public String base64DecodeStr(String strBase64){
+    public String base64DecodeStr(String strBase64) {
         return base64DecodeStr(strBase64.getBytes());
     }
     //endregion()
@@ -958,14 +984,16 @@ public class SNUtility {
 
     //region des(des)
     private final static String DES = "DES";
+
     /**
      * Description 根据键值进行加密
+     *
      * @param data
      * @param key  加密键byte数组
      * @return
      * @throws Exception
      */
-    public  String desEncrypt(String data, String key) throws Exception {
+    public String desEncrypt(String data, String key) throws Exception {
         byte[] bt = desEncrypt(data.getBytes(), key.getBytes());
         String strs = base64EncodeStr(bt);
         return strs;
@@ -973,24 +1001,26 @@ public class SNUtility {
 
     /**
      * Description 根据键值进行解密
+     *
      * @param data
      * @param key  加密键byte数组
      * @return
      * @throws IOException
      * @throws Exception
      */
-    public  String desDecrypt(String data, String key) throws IOException,
+    public String desDecrypt(String data, String key) throws IOException,
             Exception {
         if (data == null)
             return null;
 
-        byte[] buf =base64Decode(data);
-        byte[] bt =desDecrypt(buf,key.getBytes());
+        byte[] buf = base64Decode(data);
+        byte[] bt = desDecrypt(buf, key.getBytes());
         return new String(bt);
     }
 
     /**
      * Description 根据键值进行加密
+     *
      * @param data
      * @param key  加密键byte数组
      * @return
@@ -1018,6 +1048,7 @@ public class SNUtility {
 
     /**
      * Description 根据键值进行解密
+     *
      * @param data
      * @param key  加密键byte数组
      * @return

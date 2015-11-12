@@ -29,15 +29,16 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.sn.annotation.SNIOC;
-import com.sn.annotation.SNInjectView;
+import com.sn.annotation.SNInjectElement;
+import com.sn.core.SNBindInjectManager;
+import com.sn.core.SNLoadingDialogManager;
+import com.sn.core.SNUtility;
 import com.sn.interfaces.SNOnClickListener;
 import com.sn.interfaces.SNOnHttpResultListener;
 import com.sn.lib.R;
 import com.sn.models.SNSize;
+import com.sn.models.SNViewInject;
 import com.sn.postting.alert.SNAlert;
-import com.sn.core.SNBindInjectManager;
-import com.sn.core.SNLoadingDialogManager;
-import com.sn.core.SNUtility;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -229,7 +230,7 @@ public class SNManager extends SNConfig {
      * @param layoutParams LayoutParams
      * @param _holder      view inject holder object，refer to : document->view inject
      */
-    public void contentView(SNElement element, LayoutParams layoutParams, Object _holder) {
+    public void contentView(SNElement element, LayoutParams layoutParams, SNViewInject _holder) {
         activity.setContentView(element.toView(), layoutParams);
         inject(_holder);
     }
@@ -240,7 +241,7 @@ public class SNManager extends SNConfig {
      * @param element SNElement
      * @param _holder view inject holder object，refer to : document->view inject
      */
-    public void contentView(SNElement element, Object _holder) {
+    public void contentView(SNElement element, SNViewInject _holder) {
         activity.setContentView(element.toView());
         inject(_holder);
     }
@@ -279,7 +280,7 @@ public class SNManager extends SNConfig {
      * @param layoutResID layout id
      * @param _holder     view inject holder object，refer to : document->view inject
      */
-    public void contentView(int layoutResID, Object _holder) {
+    public void contentView(int layoutResID, SNViewInject _holder) {
         activity.setContentView(layoutResID);
         inject(_holder);
     }
@@ -289,21 +290,22 @@ public class SNManager extends SNConfig {
      *
      * @param _holder view inject holder object,refer to : document->view inject
      */
-    public void inject(Object _holder) {
+    public void inject(SNViewInject _holder) {
         if (_holder != null) {
+            _holder.$ = this;
+            _holder.onInjectStart();
             Field[] fields = _holder.getClass().getDeclaredFields();
             for (Field field : fields) {
                 String fieldName = field.getName();
-                if (field.isAnnotationPresent(SNInjectView.class)) {
+                if (field.isAnnotationPresent(SNInjectElement.class)) {
                     try {
-                        SNInjectView bindId = (SNInjectView) field.getAnnotation(SNInjectView.class);
+                        SNInjectElement bindId = (SNInjectElement) field.getAnnotation(SNInjectElement.class);
                         field.setAccessible(true);
                         field.set(_holder, create(bindId.id()));
                     } catch (Exception ex) {
 
                     }
                 } else if (field.isAnnotationPresent(SNIOC.class)) {
-
                     SNIOC ioc = (SNIOC) field.getAnnotation(SNIOC.class);
                     Class c = field.getType();
                     Class t = SNBindInjectManager.instance().to(c);
@@ -330,6 +332,7 @@ public class SNManager extends SNConfig {
                     }
                 }
             }
+            _holder.onInjectFinish();
         }
 
     }
@@ -398,7 +401,7 @@ public class SNManager extends SNConfig {
     }
 
 
-    void activityAnimateType(int animated) {
+    public void activityAnimateType(int animated) {
         activityAnimateType(animated, false);
     }
 
@@ -407,7 +410,7 @@ public class SNManager extends SNConfig {
      *
      * @param animated
      */
-    void activityAnimateType(int animated, boolean isFinish) {
+    public void activityAnimateType(int animated, boolean isFinish) {
         if (animated == SNManager.SN_ANIMATE_ACTIVITY_NO || animated == SNManager.SN_ANIMATE_ACTIVITY_SN) {
             activity.overridePendingTransition(0, 0);
         } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_FADE) {
@@ -495,15 +498,16 @@ public class SNManager extends SNConfig {
     // endregion
 
     //region Intent
-    public Intent weChatIntent(){
+    public Intent weChatIntent() {
         Intent intent = new Intent();
         intent.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI"));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setAction(Intent.ACTION_VIEW);
         return intent;
     }
-    public Intent cameraIntent(Uri opUri){
-        Intent intent = new Intent (MediaStore.ACTION_IMAGE_CAPTURE);//action is capture
+
+    public Intent cameraIntent(Uri opUri) {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);//action is capture
         intent.putExtra(MediaStore.EXTRA_OUTPUT, opUri);
         return intent;
     }
@@ -553,7 +557,6 @@ public class SNManager extends SNConfig {
     }
 
 
-
     /**
      * get TypedArray
      *
@@ -573,7 +576,7 @@ public class SNManager extends SNConfig {
      * @param root
      * @return
      */
-    public SNElement layoutInflateResId(int resId, ViewGroup root, Object _holder) {
+    public SNElement layoutInflateResId(int resId, ViewGroup root, SNViewInject _holder) {
         SNElement r = create(activity.getLayoutInflater().inflate(resId, root));
         r.inject(_holder);
         return r;
@@ -610,7 +613,7 @@ public class SNManager extends SNConfig {
      * @param _holder       view inject, refer to document->view inject
      * @return
      */
-    public SNElement layoutInflateResId(int resId, ViewGroup root, boolean _attachToRoot, Object _holder) {
+    public SNElement layoutInflateResId(int resId, ViewGroup root, boolean _attachToRoot, SNViewInject _holder) {
         SNElement r = create(activity.getLayoutInflater().inflate(resId, root, _attachToRoot));
         r.inject(_holder);
         return r;
@@ -623,7 +626,7 @@ public class SNManager extends SNConfig {
      * @return
      */
     public SNElement layoutInflateResId(int resId) {
-        return layoutInflateResId(resId, null);
+        return layoutInflateResId(resId, null, null);
     }
 
     /**
@@ -633,7 +636,7 @@ public class SNManager extends SNConfig {
      * @param _holder view inject, refer to document->view inject
      * @return
      */
-    public SNElement layoutInflateResId(int resId, Object _holder) {
+    public SNElement layoutInflateResId(int resId, SNViewInject _holder) {
         SNElement r = create(activity.getLayoutInflater().inflate(resId, null, false));
         r.inject(_holder);
         return r;
@@ -671,7 +674,7 @@ public class SNManager extends SNConfig {
      * @param _holder       view inject, refer to document->view inject
      * @return
      */
-    public SNElement layoutInflateName(String name, ViewGroup root, boolean _attachToRoot, Object _holder) {
+    public SNElement layoutInflateName(String name, ViewGroup root, boolean _attachToRoot, SNViewInject _holder) {
         int resId = resource(name, "layout");
         return layoutInflateResId(resId, root, _attachToRoot, _holder);
     }
@@ -684,7 +687,7 @@ public class SNManager extends SNConfig {
      * @param _holder view inject, refer to document->view inject
      * @return
      */
-    public SNElement layoutInflateName(String name, ViewGroup root, Object _holder) {
+    public SNElement layoutInflateName(String name, ViewGroup root, SNViewInject _holder) {
         int resId = resource(name, "layout");
         return layoutInflateResId(resId, root, _holder);
     }
@@ -696,7 +699,7 @@ public class SNManager extends SNConfig {
      * @param _holder view inject, refer to document->view inject
      * @return
      */
-    public SNElement layoutInflateName(String name, Object _holder) {
+    public SNElement layoutInflateName(String name, SNViewInject _holder) {
         return layoutInflateName(name, null, _holder);
     }
 
@@ -865,11 +868,12 @@ public class SNManager extends SNConfig {
 
     /**
      * get bitmap object by id
+     *
      * @param resId
      * @return Bitmap
      */
-    public Bitmap bitmapResId(int resId){
-        Drawable drawable=drawableResId(resId);
+    public Bitmap bitmapResId(int resId) {
+        Drawable drawable = drawableResId(resId);
         return util.imgParse(drawable);
     }
 
@@ -1252,7 +1256,7 @@ public class SNManager extends SNConfig {
      */
     public void get(String url, HashMap<String, String> requestHeader, final SNOnHttpResultListener onHttpResultListener) {
         AsyncHttpClient client = util.httpCreateAsyncHttpClient(requestHeader, SNConfig.SN_HTTP_REQUEST_CONTENT_TYPE_FORM);
-        client.get(this.context,url, new AsyncHttpResponseHandler() {
+        client.get(this.context, url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 if (onHttpResultListener != null) {
@@ -1293,7 +1297,7 @@ public class SNManager extends SNConfig {
     //endregion
 
     //region create manager
-    public LocationManager locationManager(){
+    public LocationManager locationManager() {
         return (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
     }
     //endregion

@@ -23,9 +23,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.sn.activity.SNActivity;
 import com.sn.controlers.SNNavTitleBar;
 import com.sn.controlers.SNScrollable;
 import com.sn.controlers.SNSlipNavigation;
+import com.sn.core.SNXListManager;
 import com.sn.interfaces.SNAdapterListener;
 import com.sn.interfaces.SNAdapterOnItemClickListener;
 import com.sn.interfaces.SNAnimationListener;
@@ -36,7 +38,7 @@ import com.sn.interfaces.SNOnSetImageListenter;
 import com.sn.interfaces.SNOnTouchListener;
 import com.sn.models.SNMargins;
 import com.sn.models.SNSize;
-import com.sn.models.SNViewHolder;
+import com.sn.models.SNAdapterViewInject;
 import com.sn.override.SNAdapter;
 
 import java.util.ArrayList;
@@ -279,7 +281,7 @@ public class SNElement extends SNManager {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     // TODO Auto-generated method stub
                     if (onItemClickListener != null) {
-                        SNViewHolder holder = (SNViewHolder) view.getTag();
+                        SNAdapterViewInject holder = (SNAdapterViewInject) view.getTag();
                         holder.id = id;
                         holder.pos = position;
                         holder.parent = parent;
@@ -297,7 +299,7 @@ public class SNElement extends SNManager {
      * @param holder
      * @return
      */
-    public SNElement itemClick(SNViewHolder holder) {
+    public SNElement itemClick(SNAdapterViewInject holder) {
         if (elem != null && elem instanceof ListView) {
             ListView view = (ListView) elem;
             view.performItemClick(holder.view.toView(), holder.pos, holder.id);
@@ -882,7 +884,7 @@ public class SNElement extends SNManager {
     public String text() {
         if (elem instanceof TextView) {
             TextView textView = (TextView) elem;
-            return (String) textView.getText();
+            return textView.getText().toString();
         }
         return "";
     }
@@ -1100,13 +1102,16 @@ public class SNElement extends SNManager {
     public SNElement image(String url, Bitmap def_bm) {
         return image(url, def_bm, null, null);
     }
+
     public SNElement image(String url, Bitmap def_bm, SNOnSetImageListenter onSetImageListenter) {
         return image(url, def_bm, null, onSetImageListenter);
     }
+
     public SNElement image(String url, Bitmap def_bm, final Bitmap err_bm) {
-        image(url,def_bm,err_bm,null);
+        image(url, def_bm, err_bm, null);
         return this;
     }
+
     /**
      * 设置远程图片
      *
@@ -1129,6 +1134,7 @@ public class SNElement extends SNManager {
                     map = onSetImageListenter.onLoadBitmap(map);
                 image(map);
             }
+
             @Override
             public void onFailure() {
                 if (err_bm != null) {
@@ -1148,18 +1154,22 @@ public class SNElement extends SNManager {
         image(url, 0, 0, null);
         return this;
     }
+
     public SNElement image(String url, int def_redId) {
         image(url, def_redId, 0, null);
         return this;
     }
+
     public SNElement image(String url, int def_redId, final SNOnSetImageListenter onSetImageListenter) {
         image(url, def_redId, 0, onSetImageListenter);
         return this;
     }
+
     public SNElement image(String url, int def_redId, final int err_resId) {
         image(url, def_redId, err_resId, null);
         return this;
     }
+
     /**
      * 设置远程图片
      *
@@ -1414,6 +1424,10 @@ public class SNElement extends SNManager {
     // endregion
 
     // region listView
+    public SNElement bindListAdapter(SNXListManager listManager, SNAdapterListener onLoadView) {
+
+        return bindListAdapter(listManager.getData(), onLoadView);
+    }
 
     /**
      * ListView数据绑定
@@ -1424,17 +1438,16 @@ public class SNElement extends SNManager {
     public SNElement bindListAdapter(ArrayList dataSource, SNAdapterListener onLoadView) {
         SNAdapter adapter = new SNAdapter(dataSource, getContext());
         adapter.onLoadView = onLoadView;
-        return bindListAdapter(dataSource, adapter);
+        return bindListAdapter(adapter);
     }
 
     /**
      * ListView数据绑定
      *
-     * @param dataSource ArrayList dataSource
-     * @param adapter    SNAdapter adapter
+     * @param adapter SNAdapter adapter
      * @return
      */
-    public SNElement bindListAdapter(ArrayList dataSource, SNAdapter adapter) {
+    public SNElement bindListAdapter(SNAdapter adapter) {
         if (elem != null) {
             if (elem instanceof ListView) {
                 ListView temp = (ListView) elem;
@@ -1678,6 +1691,16 @@ public class SNElement extends SNManager {
                 errorNullOrNotInstance("SNNavTitleBar");
             }
         }
+        return this;
+    }
+
+    public SNElement showNavBack() {
+        showNavBack(new SNOnClickListener() {
+            @Override
+            public void onClick(SNElement view) {
+                activity.finish();
+            }
+        });
         return this;
     }
 

@@ -8,9 +8,9 @@
 package com.sn.interfaces;
 
 import com.sn.main.SNElement;
-import com.sn.models.SNViewHolder;
+import com.sn.models.SNAdapterViewInject;
 
 public interface SNAdapterListener {
-	 SNElement onFillViewHolder(SNViewHolder viewHolder);
-	 SNViewHolder onCreateViewHolder(int pos);
+	 void onInject(SNAdapterViewInject inject);
+	 SNAdapterViewInject onCreateInject(int pos);
 }

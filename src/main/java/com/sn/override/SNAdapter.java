@@ -13,59 +13,61 @@ import android.widget.BaseAdapter;
 
 import com.sn.interfaces.SNAdapterListener;
 import com.sn.main.SNManager;
-import com.sn.models.SNViewHolder;
+import com.sn.models.SNAdapterViewInject;
 
 public class SNAdapter extends BaseAdapter {
-	public SNManager $;
-	public SNAdapterListener onLoadView;
-	public Context context;
-	public LayoutInflater layoutInflater;
-	private ArrayList<Object> list;
+    public SNManager $;
+    public SNAdapterListener onLoadView;
+    public Context context;
+    public LayoutInflater layoutInflater;
+    private ArrayList<Object> list;
 
-	public SNAdapter(ArrayList<Object> list, Context context) {
-		$ = SNManager.instence(context);
-		this.context = context;
-		this.list = list;
-		this.layoutInflater = LayoutInflater.from(context);
-	}
+    public SNAdapter(ArrayList<Object> list, Context context) {
+        $ = SNManager.instence(context);
+        this.context = context;
+        this.list = list;
+        this.layoutInflater = LayoutInflater.from(context);
+    }
 
-	@Override
-	public int getCount() {
-		// TODO Auto-generated method stub
-		return list.size();
-	}
+    @Override
+    public int getCount() {
+        // TODO Auto-generated method stub
+        return list.size();
+    }
 
-	@Override
-	public Object getItem(int pos) {
-		// TODO Auto-generated method stub
-		return list.get(pos);
-	}
+    @Override
+    public Object getItem(int pos) {
+        // TODO Auto-generated method stub
+        return list.get(pos);
+    }
 
-	@Override
-	public long getItemId(int arg0) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public long getItemId(int arg0) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	@Override
-	public View getView(int pos, View view, ViewGroup viewGroup) {
-		// TODO Auto-generated method stub
-		SNViewHolder viewHolder = null;
-		if (view == null) {
-			viewHolder = onLoadView.onCreateViewHolder(pos);
-			view = viewHolder.view.toView();
-			view.setTag(viewHolder);
-		} else {
-			viewHolder = (SNViewHolder) view.getTag();
-		}
-		if (onLoadView != null) {
-			if (viewHolder == null) {
-				viewHolder = new SNViewHolder($.create(view));
-			}
-			viewHolder.pos = pos;
-			viewHolder.viewGroup = $.create(viewGroup);
-			view = onLoadView.onFillViewHolder(viewHolder).toView();
-		}
-		return view;
-	}
+    @Override
+    public View getView(int pos, View view, ViewGroup viewGroup) {
+        // TODO Auto-generated method stub
+        SNAdapterViewInject inject = null;
+        if (view == null) {
+            inject = onLoadView.onCreateInject(pos);
+            view = inject.view.toView();
+            view.setTag(inject);
+        } else {
+            inject = (SNAdapterViewInject) view.getTag();
+        }
+        if (onLoadView != null) {
+            if (inject == null) {
+                inject = new SNAdapterViewInject($.create(view));
+            }
+            inject.pos = pos;
+            inject.viewGroup = $.create(viewGroup);
+            inject.data = list.get(pos);
+            onLoadView.onInject(inject);
+            view = inject.view.toView();
+        }
+        return view;
+    }
 }

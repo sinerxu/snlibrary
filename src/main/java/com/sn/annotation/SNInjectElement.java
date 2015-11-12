@@ -11,6 +11,6 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-public @interface SNInjectView {
+public @interface SNInjectElement {
     int id();
 }

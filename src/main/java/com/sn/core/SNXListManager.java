@@ -11,12 +11,66 @@ import me.maxwin.view.XListView;
  * Created by xuhui on 15/10/25.
  */
 public class SNXListManager<T> {
-    public SNElement listView;
-    public int page;
-    public int pageSize;
-    public boolean isDone;
-    public ArrayList<T> data;
-    public SNXListListener<T> listener;
+    SNElement listView;
+    int page;
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public boolean isDone() {
+        return isDone;
+    }
+
+    public void setIsDone(boolean isDone) {
+        this.isDone = isDone;
+    }
+
+    public ArrayList<T> getData() {
+        return data;
+    }
+
+    public void setData(ArrayList<T> data) {
+        if (data == null) data = new ArrayList<T>();
+        if (this.data != null) {
+            this.data.clear();
+            for (T t : data) {
+                this.data.add(t);
+            }
+        }
+    }
+
+    public void addData(ArrayList<T> data) {
+        if (data == null) data = new ArrayList<T>();
+        if (this.data != null) {
+            for (T t : data) {
+                this.data.add(t);
+            }
+        }
+    }
+
+    public void addData(T data) {
+        if (this.data != null) {
+            this.data.add(data);
+        }
+    }
+
+    int pageSize;
+    boolean isDone;
+    ArrayList<T> data;
+    SNXListListener<T> listener;
 
     public static void create(SNElement _element, int _pageSize, SNXListListener listener) {
         new SNXListManager(_element, _pageSize, listener);
@@ -74,7 +128,6 @@ public class SNXListManager<T> {
     public void refresh() {
         this.page = 1;
         this.isDone = false;
-        data.clear();
         if (listener != null)
             listener.onRefresh(this);
     }
@@ -107,6 +160,7 @@ public class SNXListManager<T> {
         this.listView.pullStop();
         this.page++;
         this.isDone = false;
+        listView.getListViewAdapter().notifyDataSetChanged();
     }
 
     /**
@@ -135,6 +189,7 @@ public class SNXListManager<T> {
     public void done() {
         this.listView.pullLoadFinish();
         this.isDone = true;
+        listView.getListViewAdapter().notifyDataSetChanged();
     }
 
     /**
@@ -181,6 +236,8 @@ public class SNXListManager<T> {
      * 数据加载失败后调用
      */
     public void error() {
+        this.listView.pullStop();
+        listView.getListViewAdapter().notifyDataSetChanged();
         this.listView.pullLoadError();
     }
 

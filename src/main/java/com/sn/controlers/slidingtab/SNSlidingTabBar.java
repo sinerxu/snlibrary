@@ -13,6 +13,7 @@ import com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabItem;
 import com.sn.controlers.slidingtab.homeslidingtab.SNHomeSlidingTabItem;
 import com.sn.lib.R;
 import com.sn.main.SNElement;
+import com.sn.models.SNViewInject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +24,13 @@ import java.util.List;
 public class SNSlidingTabBar extends SNLinearLayout {
     SNElement $tab;
 
-    class ViewHolder {
+    class SNSlidingTabBarInject extends SNViewInject {
         SNElement tabItemHover;
         SNElement tabItemBox;
         SNElement tabContainer;
     }
 
-    ViewHolder holder = new ViewHolder();
+    SNSlidingTabBarInject inject = new SNSlidingTabBarInject();
     FragmentManager fragmentManager;
     List<SNElement> items;
     ArrayList<Fragment> fragments;
@@ -65,14 +66,14 @@ public class SNSlidingTabBar extends SNLinearLayout {
             if (style == 1) {
                 tab_layout = R.layout.controler_home_slidingtabbar;
             }
-            $tab = $.layoutInflateResId(tab_layout, this, holder);
+            $tab = $.layoutInflateResId(tab_layout, this, inject);
 
             //移除
-            holder.tabItemBox.remove(holder.tabItemHover);
+            inject.tabItemBox.remove(inject.tabItemHover);
             //添加子项
             fragments = new ArrayList<Fragment>();
             for (SNElement item : items) {
-                holder.tabItemBox.add(item);
+                inject.tabItemBox.add(item);
                 String fragmentName = item.toView(SNSlidingTabItem.class).getFragmentName();
                 String all_f_name = "";
                 if (fragmentName.contains($.packageName())) {
@@ -94,8 +95,8 @@ public class SNSlidingTabBar extends SNLinearLayout {
                 }
                 fragments.add(fragment);
             }
-            holder.tabContainer.toView(SNSlidingTabContainer.class).bindData(fragmentManager, fragments);
-            holder.tabItemBox.add(holder.tabItemHover);
+            inject.tabContainer.toView(SNSlidingTabContainer.class).bindData(fragmentManager, fragments);
+            inject.tabItemBox.add(inject.tabItemHover);
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }

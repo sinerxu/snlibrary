@@ -1,7 +1,7 @@
 package com.sn.interfaces;
 
-import com.sn.models.SNViewHolder;
+import com.sn.models.SNAdapterViewInject;
 
 public interface SNAdapterOnItemClickListener {
-	public void onItemClick(SNViewHolder holder);
+	public void onItemClick(SNAdapterViewInject holder);
 }
