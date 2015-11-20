@@ -19,4 +19,16 @@ public class SNRelativeLayout extends RelativeLayout {
         $ = new SNManager(context);
         $this = $.create(this);
     }
+
+    public SNRelativeLayout(Context context) {
+        super(context);
+        $ = new SNManager(context);
+        $this = $.create(this);
+    }
+
+    public SNRelativeLayout(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        $ = new SNManager(context);
+        $this = $.create(this);
+    }
 }

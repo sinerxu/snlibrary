@@ -6,6 +6,9 @@ import android.view.ViewGroup;
 import com.sn.postting.alert.SNAlert;
 
 public class SNConfig {
+
+    public static final String SHAREDPREFERENCES_KEY="SHAREDPREFERENCES_KEY";
+
     public static final String SN_VERSION = "1.0.0";
 
 

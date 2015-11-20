@@ -3,6 +3,7 @@ package com.sn.activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingActivity;
@@ -24,11 +25,15 @@ public class SNNavigationSlidingActivity extends SlidingActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Override
     public void setContentView(int id) {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         super.setContentView(R.layout.activity_navigation_sliding);
+
         //首先设置主题
         initBase();
         $.layoutInflateResId(id, container.toView(ViewGroup.class));

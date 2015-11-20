@@ -1,5 +1,6 @@
 package com.sn.core;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,6 +19,7 @@ import android.graphics.drawable.NinePatchDrawable;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.text.method.DateTimeKeyListener;
 import android.util.Base64;
 import android.util.Log;
 
@@ -49,6 +51,11 @@ import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 import javax.crypto.Cipher;
@@ -240,13 +247,13 @@ public class SNUtility {
     }
 
     /**
-     * jsong to Object
+     * json to Object
      *
      * @param json     json str
      * @param classOfT Class
      * @return
      */
-    public <T> T jsonParse(String json, Class<T> classOfT) {
+    public <T> T jsonParse(Class<T> classOfT, String json) {
         Gson gson = new Gson();
         return gson.fromJson(json, classOfT);
     }
@@ -1074,5 +1081,85 @@ public class SNUtility {
         return cipher.doFinal(data);
     }
     //endregion
+    //endregion
+
+    //region datetime(date)
+
+    public Calendar dateInstance(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar;
+    }
+
+    public Calendar dateInstance(int year, int month, int day) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, day);
+        return calendar;
+    }
+
+    public String dateToString(Calendar date, String format) {
+        SimpleDateFormat dataFormat = new SimpleDateFormat(format);
+        return dataFormat.format(date.getTime());
+    }
+
+    public Calendar dateParse(String date, String format) {
+        try {
+            SimpleDateFormat dataFormat = new SimpleDateFormat(format);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(dataFormat.parse(date));
+            return calendar;
+        } catch (ParseException ex) {
+            return null;
+        }
+    }
+
+    /**
+     * 获取当前日期中月份一共有多少天
+     *
+     * @param date Date
+     * @return day
+     */
+    public int dateDayOfMonth(Calendar date) {
+        return date.getActualMaximum(Calendar.DATE);
+    }
+
+    /**
+     * 获取指定某年某月有多少天
+     *
+     * @param year  year
+     * @param month month
+     * @return day
+     */
+    public int dateDayOfMonth(int year, int month) {
+        Calendar c = Calendar.getInstance();
+        c.set(year, month, 1);
+        return dateDayOfMonth(c);
+    }
+
+    /**
+     * 获取当前日期是星期几（0代表周日）
+     *
+     * @param calendar
+     * @return week
+     */
+    public int dateWeek(Calendar calendar) {
+        return calendar.get(Calendar.DAY_OF_WEEK) - 1;
+    }
+
+    /**
+     * 获取指定年月日是星期几（0代表周日）
+     *
+     * @param year  year
+     * @param month month
+     * @param day   day
+     * @return week
+     */
+    public int dateWeek(int year, int month, int day) {
+        Calendar c = Calendar.getInstance();
+        c.set(year, month, day);
+        return dateWeek(c);
+    }
+
+
     //endregion
 }

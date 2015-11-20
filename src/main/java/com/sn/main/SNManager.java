@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -37,7 +38,7 @@ import com.sn.interfaces.SNOnClickListener;
 import com.sn.interfaces.SNOnHttpResultListener;
 import com.sn.lib.R;
 import com.sn.models.SNSize;
-import com.sn.models.SNViewInject;
+import com.sn.models.SNInject;
 import com.sn.postting.alert.SNAlert;
 
 import java.lang.reflect.Constructor;
@@ -230,7 +231,7 @@ public class SNManager extends SNConfig {
      * @param layoutParams LayoutParams
      * @param _holder      view inject holder object，refer to : document->view inject
      */
-    public void contentView(SNElement element, LayoutParams layoutParams, SNViewInject _holder) {
+    public void contentView(SNElement element, LayoutParams layoutParams, SNInject _holder) {
         activity.setContentView(element.toView(), layoutParams);
         inject(_holder);
     }
@@ -241,7 +242,7 @@ public class SNManager extends SNConfig {
      * @param element SNElement
      * @param _holder view inject holder object，refer to : document->view inject
      */
-    public void contentView(SNElement element, SNViewInject _holder) {
+    public void contentView(SNElement element, SNInject _holder) {
         activity.setContentView(element.toView());
         inject(_holder);
     }
@@ -280,7 +281,7 @@ public class SNManager extends SNConfig {
      * @param layoutResID layout id
      * @param _holder     view inject holder object，refer to : document->view inject
      */
-    public void contentView(int layoutResID, SNViewInject _holder) {
+    public void contentView(int layoutResID, SNInject _holder) {
         activity.setContentView(layoutResID);
         inject(_holder);
     }
@@ -290,7 +291,7 @@ public class SNManager extends SNConfig {
      *
      * @param _holder view inject holder object,refer to : document->view inject
      */
-    public void inject(SNViewInject _holder) {
+    public void inject(SNInject _holder) {
         if (_holder != null) {
             _holder.$ = this;
             _holder.onInjectStart();
@@ -338,7 +339,7 @@ public class SNManager extends SNConfig {
     }
     // endregion
 
-    // region Activity
+    // region Activity & Context
 
     /**
      * start activity
@@ -495,6 +496,35 @@ public class SNManager extends SNConfig {
             return (T) activity;
         return null;
     }
+
+    public <T> T prop(Class<T> _class, String key) {
+        SharedPreferences sp = getActivity().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
+        String r = sp.getString(key, null);
+        if (util.strIsNotNullOrEmpty(r))
+            return util.jsonParse(_class, r);
+        else
+            return null;
+    }
+
+    public void removeProp(String key) {
+        SharedPreferences sp = getActivity().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
+        SharedPreferences.Editor prefEditor = sp.edit();
+        prefEditor.remove(key);
+        prefEditor.commit();
+    }
+
+    public void prop(String key, Object value) {
+        SharedPreferences sp = getActivity().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
+        SharedPreferences.Editor prefEditor = sp.edit();
+        if (value != null) {
+            String json = util.jsonStringify(value);
+            prefEditor.putString(key, json);
+        } else {
+            prefEditor.remove(key);
+        }
+        prefEditor.commit();
+
+    }
     // endregion
 
     //region Intent
@@ -576,7 +606,7 @@ public class SNManager extends SNConfig {
      * @param root
      * @return
      */
-    public SNElement layoutInflateResId(int resId, ViewGroup root, SNViewInject _holder) {
+    public SNElement layoutInflateResId(int resId, ViewGroup root, SNInject _holder) {
         SNElement r = create(activity.getLayoutInflater().inflate(resId, root));
         r.inject(_holder);
         return r;
@@ -613,7 +643,7 @@ public class SNManager extends SNConfig {
      * @param _holder       view inject, refer to document->view inject
      * @return
      */
-    public SNElement layoutInflateResId(int resId, ViewGroup root, boolean _attachToRoot, SNViewInject _holder) {
+    public SNElement layoutInflateResId(int resId, ViewGroup root, boolean _attachToRoot, SNInject _holder) {
         SNElement r = create(activity.getLayoutInflater().inflate(resId, root, _attachToRoot));
         r.inject(_holder);
         return r;
@@ -636,7 +666,7 @@ public class SNManager extends SNConfig {
      * @param _holder view inject, refer to document->view inject
      * @return
      */
-    public SNElement layoutInflateResId(int resId, SNViewInject _holder) {
+    public SNElement layoutInflateResId(int resId, SNInject _holder) {
         SNElement r = create(activity.getLayoutInflater().inflate(resId, null, false));
         r.inject(_holder);
         return r;
@@ -674,7 +704,7 @@ public class SNManager extends SNConfig {
      * @param _holder       view inject, refer to document->view inject
      * @return
      */
-    public SNElement layoutInflateName(String name, ViewGroup root, boolean _attachToRoot, SNViewInject _holder) {
+    public SNElement layoutInflateName(String name, ViewGroup root, boolean _attachToRoot, SNInject _holder) {
         int resId = resource(name, "layout");
         return layoutInflateResId(resId, root, _attachToRoot, _holder);
     }
@@ -687,7 +717,7 @@ public class SNManager extends SNConfig {
      * @param _holder view inject, refer to document->view inject
      * @return
      */
-    public SNElement layoutInflateName(String name, ViewGroup root, SNViewInject _holder) {
+    public SNElement layoutInflateName(String name, ViewGroup root, SNInject _holder) {
         int resId = resource(name, "layout");
         return layoutInflateResId(resId, root, _holder);
     }
@@ -699,7 +729,7 @@ public class SNManager extends SNConfig {
      * @param _holder view inject, refer to document->view inject
      * @return
      */
-    public SNElement layoutInflateName(String name, SNViewInject _holder) {
+    public SNElement layoutInflateName(String name, SNInject _holder) {
         return layoutInflateName(name, null, _holder);
     }
 

@@ -52,7 +52,6 @@ public class SNScrollable extends SNViewPager {
         }
     }
 
-
     public void bindContent(List<SNElement> elements) {
         if ($contentList.size() == 0 && mListViews.size() == 0) {
             for (SNElement item : elements) {
@@ -64,6 +63,8 @@ public class SNScrollable extends SNViewPager {
         } else
             throw new IllegalStateException(
                     "The SNScrollable already bind adapter.");
+
+
     }
 
 

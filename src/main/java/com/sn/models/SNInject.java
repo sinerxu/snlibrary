@@ -10,7 +10,7 @@ import com.sn.main.SNManager;
 /**
  * Created by xuhui on 15/11/10.
  */
-public class SNViewInject {
+public class SNInject {
     public SNManager $;
 
     /**
@@ -42,9 +42,5 @@ public class SNViewInject {
     }
 
 
-
-    public void onActivityCreate(Bundle savedInstanceState) {
-
-    }
 
 }

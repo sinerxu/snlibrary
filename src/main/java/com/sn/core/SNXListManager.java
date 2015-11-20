@@ -66,7 +66,11 @@ public class SNXListManager<T> {
             this.data.add(data);
         }
     }
-
+    public void clearData() {
+        if (this.data != null) {
+            this.data.clear();
+        }
+    }
     int pageSize;
     boolean isDone;
     ArrayList<T> data;

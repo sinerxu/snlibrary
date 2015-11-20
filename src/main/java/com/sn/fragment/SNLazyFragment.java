@@ -5,8 +5,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.sn.annotation.SNInjectFragment;
 import com.sn.lib.R;
 import com.sn.main.SNElement;
+import com.sn.models.SNFragmentInject;
+import com.sn.models.SNInject;
+
+import java.lang.annotation.Annotation;
 
 
 public class SNLazyFragment extends SNFragment {
@@ -27,9 +32,8 @@ public class SNLazyFragment extends SNFragment {
 
         super.onActivityCreated(savedInstanceState);
         initPrepare();
+        if (getUserVisibleHint()) initPrepare();
     }
-
-
 
 
     private boolean alreadyFirstVisible = false;
@@ -40,7 +44,7 @@ public class SNLazyFragment extends SNFragment {
     public void onResume() {
         //SNUtility.logDebug(SNLazyFragment.class, "onResume");
         super.onResume();
-        if (alreadyFirstVisible&&getUserVisibleHint()) {
+        if (alreadyFirstVisible && getUserVisibleHint()) {
             onUserVisible();
         }
     }
@@ -61,7 +65,6 @@ public class SNLazyFragment extends SNFragment {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
             if (!alreadyFirstVisible) {
-                alreadyFirstVisible = true;
                 initPrepare();
             } else {
                 onUserVisible();
@@ -78,7 +81,8 @@ public class SNLazyFragment extends SNFragment {
 
     public synchronized void initPrepare() {
         //SNUtility.logDebug(SNLazyFragment.class, "initPrepare");
-        if (isPrepared) {
+        if (isPrepared && !alreadyFirstVisible) {
+            alreadyFirstVisible = true;
             onFirstUserVisible();
         } else {
             isPrepared = true;
@@ -135,5 +139,25 @@ public class SNLazyFragment extends SNFragment {
 
     public SNElement getMainElement() {
         return $main;
+    }
+
+
+    public void injectFragment() {
+        try {
+            for (Annotation item : this.getClass().getDeclaredAnnotations()) {
+                if (item instanceof SNInjectFragment) {
+                    SNInjectFragment injectFragment = (SNInjectFragment) item;
+                    int lid = injectFragment.injectView();
+                    Class c = injectFragment.injectClass();
+                    inject = (SNFragmentInject) c.newInstance();
+                    setMainElement(lid, injectFragment.animated());
+                    getMainElement().inject(inject);
+                }
+            }
+        } catch (IllegalAccessException e) {
+            inject = null;
+        } catch (java.lang.InstantiationException e) {
+            inject = null;
+        }
     }
 }

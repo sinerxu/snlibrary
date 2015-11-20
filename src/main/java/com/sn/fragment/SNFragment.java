@@ -7,8 +7,20 @@ import android.support.v4.app.Fragment;
 import android.util.AttributeSet;
 
 import com.sn.main.SNManager;
+import com.sn.models.SNFragmentInject;
+import com.sn.models.SNInject;
 
 public class SNFragment extends Fragment {
+    SNFragmentInject inject;
+
+    public <T> T getInject(Class<T> _class) {
+        return (T) inject;
+    }
+
+    public SNFragmentInject getInject() {
+        return inject;
+    }
+
     public SNManager $;
 
     @Override
@@ -24,9 +36,6 @@ public class SNFragment extends Fragment {
             $ = SNManager.instence(activity);
         super.onInflate(activity, attrs, savedInstanceState);
     }
-
-
-
 
 
 }

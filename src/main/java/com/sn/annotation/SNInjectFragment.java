@@ -12,14 +12,16 @@ import java.lang.annotation.Target;
 /**
  * Created by xuhui on 15/8/23.
  *
- * @SNInjectActivity(name="")
+ * @SNInjectFragment(injectClass=.class,injectView=R.layout.view)
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface SNInjectActivity {
+public @interface SNInjectFragment {
 
     int injectView();
 
     Class injectClass() default SNInject.class;
+
+    boolean animated() default false;
 }

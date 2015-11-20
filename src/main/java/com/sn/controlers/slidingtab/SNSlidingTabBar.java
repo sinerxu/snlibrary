@@ -13,7 +13,7 @@ import com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabItem;
 import com.sn.controlers.slidingtab.homeslidingtab.SNHomeSlidingTabItem;
 import com.sn.lib.R;
 import com.sn.main.SNElement;
-import com.sn.models.SNViewInject;
+import com.sn.models.SNInject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ import java.util.List;
 public class SNSlidingTabBar extends SNLinearLayout {
     SNElement $tab;
 
-    class SNSlidingTabBarInject extends SNViewInject {
+    class SNSlidingTabBarInject extends SNInject {
         SNElement tabItemHover;
         SNElement tabItemBox;
         SNElement tabContainer;

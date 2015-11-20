@@ -11,20 +11,21 @@ import android.support.v4.app.FragmentActivity;
 
 import com.sn.annotation.SNInjectActivity;
 import com.sn.main.SNManager;
-import com.sn.models.SNViewInject;
+import com.sn.models.SNActivityInject;
+import com.sn.models.SNInject;
 
 import java.lang.annotation.Annotation;
 
 public class SNActivity extends FragmentActivity {
 
 
-    SNViewInject inject;
+    SNActivityInject inject;
 
     public <T> T getInject(Class<T> _class) {
         return (T) inject;
     }
 
-    public SNViewInject getInject() {
+    public SNActivityInject getInject() {
         return inject;
     }
 
@@ -43,13 +44,13 @@ public class SNActivity extends FragmentActivity {
                     SNInjectActivity injectActivity = (SNInjectActivity) item;
                     int lid = injectActivity.injectView();
                     Class c = injectActivity.injectClass();
-                    inject = (SNViewInject) c.newInstance();
+                    inject = (SNActivityInject) c.newInstance();
                     $.contentView(lid, inject);
                 }
             }
         } catch (IllegalAccessException e) {
             inject = null;
-        }catch (InstantiationException e) {
+        } catch (InstantiationException e) {
             inject = null;
         }
     }

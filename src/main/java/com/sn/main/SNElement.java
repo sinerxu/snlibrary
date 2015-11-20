@@ -23,7 +23,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.sn.activity.SNActivity;
 import com.sn.controlers.SNNavTitleBar;
 import com.sn.controlers.SNScrollable;
 import com.sn.controlers.SNSlipNavigation;
@@ -41,6 +40,7 @@ import com.sn.models.SNSize;
 import com.sn.models.SNAdapterViewInject;
 import com.sn.override.SNAdapter;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -212,6 +212,23 @@ public class SNElement extends SNManager {
         return this;
     }
 
+    public int childCount() {
+        try {
+            return toViewGroup().getChildCount();
+        } catch (Exception ex) {
+            return 0;
+        }
+    }
+
+    public SNElement childAt(int index) {
+        try {
+            return create(toViewGroup().getChildAt(index));
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+
     /**
      * 转成view
      *
@@ -230,6 +247,16 @@ public class SNElement extends SNManager {
      */
     public <T> T toView(Class<T> _c) {
         return (T) elem;
+    }
+
+    public ViewGroup toViewGroup() {
+        ViewGroup viewGroup = null;
+        if (elem != null) {
+            viewGroup = toView(ViewGroup.class);
+        } else {
+            errorNull();
+        }
+        return viewGroup;
     }
     // endregion
 
@@ -283,9 +310,8 @@ public class SNElement extends SNManager {
                     // TODO Auto-generated method stub
                     if (onItemClickListener != null) {
                         SNAdapterViewInject holder = (SNAdapterViewInject) view.getTag();
-                        holder.id = id;
-                        holder.pos = position;
-                        holder.parent = parent;
+                        holder.setPos(position);
+                        holder.setParent(parent);
                         onItemClickListener.onItemClick(holder);
                     }
                 }
@@ -303,7 +329,7 @@ public class SNElement extends SNManager {
     public SNElement itemClick(SNAdapterViewInject holder) {
         if (elem != null && elem instanceof ListView) {
             ListView view = (ListView) elem;
-            view.performItemClick(holder.view.toView(), holder.pos, holder.id);
+            view.performItemClick(holder.getView().toView(), holder.getPos(), 0);
         }
         return this;
     }
@@ -882,7 +908,34 @@ public class SNElement extends SNManager {
      *
      * @return
      */
+    public int gravity() {
+
+        if (elem instanceof TextView) {
+            TextView textView = (TextView) elem;
+            return textView.getGravity();
+        }
+        return 0;
+    }
+
+    /**
+     * @param gravity Gravity.CENTER
+     * @return
+     */
+    public SNElement gravity(int gravity) {
+        if (elem instanceof TextView) {
+            TextView textView = (TextView) elem;
+            textView.setGravity(gravity);
+        }
+        return this;
+    }
+
+    /**
+     * 获取TextView文本
+     *
+     * @return
+     */
     public String text() {
+
         if (elem instanceof TextView) {
             TextView textView = (TextView) elem;
             return textView.getText().toString();
@@ -900,9 +953,6 @@ public class SNElement extends SNManager {
         if (elem instanceof TextView) {
             TextView textView = (TextView) elem;
             textView.setText(text);
-        } else if (elem instanceof Button) {
-            Button button = (Button) elem;
-            button.setText(text);
         }
         return this;
     }
@@ -917,9 +967,6 @@ public class SNElement extends SNManager {
         if (elem instanceof TextView) {
             TextView textView = (TextView) elem;
             textView.setText(text);
-        } else if (elem instanceof Button) {
-            Button button = (Button) elem;
-            button.setText(text);
         }
         return this;
     }
@@ -934,9 +981,6 @@ public class SNElement extends SNManager {
         if (elem instanceof TextView) {
             TextView textView = (TextView) elem;
             textView.setText(resid);
-        } else if (elem instanceof Button) {
-            Button button = (Button) elem;
-            button.setText(resid);
         }
         return this;
     }
@@ -961,12 +1005,28 @@ public class SNElement extends SNManager {
         if (elem instanceof TextView) {
             TextView textView = (TextView) elem;
             textView.setTextColor(color);
-        } else if (elem instanceof Button) {
-            Button button = (Button) elem;
-            button.setTextColor(color);
         }
         return this;
     }
+
+
+    public SNElement textSize(float size) {
+        if (elem instanceof TextView) {
+            TextView textView = (TextView) elem;
+            textView.setTextSize(size);
+        }
+        return this;
+    }
+
+    public float textSize() {
+        if (elem instanceof TextView) {
+            TextView textView = (TextView) elem;
+            textView.getTextSize();
+        }
+        return 0;
+    }
+
+
     //endregion
 
     //region image view
@@ -1192,6 +1252,7 @@ public class SNElement extends SNManager {
     }
 
     //endregion
+
 
     // endregion
 
@@ -1425,8 +1486,25 @@ public class SNElement extends SNManager {
     // endregion
 
     // region listView
-    public SNElement bindListAdapter(SNXListManager listManager, SNAdapterListener onLoadView) {
+    public SNElement bindListAdapter(SNXListManager listManager, final int layout_id, final Class injectClass) {
+        return bindListAdapter(listManager.getData(), layout_id, injectClass);
+    }
 
+    public SNElement bindListAdapter(ArrayList dataSource, final int layout_id, final Class injectClass) {
+        bindListAdapter(dataSource, new SNAdapterListener() {
+            @Override
+            public SNAdapterViewInject onCreateInject(int pos) {
+                try {
+                    return (SNAdapterViewInject) injectClass.getConstructor(SNElement.class).newInstance(layoutInflateResId(layout_id));
+                } catch (Exception ex) {
+                    throw new IllegalStateException("Inject class is must be SNAdapterViewInject.");
+                }
+            }
+        });
+        return this;
+    }
+
+    public SNElement bindListAdapter(SNXListManager listManager, SNAdapterListener onLoadView) {
         return bindListAdapter(listManager.getData(), onLoadView);
     }
 
@@ -1611,6 +1689,7 @@ public class SNElement extends SNManager {
 
     /**
      * 复原listview的状态
+     *
      * @return
      */
     public SNElement pullReset() {

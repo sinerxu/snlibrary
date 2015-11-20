@@ -19,4 +19,12 @@ public class SNLinearLayout extends LinearLayout {
         $ = new SNManager(context);
         $this = $.create(this);
     }
+
+    public SNLinearLayout(Context context) {
+        super(context);
+        $ = new SNManager(context);
+        $this = $.create(this);
+    }
+
+
 }

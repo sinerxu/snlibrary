@@ -53,7 +53,8 @@ public class SNAdapter extends BaseAdapter {
         SNAdapterViewInject inject = null;
         if (view == null) {
             inject = onLoadView.onCreateInject(pos);
-            view = inject.view.toView();
+
+            view = inject.getView().toView();
             view.setTag(inject);
         } else {
             inject = (SNAdapterViewInject) view.getTag();
@@ -62,11 +63,12 @@ public class SNAdapter extends BaseAdapter {
             if (inject == null) {
                 inject = new SNAdapterViewInject($.create(view));
             }
-            inject.pos = pos;
-            inject.viewGroup = $.create(viewGroup);
-            inject.data = list.get(pos);
-            onLoadView.onInject(inject);
-            view = inject.view.toView();
+            inject.setPos(pos);
+            inject.setViewGroup($.create(viewGroup));
+            inject.setData(list.get(pos));
+            //onLoadView.onInject(inject);
+            view = inject.getView().toView();
+            inject.onInjectUI();
         }
         return view;
     }
