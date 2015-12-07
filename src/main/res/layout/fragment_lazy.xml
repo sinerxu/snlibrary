@@ -25,20 +25,20 @@
             <ProgressBar
                 android:id="@+id/loadingProgressBar"
                 style="@android:style/Widget.Holo.Light.ProgressBar.Large"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center_vertical" />
 
-            <TextView
-                android:id="@+id/loadingMsg"
-                android:layout_width="wrap_content"
-                android:layout_height="20dp"
-                android:layout_marginLeft="5dp"
-                android:gravity="center_vertical"
-                android:text="正在加载..."
-                android:textColor="#bbb"
-                android:textSize="16dp" />
+            <!--<TextView-->
+                <!--android:id="@+id/loadingMsg"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginLeft="8dp"-->
+                <!--android:gravity="center_vertical"-->
+                <!--android:text="正在加载..."-->
+                <!--android:textColor="#555"-->
+                <!--android:textSize="16dp" />-->
         </LinearLayout>
     </RelativeLayout>
 

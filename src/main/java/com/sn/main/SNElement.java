@@ -258,6 +258,20 @@ public class SNElement extends SNManager {
         }
         return viewGroup;
     }
+
+    public SNElement clickable(boolean clickable) {
+        if (elem != null) {
+            elem.setClickable(clickable);
+        }
+        return this;
+    }
+
+    public boolean clickable() {
+        if (elem != null) {
+            return elem.isClickable();
+        }
+        return false;
+    }
     // endregion
 
     // region listener
@@ -1251,6 +1265,38 @@ public class SNElement extends SNManager {
         return this;
     }
 
+
+    public SNElement adjustViewBounds(boolean val) {
+        if (elem != null && elem instanceof ImageView) {
+            ImageView imageView = (ImageView) elem;
+            imageView.setAdjustViewBounds(val);
+        }
+        return this;
+    }
+
+    public boolean adjustViewBounds() {
+        if (elem != null && elem instanceof ImageView) {
+            ImageView imageView = (ImageView) elem;
+            return imageView.getAdjustViewBounds();
+        }
+        return false;
+    }
+
+    public SNElement scaleType(ImageView.ScaleType scaleType) {
+        if (elem != null && elem instanceof ImageView) {
+            ImageView imageView = (ImageView) elem;
+            imageView.setScaleType(scaleType);
+        }
+        return this;
+    }
+
+    public ImageView.ScaleType scaleType() {
+        if (elem != null && elem instanceof ImageView) {
+            ImageView imageView = (ImageView) elem;
+            return imageView.getScaleType();
+        }
+        return null;
+    }
     //endregion
 
 

@@ -1,0 +1,28 @@
+<com.sn.controlers.slidingtab.blocktab.SNBlockTab xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/HomeSlidingTabStyle">
+
+
+    <com.sn.controlers.slidingtab.blocktab.SNBlockTabItemBox
+        android:id="@+id/tabItemBox"
+        style="@style/HomeSlidingTabBoxStyle"
+
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp">
+
+
+        <com.sn.controlers.slidingtab.blocktab.SNBlockTabItemHover
+            android:id="@+id/tabItemHover"
+            style="@style/SizeWrapStyle">
+
+        </com.sn.controlers.slidingtab.blocktab.SNBlockTabItemHover>
+
+    </com.sn.controlers.slidingtab.blocktab.SNBlockTabItemBox>
+
+
+    <com.sn.controlers.slidingtab.blocktab.SNBlockTabContainer
+        android:id="@+id/tabContainer"
+        style="@style/HomeSlidingTabContentStyle">
+
+    </com.sn.controlers.slidingtab.blocktab.SNBlockTabContainer>
+</com.sn.controlers.slidingtab.blocktab.SNBlockTab>

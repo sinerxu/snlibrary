@@ -26,7 +26,7 @@ public class SNSlidingTabItem extends SNRelativeLayout {
 
     public SNSlidingTabItem(Context context, AttributeSet attrs) {
         super(context, attrs);
-        TypedArray array = $.loadStyle(attrs, R.styleable.SNSlidingTabItem);
+        TypedArray array = $.obtainStyledAttr(attrs, R.styleable.SNSlidingTabItem);
         fragmentName = array.getString(R.styleable.SNSlidingTabItem_fragment);
         array.recycle();
     }

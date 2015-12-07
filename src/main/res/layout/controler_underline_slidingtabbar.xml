@@ -1,0 +1,25 @@
+<com.sn.controlers.slidingtab.underlinetab.SNUnderLineTab xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/HomeSlidingTabStyle">
+
+
+    <com.sn.controlers.slidingtab.underlinetab.SNUnderLineTabItemBox
+        android:id="@+id/tabItemBox"
+        style="@style/HomeSlidingTabBoxStyle">
+
+
+        <com.sn.controlers.slidingtab.underlinetab.SNUnderLineTabItemHover
+            android:id="@+id/tabItemHover"
+            style="@style/SizeWrapStyle">
+
+        </com.sn.controlers.slidingtab.underlinetab.SNUnderLineTabItemHover>
+
+    </com.sn.controlers.slidingtab.underlinetab.SNUnderLineTabItemBox>
+
+
+    <com.sn.controlers.slidingtab.underlinetab.SNUnderLineTabContainer
+        android:id="@+id/tabContainer"
+        style="@style/HomeSlidingTabContentStyle">
+
+    </com.sn.controlers.slidingtab.underlinetab.SNUnderLineTabContainer>
+</com.sn.controlers.slidingtab.underlinetab.SNUnderLineTab>

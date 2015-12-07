@@ -10,6 +10,9 @@ import com.sn.sdk.interfaces.SNShareListener;
  * Created by xuhui on 15/8/3.
  */
 public class SNShare implements SNShareInterface {
+
+
+
     Context context;
     Activity activity;
     SNShareListener _shareListener;

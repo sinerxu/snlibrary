@@ -50,6 +50,8 @@ public class SNSlidingTab extends SNRelativeLayout {
     SNSlidingTabContainer content;
     int direct = 0;
     int x = 0;
+
+
     /**
      * 实时页
      */

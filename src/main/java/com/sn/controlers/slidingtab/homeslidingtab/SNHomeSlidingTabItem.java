@@ -22,7 +22,7 @@ public class SNHomeSlidingTabItem extends SNSlidingTabItem {
         super(context, attrs);
 
         $this = $.layoutInflateResId(R.layout.controler_home_slidetabitem, (ViewGroup) $this.toView());
-        TypedArray a = $.loadStyle(attrs, R.styleable.SNHomeSlidingTabItem);
+        TypedArray a = $.obtainStyledAttr(attrs, R.styleable.SNHomeSlidingTabItem);
         text = a.getString(R.styleable.SNHomeSlidingTabItem_android_text);
         icon = a.getDrawable(R.styleable.SNHomeSlidingTabItem_android_src);
         rightSplit = a.getBoolean(R.styleable.SNHomeSlidingTabItem_right_split, true);

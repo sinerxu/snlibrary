@@ -15,7 +15,19 @@
 -->
 
 <resources>
-
+    <declare-styleable name="wheel">
+        <attr name="lineSplitHeight" format="reference|integer" />
+        <attr name="textColorFirst" format="reference|color" />
+        <attr name="textColorSecond" format="reference|color" />
+        <attr name="textColorThird" format="reference|color" />
+        <attr name="splitLineColor" format="reference|color" />
+        <attr name="textSize" format="reference|integer" />
+        <attr name="textGravity">
+            <flag name="left" value="-1" />
+            <flag name="center" value="0" />
+            <flag name="right" value="1" />
+        </attr>
+    </declare-styleable>
     <declare-styleable name="SlidingMenu">
         <attr name="mode">
             <enum name="left" value="0" />
@@ -43,6 +55,12 @@
         <attr name="selectorEnabled" format="boolean" />
         <attr name="selectorDrawable" format="reference" />
     </declare-styleable>
+
+
+    <declare-styleable name="SNSlipNavigation">
+        <attr name="content_offset" format="dimension"></attr>
+    </declare-styleable>
+
     <declare-styleable name="SNNavTitleBar">
         <attr name="nav_title" format="string"></attr>
         <attr name="nav_logo" format="reference"></attr>
@@ -61,18 +79,31 @@
     <declare-styleable name="SNSlidingTabItem">
         <attr name="fragment" format="string"></attr>
     </declare-styleable>
-    <declare-styleable name="SNHomeBottomTabItem">
+    <declare-styleable name="SNImageTextTabItem">
         <attr name="android:text" />
         <attr name="android:src" />
-        <attr name="android:textColor" />
+        <attr name="android:textColor"  />
         <attr name="selected_src" format="reference" />
         <attr name="selected_color" format="color" />
     </declare-styleable>
+
     <declare-styleable name="SNSlidingTabBar">
         <attr name="style" format="enum">
             <enum name="home_bottom" value="0"></enum>
             <enum name="home_sliding" value="1"></enum>
             <enum name="under_line_sliding" value="2"></enum>
+            <enum name="block_sliding" value="3"></enum>
         </attr>
+
+        <attr name="underline_color" format="color" />
+
     </declare-styleable>
+
+    <declare-styleable name="SNActionString">
+        <attr name="android:text" />
+        <attr name="android:src" />
+        <attr name="description" format="string" />
+    </declare-styleable>
+
+
 </resources>

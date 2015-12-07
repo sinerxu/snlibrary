@@ -1,10 +1,11 @@
 package com.sn.sdk.auth;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 
 import com.sn.sdk.interfaces.SNAuthListener;
 import com.sn.sdk.models.SNAuthResult;
-import com.sn.sdk.sharesdk.SNShare;
 
 import java.util.HashMap;
 
@@ -17,9 +18,43 @@ import cn.sharesdk.framework.ShareSDK;
  * Created by xuhui on 15/8/7.
  */
 public class SNMobAuth extends SNAuth implements PlatformActionListener {
-
+    static final int HANDLE_ACTION_COMPLETE = 1;
+    static final int HANDLE_ACTION_ERROR = -1;
+    static final int HANDLE_ACTION_CANCEL = 0;
     static SNMobAuth mobAuth;
 
+    static class MobAuthHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case HANDLE_ACTION_COMPLETE:
+                    if (_onAuth != null) {
+                        SNAuthResult _result = toAuthResult((Platform) msg.obj);
+                        if (_result != null)
+                            _onAuth.onAuthResult(AUTH_RESULT_SUCCESS, _result);
+                        else
+                            _onAuth.onAuthResult(AUTH_RESULT_ERROR, _result);
+                        _onAuth = null;
+                    }
+                    break;
+                case HANDLE_ACTION_CANCEL:
+                    if (_onAuth != null) {
+                        _onAuth.onAuthResult(AUTH_RESULT_CANCEL, null);
+                        _onAuth = null;
+                    }
+                    break;
+                default:
+                    if (_onAuth != null) {
+                        _onAuth.onAuthResult(AUTH_RESULT_ERROR, null);
+                        _onAuth = null;
+                    }
+                    break;
+            }
+        }
+    }
+
+    MobAuthHandler resultHandler = new MobAuthHandler();
 
     public static SNMobAuth instance(Context _context) {
         SNMobAuth _result = null;
@@ -65,18 +100,16 @@ public class SNMobAuth extends SNAuth implements PlatformActionListener {
      * 获取授权信息
      *
      * @param authType
-     * @param onAuth
      */
     @Override
-    public void getUserInfo(String authType, SNAuthListener onAuth) {
-        super.getUserInfo(authType, onAuth);
-
+    public SNAuthResult getUserInfo(String authType) {
+        super.getUserInfo(authType);
+        Platform plat = ShareSDK.getPlatform(authType);
+        return toAuthResult(plat);
     }
 
-
-    @Override
-    public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
-        if (_onAuth != null) {
+    static SNAuthResult toAuthResult(Platform platform) {
+        if (platform != null && platform.isAuthValid()) {
             PlatformDb platDB = platform.getDb();
             SNAuthResult _result = new SNAuthResult();
             _result.setUid(platDB.getUserId());
@@ -85,24 +118,34 @@ public class SNMobAuth extends SNAuth implements PlatformActionListener {
             _result.setIcon(platDB.getUserIcon());
             _result.setName(platDB.getUserName());
             _result.setAuthType(currentAuthType);
-            _onAuth.onAuthResult(1, _result);
-            _onAuth = null;
+            return _result;
+        } else {
+            return null;
         }
+    }
+
+    @Override
+    public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
+        Message message = new Message();
+        message.what = HANDLE_ACTION_COMPLETE;
+        message.obj = platform;
+        resultHandler.sendMessage(message);
     }
 
     @Override
     public void onError(Platform platform, int i, Throwable throwable) {
-        if (_onAuth != null) {
-            _onAuth.onAuthResult(-1, null);
-            _onAuth = null;
-        }
+        resultHandler.sendEmptyMessage(HANDLE_ACTION_ERROR);
+
     }
 
     @Override
     public void onCancel(Platform platform, int i) {
-        if (_onAuth != null) {
-            _onAuth.onAuthResult(0, null);
-            _onAuth = null;
-        }
+        resultHandler.sendEmptyMessage(HANDLE_ACTION_CANCEL);
+
+    }
+
+    public boolean isWXAppInstalled() {
+        Platform plat = ShareSDK.getPlatform(TYPE_AUTH_WECHAT);
+        return plat.isClientValid();
     }
 }

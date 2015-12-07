@@ -5,6 +5,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -12,9 +14,13 @@ import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
+import android.preference.PreferenceActivity;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.telephony.TelephonyManager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -41,11 +47,17 @@ import com.sn.models.SNSize;
 import com.sn.models.SNInject;
 import com.sn.postting.alert.SNAlert;
 
+import org.apache.http.Header;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-import cz.msebera.android.httpclient.Header;
 
 /**
  * @author Siner QQ348078707
@@ -161,6 +173,78 @@ public class SNManager extends SNConfig {
     }
 
     // endregion
+
+    //region App
+
+    /**
+     * get app version
+     *
+     * @return
+     */
+    public String appVersion() {
+        try {
+            PackageManager manager = getActivity().getPackageManager();
+            PackageInfo info = manager.getPackageInfo(getActivity().getPackageName(), 0);
+
+            String version = info.versionName;
+            return version;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    public String deviceCode() {
+        TelephonyManager TelephonyMgr = (TelephonyManager) getActivity()
+                .getSystemService(getActivity().TELEPHONY_SERVICE);
+        String m_szImei = TelephonyMgr.getDeviceId();
+        String m_szDevIDShort = "35"
+                + // we make this look like a valid IMEI
+
+                Build.BOARD.length() % 10 + Build.BRAND.length() % 10
+                + Build.CPU_ABI.length() % 10 + Build.DEVICE.length() % 10
+                + Build.DISPLAY.length() % 10 + Build.HOST.length() % 10
+                + Build.ID.length() % 10 + Build.MANUFACTURER.length() % 10
+                + Build.MODEL.length() % 10 + Build.PRODUCT.length() % 10
+                + Build.TAGS.length() % 10 + Build.TYPE.length() % 10
+                + Build.USER.length() % 10; // 13 digits
+        String m_szAndroidID = Settings.Secure.getString(getActivity()
+                .getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        // WifiManager wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+        // String m_szWLANMAC = wm.getConnectionInfo().getMacAddress();
+
+        // BluetoothAdapter m_BluetoothAdapter = null; // Local Bluetooth
+        // adapter
+        // m_BluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        // String m_szBTMAC = m_BluetoothAdapter.getAddress();
+
+        String m_szLongID = m_szImei + m_szDevIDShort + m_szAndroidID;
+        // compute md5
+        MessageDigest m = null;
+        try {
+            m = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        m.update(m_szLongID.getBytes(), 0, m_szLongID.length());
+        // get md5 bytes
+        byte p_md5Data[] = m.digest();
+        // create a hex string
+        String m_szUniqueID = new String();
+        for (int i = 0; i < p_md5Data.length; i++) {
+            int b = (0xFF & p_md5Data[i]);
+            // if it is a single digit, make sure it have 0 in front (proper
+            // padding)
+            if (b <= 0xF)
+                m_szUniqueID += "0";
+            // add number to string
+            m_szUniqueID += Integer.toHexString(b);
+        } // hex string to uppercase
+        m_szUniqueID = m_szUniqueID.toUpperCase();
+        return m_szUniqueID;
+    }
+    //endregion
 
     // region View
 
@@ -337,6 +421,37 @@ public class SNManager extends SNConfig {
         }
 
     }
+
+    /**
+     * ioc
+     *
+     * @param _holder
+     */
+    public void injectIOC(Object _holder) {
+        if (_holder != null) {
+            Field[] fields = _holder.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                String fieldName = field.getName();
+                if (field.isAnnotationPresent(SNIOC.class)) {
+                    SNIOC ioc = (SNIOC) field.getAnnotation(SNIOC.class);
+                    Class c = field.getType();
+                    Class t = SNBindInjectManager.instance().to(c);
+                    if (t != null) {
+                        try {
+                            Constructor c1 = t.getDeclaredConstructor(SNManager.class);
+                            c1.setAccessible(true);
+                            Object obj = c1.newInstance(this);
+                            field.setAccessible(true);
+                            field.set(_holder, obj);
+                        } catch (Exception ex) {
+                            throw new IllegalStateException("IOC class constructor parameter must be SNManager class.");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // endregion
 
     // region Activity & Context
@@ -448,6 +563,7 @@ public class SNManager extends SNConfig {
                         R.anim.start_push_horizontal_two);
         } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_PUSH_POP_VERTICAL) {
             if (isFinish)
+
                 activity.overridePendingTransition(R.anim.finish_pop_vertical_one,
                         R.anim.finish_pop_vertical_two);
             else
@@ -498,32 +614,58 @@ public class SNManager extends SNConfig {
     }
 
     public <T> T prop(Class<T> _class, String key) {
-        SharedPreferences sp = getActivity().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
-        String r = sp.getString(key, null);
-        if (util.strIsNotNullOrEmpty(r))
-            return util.jsonParse(_class, r);
-        else
+        try {
+            SharedPreferences sp = getActivity().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
+            String r = sp.getString(key, null);
+            if (util.strIsNotNullOrEmpty(r))
+                return util.jsonParse(_class, r);
+            else
+                return null;
+        } catch (Exception ex) {
+            util.logDebug(SNManager.class, ex.getMessage());
             return null;
+        }
+    }
+
+    public boolean propExist(String key) {
+        try {
+            SharedPreferences sp = getActivity().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
+            if (sp.contains(key)) {
+                String r = sp.getString(key, "");
+                return util.strIsNotNullOrEmpty(r);
+            } else {
+                return sp.contains(key);
+            }
+        } catch (Exception ex) {
+            return false;
+        }
     }
 
     public void removeProp(String key) {
-        SharedPreferences sp = getActivity().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
-        SharedPreferences.Editor prefEditor = sp.edit();
-        prefEditor.remove(key);
-        prefEditor.commit();
+        try {
+            SharedPreferences sp = getActivity().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
+            SharedPreferences.Editor prefEditor = sp.edit();
+            prefEditor.remove(key);
+            prefEditor.commit();
+        } catch (Exception ex) {
+            util.logDebug(SNManager.class, ex.getMessage());
+        }
     }
 
     public void prop(String key, Object value) {
-        SharedPreferences sp = getActivity().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
-        SharedPreferences.Editor prefEditor = sp.edit();
-        if (value != null) {
-            String json = util.jsonStringify(value);
-            prefEditor.putString(key, json);
-        } else {
-            prefEditor.remove(key);
+        try {
+            SharedPreferences sp = getActivity().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
+            SharedPreferences.Editor prefEditor = sp.edit();
+            if (value != null) {
+                String json = util.jsonStringify(value);
+                prefEditor.putString(key, json);
+            } else {
+                prefEditor.remove(key);
+            }
+            prefEditor.commit();
+        } catch (Exception ex) {
+            util.logDebug(SNManager.class, ex.getMessage());
         }
-        prefEditor.commit();
-
     }
     // endregion
 
@@ -559,7 +701,7 @@ public class SNManager extends SNConfig {
     }
     //endregion
 
-    // region 资源操作
+    // region resource manager
 
     /**
      * dp to px
@@ -594,7 +736,7 @@ public class SNManager extends SNConfig {
      * @param resIds styleable
      * @return
      */
-    public TypedArray loadStyle(AttributeSet attrs, int[] resIds) {
+    public TypedArray obtainStyledAttr(AttributeSet attrs, int[] resIds) {
         TypedArray a = context.obtainStyledAttributes(attrs, resIds);
         return a;
     }
@@ -887,6 +1029,21 @@ public class SNManager extends SNConfig {
     }
 
     /**
+     * get string by id
+     *
+     * @param resId string id
+     * @return String
+     */
+    public String[] stringArrayResId(int resId) {
+        return activity.getResources().getStringArray(resId);
+    }
+
+    public ArrayList<String> stringArrayListResId(int resId) {
+        String[] a = stringArrayResId(resId);
+        return util.arrayToList(a);
+    }
+
+    /**
      * get drawable object by id
      *
      * @param resId drawable id
@@ -924,6 +1081,22 @@ public class SNManager extends SNConfig {
      */
     public Resources resources() {
         return activity.getResources();
+    }
+
+
+    public String readAssetsFile(String fileName) {
+        try {
+            InputStreamReader inputReader = new InputStreamReader(getActivity().getResources().getAssets().open(fileName));
+            BufferedReader bufReader = new BufferedReader(inputReader);
+            String line = "";
+            String Result = "";
+            while ((line = bufReader.readLine()) != null)
+                Result += line;
+            return Result;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
     // endregion
 
@@ -1205,7 +1378,7 @@ public class SNManager extends SNConfig {
      * @param requestHeader        http request header
      * @param onHttpResultListener call back
      */
-    public void post(String url, HashMap<String, String> bodys, String contentType, HashMap<String, String> requestHeader,
+    public void post(final String url, final HashMap<String, String> bodys, String contentType, final HashMap<String, String> requestHeader,
                      final SNOnHttpResultListener onHttpResultListener) {
         AsyncHttpClient client = util.httpCreateAsyncHttpClient(requestHeader, contentType);
 
@@ -1213,17 +1386,27 @@ public class SNManager extends SNConfig {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 if (onHttpResultListener != null) {
-                    onHttpResultListener.onSuccess(statusCode, new String(responseBody));
+                    String r = "";
+                    if (responseBody != null)
+                        r = new String(responseBody);
+                    httpLog("POST", url, bodys, requestHeader, statusCode, r);
+                    onHttpResultListener.onSuccess(statusCode, r);
                 }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 if (onHttpResultListener != null) {
-                    onHttpResultListener.onFailure(statusCode, new String(responseBody));
+                    String r = "";
+                    if (responseBody != null)
+                        r = new String(responseBody);
+                    httpLog("POST", url, bodys, requestHeader, statusCode, r);
+                    onHttpResultListener.onFailure(statusCode, r);
                 }
             }
         });
+
+
     }
 
     /**
@@ -1237,6 +1420,10 @@ public class SNManager extends SNConfig {
         post(url, bodys, SN_HTTP_REQUEST_CONTENT_TYPE_FORM, null, onHttpResultListener);
     }
 
+    public void post(String url, HashMap<String, String> bodys, HashMap<String, String> headers, SNOnHttpResultListener onHttpResultListener) {
+        post(url, bodys, SN_HTTP_REQUEST_CONTENT_TYPE_FORM, headers, onHttpResultListener);
+    }
+
     /**
      * http get
      *
@@ -1246,18 +1433,16 @@ public class SNManager extends SNConfig {
      * @param requestHeader        request headers
      * @param onHttpResultListener call back
      */
-    public void get(String url, HashMap<String, String> requestParams, String contentType, HashMap<String, String> requestHeader, final SNOnHttpResultListener onHttpResultListener) {
+    public void get(final String url, final HashMap<String, String> requestParams, String contentType, final HashMap<String, String> requestHeader, final SNOnHttpResultListener onHttpResultListener) {
         AsyncHttpClient client = util.httpCreateAsyncHttpClient(requestHeader, contentType);
         client.get(url, new RequestParams(requestParams), new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 if (onHttpResultListener != null) {
-                    String r = null;
-                    try {
+                    String r = "";
+                    if (responseBody != null)
                         r = new String(responseBody);
-                    } catch (Exception e) {
-                        r = null;
-                    }
+                    httpLog("GET", url, null, requestHeader, statusCode, r);
                     onHttpResultListener.onSuccess(statusCode, r);
                 }
             }
@@ -1265,12 +1450,10 @@ public class SNManager extends SNConfig {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 if (onHttpResultListener != null) {
-                    String r = null;
-                    try {
+                    String r = "";
+                    if (responseBody != null)
                         r = new String(responseBody);
-                    } catch (Exception e) {
-                        r = null;
-                    }
+                    httpLog("GET", url, null, requestHeader, statusCode, r);
                     onHttpResultListener.onFailure(statusCode, r);
                 }
             }
@@ -1284,18 +1467,16 @@ public class SNManager extends SNConfig {
      * @param requestHeader        request headers
      * @param onHttpResultListener call back
      */
-    public void get(String url, HashMap<String, String> requestHeader, final SNOnHttpResultListener onHttpResultListener) {
+    public void get(final String url, final HashMap<String, String> requestHeader, final SNOnHttpResultListener onHttpResultListener) {
         AsyncHttpClient client = util.httpCreateAsyncHttpClient(requestHeader, SNConfig.SN_HTTP_REQUEST_CONTENT_TYPE_FORM);
         client.get(this.context, url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 if (onHttpResultListener != null) {
-                    String r = null;
-                    try {
+                    String r = "";
+                    if (responseBody != null)
                         r = new String(responseBody);
-                    } catch (Exception e) {
-                        r = null;
-                    }
+                    httpLog("GET", url, null, requestHeader, statusCode, r);
                     onHttpResultListener.onSuccess(statusCode, r);
                 }
             }
@@ -1303,16 +1484,42 @@ public class SNManager extends SNConfig {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 if (onHttpResultListener != null) {
-                    String r = null;
-                    try {
+                    String r = "";
+                    if (responseBody != null)
                         r = new String(responseBody);
-                    } catch (Exception e) {
-                        r = null;
-                    }
+                    httpLog("GET", url, null, requestHeader, statusCode, r);
                     onHttpResultListener.onFailure(statusCode, r);
                 }
             }
         });
+    }
+
+
+    public void httpLog(String type, String url, HashMap<String, String> requestParams, HashMap<String, String> requestHeader, int status, String result) {
+        util.logInfo(SNManager.class, "============" + type + " REQUEST START============");
+        util.logInfo(SNManager.class, url);
+        if (requestHeader != null) {
+            util.logInfo(SNManager.class, "============Request Params============");
+            String r = "";
+            for (String key : requestParams.keySet()) {
+                String v = requestParams.get(key);
+                r += util.strFormat("{0}={1}", key, v) + "&";
+            }
+            r.substring(0, r.length() - 2);
+            util.logInfo(SNManager.class, r);
+        }
+        if (requestHeader != null) {
+            util.logInfo(SNManager.class, "============Request Header============");
+            for (String key : requestHeader.keySet()) {
+                String v = requestHeader.get(key);
+                util.logInfo(SNManager.class, util.strFormat("{0}:{1}", key, v));
+            }
+        }
+        util.logInfo(SNManager.class, "============Request Status============");
+        util.logInfo(SNManager.class, util.strParse(status));
+        util.logInfo(SNManager.class, "============Request Result============");
+        util.logInfo(SNManager.class, result);
+        util.logInfo(SNManager.class, "============Request END============");
     }
 
     /**

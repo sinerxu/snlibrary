@@ -30,6 +30,20 @@ public class SNFragment extends Fragment {
             $ = SNManager.instence(SNFragment.this.getActivity());
     }
 
+//    @Override
+//    public void setUserVisibleHint(boolean isVisibleToUser) {
+//        super.setUserVisibleHint(isVisibleToUser);
+//        if ($ == null)
+//            $ = SNManager.instence(SNFragment.this.getActivity());
+//    }
+//
+//    @Override
+//    public void onActivityCreated(Bundle savedInstanceState) {
+//        super.onActivityCreated(savedInstanceState);
+//        if ($ == null)
+//            $ = SNManager.instence(SNFragment.this.getActivity());
+//    }
+
     @Override
     public void onInflate(Activity activity, AttributeSet attrs, Bundle savedInstanceState) {
         if ($ == null)

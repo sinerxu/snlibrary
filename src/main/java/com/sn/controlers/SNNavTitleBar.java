@@ -28,6 +28,7 @@ public class SNNavTitleBar extends ViewGroup {
     String title;
     Drawable logo;
 
+
     public SNNavTitleBar(Context context) {
         this(context, null, 0);
     }
@@ -49,11 +50,12 @@ public class SNNavTitleBar extends ViewGroup {
         $rightButtonText = $navTitleBarBox.find(R.id.rightButtonText);
         $title = $navTitleBarBox.find(R.id.title);
         $logo = $navTitleBarBox.find(R.id.logo);
-        TypedArray a = $.loadStyle(attrs, R.styleable.SNNavTitleBar);
+        TypedArray a = $.obtainStyledAttr(attrs, R.styleable.SNNavTitleBar);
         title = a.getString(R.styleable.SNNavTitleBar_nav_title);
         updateTitle();
         logo = a.getDrawable(R.styleable.SNNavTitleBar_nav_logo);
         updateLogo();
+
     }
 
     @Override
@@ -186,6 +188,7 @@ public class SNNavTitleBar extends ViewGroup {
 
     /**
      * 设置标题的颜色
+     *
      * @param resId resId
      */
     public void setTitleColor(int resId) {

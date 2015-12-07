@@ -17,7 +17,7 @@ import com.sn.main.SNElement;
  */
 public class SNNavigationSlidingActivity extends SlidingActivity {
     public final String LCAP = this.getClass().getName() + " Log";
-    SNElement container;
+    public SNElement container;
     SNElement navTitleBarContainer;
     SNElement topAdContainer;
     public SNElement navTitleBar;

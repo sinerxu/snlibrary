@@ -33,7 +33,7 @@ public class SNScrollable extends SNViewPager {
         $contentList = new ArrayList<SNElement>();
         //DEFAULT_OFFSCREEN_PAGES
         awesomeAdapter = new AwesomePagerAdapter();
-        TypedArray ta = $.loadStyle(attrs, R.styleable.SNScrollable);
+        TypedArray ta = $.obtainStyledAttr(attrs, R.styleable.SNScrollable);
         isAutoHeight = ta.getBoolean(R.styleable.SNScrollable_layout_auto_height, false);
         ta.recycle();
 

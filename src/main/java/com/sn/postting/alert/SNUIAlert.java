@@ -15,7 +15,6 @@ public class SNUIAlert extends SNAlert {
         super(_context);
     }
 
-
     @Override
     public void alert(String title, String msg, String buttonTitle, final SNOnClickListener onClickListener) {
         super.alert(title, msg, buttonTitle, onClickListener);
@@ -27,6 +26,8 @@ public class SNUIAlert extends SNAlert {
 
                     if (onClickListener != null)
                         onClickListener.onClick(null);
+
+                    dialogInterface.cancel();
                 }
             };
         }
@@ -43,6 +44,7 @@ public class SNUIAlert extends SNAlert {
 
         DialogInterface.OnClickListener _onClick = null;
         DialogInterface.OnClickListener _cancelClick = null;
+
         if (okClick != null) {
             _onClick = new DialogInterface.OnClickListener() {
                 @Override
@@ -50,6 +52,8 @@ public class SNUIAlert extends SNAlert {
 
                     if (okClick != null)
                         okClick.onClick(null);
+
+                    dialogInterface.cancel();
                 }
             };
         }
@@ -59,6 +63,7 @@ public class SNUIAlert extends SNAlert {
                 public void onClick(DialogInterface dialogInterface, int i) {
                     if (cancelClick != null)
                         cancelClick.onClick(null);
+                    dialogInterface.cancel();
                 }
             };
         }

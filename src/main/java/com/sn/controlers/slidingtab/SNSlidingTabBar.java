@@ -36,15 +36,24 @@ public class SNSlidingTabBar extends SNLinearLayout {
     ArrayList<Fragment> fragments;
     int style = 0;
 
+
+
+    int underLineColor;
+    public int getUnderLineColor() {
+        return underLineColor;
+    }
     public SNSlidingTabBar(Context context, AttributeSet attrs) {
         super(context, attrs);
         int childCount = getChildCount();
 
-        TypedArray a = $.loadStyle(attrs, R.styleable.SNSlidingTabBar);
+        TypedArray a = $.obtainStyledAttr(attrs, R.styleable.SNSlidingTabBar);
 
         style = a.getInt(R.styleable.SNSlidingTabBar_style, 0);
+        underLineColor = a.getColor(R.styleable.SNSlidingTabBar_underline_color, 0);
         a.recycle();
         fragmentManager = $.supportFragmentManager();
+
+
     }
 
     @Override
@@ -65,9 +74,14 @@ public class SNSlidingTabBar extends SNLinearLayout {
             int tab_layout = R.layout.controler_home_bottomtabbar;
             if (style == 1) {
                 tab_layout = R.layout.controler_home_slidingtabbar;
+            } else if (style == 2) {
+                tab_layout = R.layout.controler_underline_slidingtabbar;
+            }else if (style == 3) {
+                tab_layout = R.layout.controler_block_slidingtabbar;
             }
-            $tab = $.layoutInflateResId(tab_layout, this, inject);
+            $tab = $.layoutInflateResId(tab_layout, this, false, inject);
 
+            $this.add($tab);
             //移除
             inject.tabItemBox.remove(inject.tabItemHover);
             //添加子项

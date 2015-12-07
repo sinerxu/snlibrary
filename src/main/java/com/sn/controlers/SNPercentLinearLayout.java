@@ -24,7 +24,7 @@ public class SNPercentLinearLayout extends SNLinearLayout {
         super(context, attrs);
 
 
-        TypedArray typedArray = $.loadStyle(attrs, R.styleable.SNPercentLayout);
+        TypedArray typedArray = $.obtainStyledAttr(attrs, R.styleable.SNPercentLayout);
 
         String pWidth = typedArray.getString(R.styleable.SNPercentLayout_percent_width);
 

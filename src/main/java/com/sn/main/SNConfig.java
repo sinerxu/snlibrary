@@ -50,7 +50,7 @@ public class SNConfig {
     //endregion
 
     //region http
-    public static final int SN_HTTP_REQUEST_TIME_OUT = 30000;
+    public static final int SN_HTTP_REQUEST_TIME_OUT = 60000;
     public static final int SN_HTTP_REQUEST_RETRY = 0;
     public static final int SN_HTTP_REQUEST_TYPE_GET = 0;
     public static final int SN_HTTP_REQUEST_TYPE_POST = 1;

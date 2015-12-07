@@ -1,6 +1,7 @@
 package com.sn.controlers;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -11,8 +12,11 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 
 import com.sn.interfaces.SNAnimationListener;
+import com.sn.lib.R;
 import com.sn.main.SNElement;
 import com.sn.main.SNManager;
+
+import java.util.IllegalFormatCodePointException;
 
 /**
  * @author Siner QQ348078707
@@ -24,11 +28,13 @@ public class SNSlipNavigation extends ViewGroup {
     SNElement coverView;
     SNElement contentView;
     private VelocityTracker mVelocityTracker;
-
+    private final static int POP_MODE_LEFT = 0;
+    private final static int POP_MODE_RIGHT = 1;
     private final static int TOUCH_STATE_REST = 0;
     private final static int TOUCH_STATE_SCROLLING = 1;
     boolean mIsMenuSliding = false;
     boolean mAlloyClickClose = false;
+    int mPopMode = POP_MODE_RIGHT;
     int mSlideWidth;
     int mLastMotionX = 0;
     int mMaxSpeed = 2000;
@@ -40,19 +46,42 @@ public class SNSlipNavigation extends ViewGroup {
     public int mTouchState = TOUCH_STATE_REST;
     boolean isMenuShow = false;
 
+
+    int contentOffset = -1;
+
+
+    boolean needOffset() {
+        return contentOffset != -1;
+    }
+
     public SNSlipNavigation(Context context) {
-        this(context, null, 0);
+        super(context);
+        init(context, null);
     }
 
     public SNSlipNavigation(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
+        init(context, attrs);
+    }
+
+
+    void init(Context context, AttributeSet attrs) {
+        $ = new SNManager(context);
+        $this = $.create(this);
+        mVelocityTracker = VelocityTracker.obtain();
+        if (attrs != null) {
+            TypedArray array = $.obtainStyledAttr(attrs, R.styleable.SNSlipNavigation);
+            if (array.hasValue(R.styleable.SNSlipNavigation_content_offset)) {
+               contentOffset= array.getDimensionPixelOffset(R.styleable.SNSlipNavigation_content_offset, -1);
+            }
+            array.recycle();
+        }
     }
 
     public SNSlipNavigation(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        $ = new SNManager(context);
-        $this = $.create(this);
-        mSlideWidth = $.px(200);
+        init(context, attrs);
+
     }
 
     @Override
@@ -96,8 +125,20 @@ public class SNSlipNavigation extends ViewGroup {
         coverView.layout(0, 0, coverView.width(), coverView.height());
 
         coverView.visible(SNManager.SN_UI_NONE);
-        mSlideWidth = menuView.width();
-        menuView.layout(-mSlideWidth, 0, 0, menuView.height());
+        if (needOffset()) {
+            int width = $.displaySize().getWidth() - contentOffset;
+            menuView.width(width);
+            mSlideWidth = width;
+
+        } else {
+            mSlideWidth = menuView.width();
+        }
+
+
+        if (mPopMode == POP_MODE_LEFT)
+            menuView.layout(-mSlideWidth, 0, 0, menuView.height());
+        else if (mPopMode == POP_MODE_RIGHT)
+            menuView.layout($.displaySize().getWidth(), 0, $.displaySize().getWidth() + mSlideWidth, menuView.height());
 
     }
 
@@ -113,7 +154,12 @@ public class SNSlipNavigation extends ViewGroup {
             case MotionEvent.ACTION_DOWN:
                 mLastMotionX = (int) ev.getX();
                 mStartLeft = menuView.left();
-                mAlloyClickClose = mLastMotionX > menuView.right();
+                if (mPopMode == POP_MODE_LEFT)
+                    mAlloyClickClose = mLastMotionX > menuView.right();
+                else if (mPopMode == POP_MODE_RIGHT)
+                    mAlloyClickClose = mLastMotionX >= 0 && mLastMotionX <= ($.displaySize().getWidth() - mSlideWidth);
+
+
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (isMenuShow) {
@@ -145,7 +191,16 @@ public class SNSlipNavigation extends ViewGroup {
             return;
         }
         mIsMenuSliding = true;
-        menuView.slideLeft(-mSlideWidth, speed, new SNAnimationListener() {
+        int x = 0, left = 0;
+        if (mPopMode == POP_MODE_LEFT) {
+            x = -mSlideWidth;
+            left = x;
+        } else if (mPopMode == POP_MODE_RIGHT) {
+            x = mSlideWidth;
+            left = $.displaySize().getWidth();
+        }
+        final int f_left = left;
+        menuView.slideLeft(x, speed, new SNAnimationListener() {
             @Override
             public void onAnimationStart(SNElement view, Animation animation) {
                 // TODO Auto-generated method stub
@@ -161,7 +216,7 @@ public class SNSlipNavigation extends ViewGroup {
             @Override
             public void onAnimationEnd(SNElement view, Animation animation) {
                 // TODO Auto-generated method stub
-                menuView.layout(-mSlideWidth, 0, 0, menuView.height());
+                menuView.layout(f_left, 0, f_left + mSlideWidth, menuView.height());
                 isMenuShow = false;
                 mIsMenuSliding = false;
                 mTouchState = TOUCH_STATE_REST;
@@ -198,7 +253,19 @@ public class SNSlipNavigation extends ViewGroup {
         }
         mIsMenuSliding = true;
         coverView.fadeIn(mCoverOpacity, mDefaultSpeed, null);
-        menuView.slideLeft(mSlideWidth, mDefaultSpeed,
+        int from = 0, to = 0, left = 0;
+        if (mPopMode == POP_MODE_LEFT) {
+            from = 0;
+            to = mSlideWidth;
+            left = 0;
+        } else if (mPopMode == POP_MODE_RIGHT) {
+            from = 0;// $.displaySize().getWidth() + mSlideWidth;
+            to = -mSlideWidth;//$.displaySize().getWidth();
+            left = $.displaySize().getWidth() - mSlideWidth;
+        }
+
+        final int f_left = left;
+        menuView.slide(from, to, 0, 0, mDefaultSpeed,
                 new SNAnimationListener() {
                     @Override
                     public void onAnimationStart(SNElement view,
@@ -219,7 +286,7 @@ public class SNSlipNavigation extends ViewGroup {
                         // TODO Auto-generated method stub
                         isMenuShow = true;
                         mIsMenuSliding = false;
-                        menuView.layout(0, 0, menuView.width(),
+                        menuView.layout(f_left, 0, f_left + menuView.width(),
                                 menuView.height());
                         mTouchState = TOUCH_STATE_REST;
                         mLastCoverOpacity = mCoverOpacity;
@@ -233,7 +300,16 @@ public class SNSlipNavigation extends ViewGroup {
             return;
         }
         mIsMenuSliding = true;
-        menuView.slideLeft(left, speed, new SNAnimationListener() {
+        int to = 0, le = 0;
+        if (mPopMode == POP_MODE_LEFT) {
+            to = left;
+            le = 0;
+        } else if (mPopMode == POP_MODE_RIGHT) {
+            to = -left;//$.displaySize().getWidth();
+            le = $.displaySize().getWidth() - mSlideWidth;
+        }
+        final int f_left = le;
+        menuView.slideLeft(to, speed, new SNAnimationListener() {
             @Override
             public void onAnimationStart(SNElement view, Animation animation) {
                 // TODO Auto-generated method stub
@@ -250,7 +326,7 @@ public class SNSlipNavigation extends ViewGroup {
             public void onAnimationEnd(SNElement view, Animation animation) {
                 // TODO Auto-generated method stub
                 isMenuShow = true;
-                menuView.layout(0, 0, menuView.width(), menuView.height());
+                menuView.layout(f_left, 0, f_left + menuView.width(), menuView.height());
                 mTouchState = TOUCH_STATE_REST;
                 mIsMenuSliding = false;
                 mLastCoverOpacity = mCoverOpacity;
@@ -270,9 +346,7 @@ public class SNSlipNavigation extends ViewGroup {
             case MotionEvent.ACTION_MOVE:
                 int currX = (int) ev.getX();
                 if (isMenuShow) {
-                    Log.e("$$$$$$$$$$$$$$$$", "" + Math.abs(currX - mLastMotionX));
                     if (Math.abs(currX - mLastMotionX) > 10) {
-                        Log.e("$$$$$$$$$$$$$$$$", "false");
                         mAlloyClickClose = false;
                         mTouchState = TOUCH_STATE_SCROLLING;
                     }
@@ -280,9 +354,7 @@ public class SNSlipNavigation extends ViewGroup {
                 if (!mIsMenuSliding) {
                     int currentLeft = menuView.left();
                     int currentRight = menuView.right();
-                    if (mVelocityTracker == null) {
-                        mVelocityTracker = VelocityTracker.obtain();
-                    }
+
                     mVelocityTracker.addMovement(ev);
                     int left = currentLeft + currX - mLastMotionX;
                     int right = currentRight + currX - mLastMotionX;
@@ -291,13 +363,25 @@ public class SNSlipNavigation extends ViewGroup {
                         opacity = calcOpacity(left);
                     }
                     mLastMotionX = currX;
-                    if (left < mStartLeft && left > -mSlideWidth
-                            && currX <= currentRight) {
-                        mLastCoverOpacity = opacity;
 
-                        coverView.opacity(opacity);
-                        menuView.layout(left, 0, right, menuView.height());
+                    if (mPopMode == POP_MODE_LEFT) {
+                        if (left < mStartLeft && left > -mSlideWidth
+                                && currX <= currentRight) {
+                            mLastCoverOpacity = opacity;
+
+                            coverView.opacity(opacity);
+                            menuView.layout(left, 0, right, menuView.height());
+                        }
+                    } else if (mPopMode == POP_MODE_RIGHT) {
+                        if (left > mStartLeft && left > $.displaySize().getWidth() - mSlideWidth
+                                && currX >= currentLeft) {
+                            mLastCoverOpacity = opacity;
+
+                            coverView.opacity(opacity);
+                            menuView.layout(left, 0, right, menuView.height());
+                        }
                     }
+
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -326,14 +410,25 @@ public class SNSlipNavigation extends ViewGroup {
                 if (speed > mDefaultSpeed) {
                     speed = mDefaultSpeed;
                 }
-                if ((float) velocityX / 1000 * mDefaultSpeed <= -mSlideWidth) {
-                    closeMenu(speed);
-                } else if (Math.abs(menuView.left() + mSlideWidth) <= mSlideWidth / 2) {
-                    closeMenu(speed);
-                } else {
-                    restoreMenu(speed, Math.abs(menuView.left()));
-                }
 
+                if (mPopMode == POP_MODE_LEFT) {
+                    if ((float) velocityX / 1000 * mDefaultSpeed <= -mSlideWidth) {
+                        closeMenu(speed);
+                    } else if (Math.abs(menuView.left() + mSlideWidth) <= mSlideWidth / 2) {
+                        closeMenu(speed);
+                    } else {
+                        restoreMenu(speed, Math.abs(menuView.left()));
+                    }
+                } else if (mPopMode == POP_MODE_RIGHT) {
+                    if ((float) velocityX / 1000 * mDefaultSpeed >= $.displaySize().getWidth() + mSlideWidth) {
+                        closeMenu(speed);
+                    } else if (Math.abs($.displaySize().getWidth() - menuView.left()) <= mSlideWidth / 2) {
+                        closeMenu(speed);
+                    } else {
+                        int curr = menuView.left() - ($.displaySize().getWidth() - mSlideWidth);
+                        restoreMenu(speed, curr);
+                    }
+                }
                 break;
             case MotionEvent.ACTION_CANCEL:
                 break;
@@ -343,18 +438,37 @@ public class SNSlipNavigation extends ViewGroup {
 
     public float calcOpacity(int left) {
         float opacity = mCoverOpacity;
-        if (left >= 0) {
-            opacity = mCoverOpacity;
-        } else if (left <= -mSlideWidth) {
-            opacity = 0;
-        } else {
-            // opacity=a*left+b
-            // 当left=0时，opacit=mCoverOpacity,可求b
-            float b = mCoverOpacity;
-            // 当opacit=0时,left=-mSlideWidth,可求a
-            float a = (0 - b) / -mSlideWidth;
-            opacity = a * left + b;
+        if (mPopMode == POP_MODE_LEFT) {
+            if (left >= 0) {
+                opacity = mCoverOpacity;
+            } else if (left <= -mSlideWidth) {
+                opacity = 0;
+            } else {
+                // opacity=a*left+b
+                // 当left=0时，opacit=mCoverOpacity,可求b
+                float b = mCoverOpacity;
+                // 当opacit=0时,left=-mSlideWidth,可求a
+                float a = (0 - b) / -mSlideWidth;
+                opacity = a * left + b;
+            }
+        } else if (mPopMode == POP_MODE_RIGHT) {
+            if (left <= ($.displaySize().getWidth() - mSlideWidth)) {
+                opacity = mCoverOpacity;
+            } else if (left >= $.displaySize().getWidth()) {
+                opacity = 0;
+            } else {
+
+                int c = $.displaySize().getWidth() - mSlideWidth;
+
+                // opacity=a*left+b
+                // 当left=min时，opacit=mCoverOpacity,可求b
+                float b = mCoverOpacity;
+                // 当opacit=0时,left=max,可求a
+                float a = (b) / ($.displaySize().getWidth() - c);
+                opacity = b - a * (left - c);
+            }
         }
+
         return opacity;
     }
 }

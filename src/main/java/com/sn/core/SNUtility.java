@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -25,8 +26,14 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
+import com.sn.annotation.SNIOC;
+import com.sn.annotation.SNInjectElement;
+import com.sn.annotation.SNMapping;
 import com.sn.interfaces.SNOnImageLoadListener;
+import com.sn.interfaces.SNThreadListener;
 import com.sn.main.SNConfig;
+import com.sn.main.SNElement;
+import com.sn.main.SNManager;
 import com.sn.models.SNSize;
 
 import org.apache.http.HttpEntity;
@@ -47,10 +54,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -64,6 +74,22 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 
 public class SNUtility {
+    static class ThreadHandler extends Handler {
+        SNThreadListener threadListener;
+
+        public ThreadHandler(SNThreadListener _threadListener) {
+            this.threadListener = _threadListener;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (threadListener != null)
+                threadListener.onFinish(msg.obj);
+
+        }
+    }
+
     private static final String LCAP = "SNUtility Log";
     private static HashMap<String, SoftReference<Bitmap>> imageCatch;
     private static SNUtility utility;
@@ -219,6 +245,76 @@ public class SNUtility {
     public boolean strIsNotNullOrEmpty(String str) {
         return !strIsNullOrEmpty(str);
     }
+
+    public String strCut(final String str, final int maxLength) {
+        return strCut(str, maxLength, true);
+    }
+
+    public String strCut(final String str, final int maxLength, boolean ellipsis) {
+        if (str == null) {
+            return str;
+        }
+        String suffix = "";
+        if (ellipsis) suffix = "...";
+        int suffixLen = suffix.length();
+
+        final StringBuffer sbuffer = new StringBuffer();
+        final char[] chr = str.trim().toCharArray();
+        int len = 0;
+        for (int i = 0; i < chr.length; i++) {
+
+            if (chr[i] >= 0xa1) {
+                len += 2;
+            } else {
+                len++;
+            }
+        }
+        if (len <= maxLength) {
+            return str;
+        }
+        len = 0;
+        for (int i = 0; i < chr.length; i++) {
+            if (chr[i] >= 0xa1) {
+                len += 2;
+                if (len + suffixLen > maxLength) {
+                    break;
+                } else {
+                    sbuffer.append(chr[i]);
+                }
+            } else {
+                len++;
+                if (len + suffixLen > maxLength) {
+                    break;
+                } else {
+                    sbuffer.append(chr[i]);
+                }
+            }
+        }
+        sbuffer.append(suffix);
+        return sbuffer.toString();
+    }
+    //endregion
+
+    //region decimal(decimal)
+    public String decimalFormat(double val, String format) {
+        DecimalFormat decimalFormat = new DecimalFormat(format);
+        return decimalFormat.format(val);
+    }
+
+    public String decimalFormat(float val, String format) {
+        DecimalFormat decimalFormat = new DecimalFormat(format);
+        return decimalFormat.format(val);
+    }
+    //endregion
+
+    //region Array(array)
+    public <T> ArrayList<T> arrayToList(T[] t) {
+        ArrayList<T> a = new ArrayList<T>();
+        for (int i = 0; i < t.length; i++) {
+            a.add(t[i]);
+        }
+        return a;
+    }
     //endregion
 
     //region JSON(json)
@@ -300,6 +396,60 @@ public class SNUtility {
             return null;
         }
     }
+
+    public <T> T jsonMapping(Class<T> tClass, String json) {
+        return jsonMapping(tClass, jsonParse(json));
+    }
+
+    public <T> T jsonMapping(Class<T> tClass, JSONObject jsonObject) {
+        try {
+            T result = tClass.newInstance();
+            Field[] fields = tClass.getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                String fieldName = field.getName();
+                if (field.isAnnotationPresent(SNMapping.class)) {
+                    try {
+                        SNMapping mapping = (SNMapping) field.getAnnotation(SNMapping.class);
+                        fieldName = mapping.value();
+                    } catch (Exception ex) {
+                        fieldName = field.getName();
+                    }
+                }
+                if (jsonNotIsNullOrNoHas(jsonObject, fieldName)) {
+                    try {
+                        if (refClassIsEqual(field.getType(), String.class)) {
+                            field.set(result, jsonObject.get(fieldName).toString());
+                        } else if (refClassIsEqual(field.getType(), int.class)) {
+                            field.set(result, Integer.parseInt(jsonObject.get(fieldName).toString()));
+                        } else if (refClassIsEqual(field.getType(), boolean.class)) {
+                            String r = jsonObject.get(fieldName).toString();
+                            if (r.equals("0")) {
+                                field.set(result, false);
+                            } else if (r.equals("1")) {
+                                field.set(result, true);
+                            } else {
+                                field.set(result, Boolean.parseBoolean(r));
+                            }
+                        } else if (refClassIsEqual(field.getType(), float.class)) {
+                            field.set(result, Float.parseFloat(jsonObject.get(fieldName).toString()));
+                        } else if (refClassIsEqual(field.getType(), double.class)) {
+                            field.set(result, Double.parseDouble(jsonObject.get(fieldName).toString()));
+                        }
+                    } catch (Exception ex) {
+
+                    }
+
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            return null;
+        }
+
+    }
+
+
     //endregion
 
     //region image(img)
@@ -545,6 +695,45 @@ public class SNUtility {
         return output;
     }
 
+    public Bitmap imgCurve(Bitmap bitmap) {
+        return imgCurve(bitmap, bitmap.getHeight() / 6);
+    }
+
+    public Bitmap imgCurve(Bitmap bitmap, float size) {
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+        canvas.drawBitmap(bitmap, new Rect(0, 0, bitmap.getWidth(),
+                        bitmap.getHeight()),
+                new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()), null);
+        final Paint paint = new Paint();
+        paint.setColor(Color.WHITE);
+        paint.setAntiAlias(true);
+        final Path path = new Path();
+        final float x1 = 0;
+        final float y1 = bitmap.getHeight();
+        final float x2 = bitmap.getWidth();
+        final float y2 = bitmap.getHeight();
+        final float x3 = bitmap.getWidth() / 2;
+        final float y3 = bitmap.getHeight() - size;
+
+        float a = 2 * (x2 - x1);
+        float b = 2 * (y2 - y1);
+        float c = x2 * x2 + y2 * y2 - x1 * x1 - y1 * y1;
+        float d = 2 * (x3 - x2);
+        float e = 2 * (y3 - y2);
+        float f = x3 * x3 + y3 * y3 - x2 * x2 - y2 * y2;
+
+        float x = (b * f - e * c) / (b * d - e * a);
+        float y = (d * c - a * f) / (b * d - e * a);
+        float r = (float) Math.sqrt(((x - x1) * (x - x1) + (y - y1) * (y - y1)));
+        canvas.drawCircle(x, y, r, paint);
+        return output;
+    }
+
+    public Bitmap imgCreate(int w, int h) {
+        Bitmap output = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        return output;
+    }
 
     /**
      * Bitmap to InputStream
@@ -877,6 +1066,8 @@ public class SNUtility {
         }
         return false;
     }
+
+
     //endregion
 
     //region encode and decode
@@ -890,7 +1081,7 @@ public class SNUtility {
      */
     public byte[] base64Encode(byte[] bytes) {
         try {
-            return Base64.encode(bytes, Base64.DEFAULT);
+            return Base64.encode(bytes, Base64.NO_WRAP);
         } catch (Exception ex) {
             logError(SNUtility.class, ex.getMessage());
             return null;
@@ -928,7 +1119,7 @@ public class SNUtility {
      */
     public byte[] base64Decode(byte[] bytesB64) {
         try {
-            return Base64.decode(bytesB64, Base64.DEFAULT);
+            return Base64.decode(bytesB64, Base64.NO_WRAP);
         } catch (Exception ex) {
             logError(SNUtility.class, ex.getMessage());
             return null;
@@ -1084,6 +1275,13 @@ public class SNUtility {
     //endregion
 
     //region datetime(date)
+    public Calendar dateUtc(Calendar _calendar) {
+        Calendar calendar = (Calendar) _calendar.clone();
+        int zoneOffset = calendar.get(Calendar.ZONE_OFFSET);
+        int dstOffset = calendar.get(Calendar.DST_OFFSET);
+        calendar.add(Calendar.MILLISECOND, -(zoneOffset + dstOffset));
+        return calendar;
+    }
 
     public Calendar dateInstance(Date date) {
         Calendar calendar = Calendar.getInstance();
@@ -1161,5 +1359,22 @@ public class SNUtility {
     }
 
 
+    //endregion
+
+    //region thread
+    public void threadRun(final SNThreadListener threadListener) {
+        final ThreadHandler handler = new ThreadHandler(threadListener);
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                if (threadListener != null) {
+                    Message msg = new Message();
+                    msg.obj = threadListener.run();
+                    handler.sendMessage(msg);
+                }
+            }
+        }.start();
+    }
     //endregion
 }

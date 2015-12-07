@@ -28,7 +28,7 @@ public class SNSlidingTabContainer extends SNFragmentScrollable {
 
     public SNSlidingTabContainer(Context context, AttributeSet attrs) {
         super(context, attrs);
-        TypedArray a = $.loadStyle(attrs, R.styleable.SNSlidingTabContainer);
+        TypedArray a = $.obtainStyledAttr(attrs, R.styleable.SNSlidingTabContainer);
         isScrollContainer = a.getBoolean(R.styleable.SNSlidingTabContainer_android_isScrollContainer, true);
         a.recycle();
     }

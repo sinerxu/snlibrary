@@ -25,8 +25,6 @@ public class SNHomeBottomTabItem extends SNSlidingTabItem {
     Drawable selectedSrc;
 
 
-
-
     public int getSelectedColor() {
         return selectedColor;
     }
@@ -77,13 +75,14 @@ public class SNHomeBottomTabItem extends SNSlidingTabItem {
 
     public SNHomeBottomTabItem(Context context, AttributeSet attrs) {
         super(context, attrs);
+
         $this = $.layoutInflateResId(R.layout.controler_home_bottomtabitem, (ViewGroup) $this.toView());
-        TypedArray array = $.loadStyle(attrs, R.styleable.SNHomeBottomTabItem);
-        text = array.getString(R.styleable.SNHomeBottomTabItem_android_text);
-        src = array.getDrawable(R.styleable.SNHomeBottomTabItem_android_src);
-        textColor = array.getColor(R.styleable.SNHomeBottomTabItem_android_textColor, 0xFF000000);
-        selectedSrc = array.getDrawable(R.styleable.SNHomeBottomTabItem_selected_src);
-        selectedColor = array.getColor(R.styleable.SNHomeBottomTabItem_selected_color, 0xFF555555);
+        TypedArray array = $.obtainStyledAttr(attrs, R.styleable.SNImageTextTabItem);
+        text = array.getString(R.styleable.SNImageTextTabItem_android_text);
+        src = array.getDrawable(R.styleable.SNImageTextTabItem_android_src);
+        textColor = array.getColor(R.styleable.SNImageTextTabItem_android_textColor, 0xFF000000);
+        selectedSrc = array.getDrawable(R.styleable.SNImageTextTabItem_selected_src);
+        selectedColor = array.getColor(R.styleable.SNImageTextTabItem_selected_color, 0xFF555555);
 
         array.recycle();
 //        if (SNUtility.isNullOrEmpty(fragmentName))
