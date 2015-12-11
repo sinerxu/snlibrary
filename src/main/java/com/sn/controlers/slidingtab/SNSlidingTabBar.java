@@ -45,19 +45,18 @@ public class SNSlidingTabBar extends SNLinearLayout {
     public SNSlidingTabBar(Context context, AttributeSet attrs) {
         super(context, attrs);
         int childCount = getChildCount();
-
         TypedArray a = $.obtainStyledAttr(attrs, R.styleable.SNSlidingTabBar);
-
         style = a.getInt(R.styleable.SNSlidingTabBar_style, 0);
         underLineColor = a.getColor(R.styleable.SNSlidingTabBar_underline_color, 0);
         a.recycle();
-        fragmentManager = $.supportFragmentManager();
-
-
+        setFragmentManager($.supportFragmentManager());
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
         if (items == null) {
             if (fragmentManager == null)
                 throw new IllegalStateException("Must be set fragment manager.");
@@ -80,7 +79,6 @@ public class SNSlidingTabBar extends SNLinearLayout {
                 tab_layout = R.layout.controler_block_slidingtabbar;
             }
             $tab = $.layoutInflateResId(tab_layout, this, false, inject);
-
             $this.add($tab);
             //移除
             inject.tabItemBox.remove(inject.tabItemHover);
@@ -111,8 +109,8 @@ public class SNSlidingTabBar extends SNLinearLayout {
             }
             inject.tabContainer.toView(SNSlidingTabContainer.class).bindData(fragmentManager, fragments);
             inject.tabItemBox.add(inject.tabItemHover);
+
         }
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     public void setFragmentManager(FragmentManager _fragmentManager) {

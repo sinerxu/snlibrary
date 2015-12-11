@@ -10,8 +10,11 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.sn.interfaces.SNAnimationListener;
+import com.sn.interfaces.SNOnClickListener;
 import com.sn.lib.R;
 import com.sn.main.SNElement;
 import com.sn.main.SNManager;
@@ -21,7 +24,7 @@ import java.util.IllegalFormatCodePointException;
 /**
  * @author Siner QQ348078707
  */
-public class SNSlipNavigation extends ViewGroup {
+public class SNSlipNavigation extends RelativeLayout {
     SNManager $;
     SNElement $this;
     SNElement menuView;
@@ -72,7 +75,7 @@ public class SNSlipNavigation extends ViewGroup {
         if (attrs != null) {
             TypedArray array = $.obtainStyledAttr(attrs, R.styleable.SNSlipNavigation);
             if (array.hasValue(R.styleable.SNSlipNavigation_content_offset)) {
-               contentOffset= array.getDimensionPixelOffset(R.styleable.SNSlipNavigation_content_offset, -1);
+                contentOffset = array.getDimensionPixelOffset(R.styleable.SNSlipNavigation_content_offset, -1);
             }
             array.recycle();
         }
@@ -80,6 +83,7 @@ public class SNSlipNavigation extends ViewGroup {
 
     public SNSlipNavigation(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+
         init(context, attrs);
 
     }
@@ -87,7 +91,7 @@ public class SNSlipNavigation extends ViewGroup {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        measureViews(widthMeasureSpec, heightMeasureSpec);
+        //measureViews(widthMeasureSpec, heightMeasureSpec);
     }
 
     public void measureViews(int widthMeasureSpec, int heightMeasureSpec) {
@@ -102,6 +106,7 @@ public class SNSlipNavigation extends ViewGroup {
 
     @Override
     protected void onLayout(boolean arg0, int arg1, int arg2, int arg3, int arg4) {
+
         // TODO Auto-generated method stub
         int childCount = getChildCount();
         if (childCount != 3) {
@@ -134,6 +139,7 @@ public class SNSlipNavigation extends ViewGroup {
             mSlideWidth = menuView.width();
         }
 
+        coverView.clickable(true);
 
         if (mPopMode == POP_MODE_LEFT)
             menuView.layout(-mSlideWidth, 0, 0, menuView.height());
@@ -158,7 +164,6 @@ public class SNSlipNavigation extends ViewGroup {
                     mAlloyClickClose = mLastMotionX > menuView.right();
                 else if (mPopMode == POP_MODE_RIGHT)
                     mAlloyClickClose = mLastMotionX >= 0 && mLastMotionX <= ($.displaySize().getWidth() - mSlideWidth);
-
 
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -248,6 +253,7 @@ public class SNSlipNavigation extends ViewGroup {
 
     // 显示
     public void openMenu() {
+        if (isMenuShow) return;
         if (mIsMenuSliding) {
             return;
         }
@@ -412,7 +418,7 @@ public class SNSlipNavigation extends ViewGroup {
                 }
 
                 if (mPopMode == POP_MODE_LEFT) {
-                    if ((float) velocityX / 1000 * mDefaultSpeed <= -mSlideWidth) {
+                    if ((float) velocityX / 1000 * mDefaultSpeed <= -mSlideWidth/2) {
                         closeMenu(speed);
                     } else if (Math.abs(menuView.left() + mSlideWidth) <= mSlideWidth / 2) {
                         closeMenu(speed);

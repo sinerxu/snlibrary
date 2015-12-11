@@ -81,8 +81,8 @@
     <!--HomeBottomTab START-->
     <style name="HomeBottomTabStyle">
         <item name="android:background">#fff</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
     </style>
     <style name="HomeBottomTabContentStyle">
         <item name="android:isScrollContainer">false</item>
@@ -106,8 +106,8 @@
 
     <!--HomeSlidingTab START-->
     <style name="HomeSlidingTabStyle">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:background">#fff</item>
     </style>
     <style name="HomeSlidingTabBoxStyle">

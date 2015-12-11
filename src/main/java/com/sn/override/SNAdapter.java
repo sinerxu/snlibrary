@@ -69,6 +69,8 @@ public class SNAdapter extends BaseAdapter {
             //onLoadView.onInject(inject);
             view = inject.getView().toView();
             inject.onInjectUI();
+            inject.onInjectEvent();
+            inject.setAdapter(this);
         }
         return view;
     }

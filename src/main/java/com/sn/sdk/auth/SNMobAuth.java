@@ -77,7 +77,7 @@ public class SNMobAuth extends SNAuth implements PlatformActionListener {
         super.auth(authType, onAuth);
         currentAuthType = authType;
         Platform plat = ShareSDK.getPlatform(authType);
-        plat.SSOSetting(true);
+        plat.SSOSetting(false);
         plat.setPlatformActionListener(this);
         plat.authorize();
     }

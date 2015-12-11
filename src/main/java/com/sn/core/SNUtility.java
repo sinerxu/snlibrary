@@ -56,6 +56,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -91,7 +92,9 @@ public class SNUtility {
     }
 
     private static final String LCAP = "SNUtility Log";
+
     private static HashMap<String, SoftReference<Bitmap>> imageCatch;
+
     private static SNUtility utility;
 
     private SNUtility() {
@@ -206,7 +209,9 @@ public class SNUtility {
             if (objects[count] != null) {
                 pString = objects[count].toString();
             }
-            str = str.replaceAll("[{]" + count + "[}]", pString);
+            do {
+                str = str.replace("{" + count + "}", pString);
+            } while (str.indexOf("{" + count + "}") >= 0);
 
             count++;
         } while (str.indexOf("{" + count + "}") >= 0);
@@ -305,6 +310,17 @@ public class SNUtility {
         DecimalFormat decimalFormat = new DecimalFormat(format);
         return decimalFormat.format(val);
     }
+
+    public double decimalParse(String decimal) {
+        try {
+            BigDecimal bigDecimal = new BigDecimal(decimal);
+            return bigDecimal.doubleValue();
+        } catch (Exception ex) {
+            return 0;
+        }
+
+    }
+
     //endregion
 
     //region Array(array)
@@ -407,40 +423,45 @@ public class SNUtility {
             Field[] fields = tClass.getDeclaredFields();
             for (Field field : fields) {
                 field.setAccessible(true);
-                String fieldName = field.getName();
+                String fieldNames = field.getName();
                 if (field.isAnnotationPresent(SNMapping.class)) {
                     try {
                         SNMapping mapping = (SNMapping) field.getAnnotation(SNMapping.class);
-                        fieldName = mapping.value();
+                        fieldNames = mapping.value();
                     } catch (Exception ex) {
-                        fieldName = field.getName();
+                        fieldNames = field.getName();
                     }
                 }
-                if (jsonNotIsNullOrNoHas(jsonObject, fieldName)) {
-                    try {
-                        if (refClassIsEqual(field.getType(), String.class)) {
-                            field.set(result, jsonObject.get(fieldName).toString());
-                        } else if (refClassIsEqual(field.getType(), int.class)) {
-                            field.set(result, Integer.parseInt(jsonObject.get(fieldName).toString()));
-                        } else if (refClassIsEqual(field.getType(), boolean.class)) {
-                            String r = jsonObject.get(fieldName).toString();
-                            if (r.equals("0")) {
-                                field.set(result, false);
-                            } else if (r.equals("1")) {
-                                field.set(result, true);
-                            } else {
-                                field.set(result, Boolean.parseBoolean(r));
+                String[] fns = fieldNames.split(",");
+                for (String fieldName : fns) {
+
+                    if (jsonNotIsNullOrNoHas(jsonObject, fieldName)) {
+                        try {
+                            if (refClassIsEqual(field.getType(), String.class)) {
+                                field.set(result, jsonObject.get(fieldName).toString());
+                            } else if (refClassIsEqual(field.getType(), int.class)) {
+                                field.set(result, Integer.parseInt(jsonObject.get(fieldName).toString()));
+                            } else if (refClassIsEqual(field.getType(), boolean.class)) {
+                                String r = jsonObject.get(fieldName).toString();
+                                if (r.equals("0")) {
+                                    field.set(result, false);
+                                } else if (r.equals("1")) {
+                                    field.set(result, true);
+                                } else {
+                                    field.set(result, Boolean.parseBoolean(r));
+                                }
+                            } else if (refClassIsEqual(field.getType(), float.class)) {
+                                field.set(result, Float.parseFloat(jsonObject.get(fieldName).toString()));
+                            } else if (refClassIsEqual(field.getType(), double.class)) {
+                                field.set(result, Double.parseDouble(jsonObject.get(fieldName).toString()));
                             }
-                        } else if (refClassIsEqual(field.getType(), float.class)) {
-                            field.set(result, Float.parseFloat(jsonObject.get(fieldName).toString()));
-                        } else if (refClassIsEqual(field.getType(), double.class)) {
-                            field.set(result, Double.parseDouble(jsonObject.get(fieldName).toString()));
+                        } catch (Exception ex) {
+
                         }
-                    } catch (Exception ex) {
-
+                        break;
                     }
-
                 }
+
             }
             return result;
         } catch (Exception e) {
@@ -1375,6 +1396,36 @@ public class SNUtility {
                 }
             }
         }.start();
+    }
+    //endregion
+
+    //region version(version)
+
+    /**
+     * 判断版本是否需要更新
+     *
+     * @param localVersion  本地版本
+     * @param onlineVersion 远程版本
+     * @return boolean
+     */
+    public static boolean versionIsNeedUpdate(String localVersion, String onlineVersion) {
+        if (localVersion.equals(onlineVersion)) {
+            return false;
+        }
+        String[] localArray = localVersion.split("\\.");
+        String[] onlineArray = onlineVersion.split("\\.");
+
+        int length = localArray.length < onlineArray.length ? localArray.length : onlineArray.length;
+
+        for (int i = 0; i < length; i++) {
+            if (Integer.parseInt(onlineArray[i]) > Integer.parseInt(localArray[i])) {
+                return true;
+            } else if (Integer.parseInt(onlineArray[i]) < Integer.parseInt(localArray[i])) {
+                return false;
+            }
+            // 相等 比较下一组值
+        }
+        return true;
     }
     //endregion
 }

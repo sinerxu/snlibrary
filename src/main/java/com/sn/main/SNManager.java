@@ -22,6 +22,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.telephony.TelephonyManager;
 import android.util.AttributeSet;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Display;
@@ -43,6 +44,7 @@ import com.sn.core.SNUtility;
 import com.sn.interfaces.SNOnClickListener;
 import com.sn.interfaces.SNOnHttpResultListener;
 import com.sn.lib.R;
+
 import com.sn.models.SNSize;
 import com.sn.models.SNInject;
 import com.sn.postting.alert.SNAlert;
@@ -50,7 +52,12 @@ import com.sn.postting.alert.SNAlert;
 import org.apache.http.Header;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.security.MessageDigest;
@@ -616,10 +623,16 @@ public class SNManager extends SNConfig {
     public <T> T prop(Class<T> _class, String key) {
         try {
             SharedPreferences sp = getActivity().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
-            String r = sp.getString(key, null);
-            if (util.strIsNotNullOrEmpty(r))
-                return util.jsonParse(_class, r);
-            else
+
+            String valueBase64 = sp.getString(key, "");
+
+            if (util.strIsNotNullOrEmpty(valueBase64)) {
+
+                byte[] base64 =  util.base64Decode(valueBase64.getBytes());
+                ByteArrayInputStream bais = new ByteArrayInputStream(base64);
+                ObjectInputStream bis = new ObjectInputStream(bais);
+                return (T) bis.readObject();
+            } else
                 return null;
         } catch (Exception ex) {
             util.logDebug(SNManager.class, ex.getMessage());
@@ -657,8 +670,12 @@ public class SNManager extends SNConfig {
             SharedPreferences sp = getActivity().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
             SharedPreferences.Editor prefEditor = sp.edit();
             if (value != null) {
-                String json = util.jsonStringify(value);
-                prefEditor.putString(key, json);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(baos);
+                oos.writeObject(value);
+                String value_Base64 = util.base64EncodeStr(baos
+                        .toByteArray());
+                prefEditor.putString(key, value_Base64);
             } else {
                 prefEditor.remove(key);
             }
@@ -1498,7 +1515,7 @@ public class SNManager extends SNConfig {
     public void httpLog(String type, String url, HashMap<String, String> requestParams, HashMap<String, String> requestHeader, int status, String result) {
         util.logInfo(SNManager.class, "============" + type + " REQUEST START============");
         util.logInfo(SNManager.class, url);
-        if (requestHeader != null) {
+        if (requestParams != null) {
             util.logInfo(SNManager.class, "============Request Params============");
             String r = "";
             for (String key : requestParams.keySet()) {

@@ -1,5 +1,6 @@
 <com.sn.controlers.slidingtab.blocktab.SNBlockTab xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+
     style="@style/HomeSlidingTabStyle">
 
 
@@ -22,7 +23,8 @@
 
     <com.sn.controlers.slidingtab.blocktab.SNBlockTabContainer
         android:id="@+id/tabContainer"
-        style="@style/HomeSlidingTabContentStyle">
+        style="@style/HomeSlidingTabContentStyle"
+        >
 
     </com.sn.controlers.slidingtab.blocktab.SNBlockTabContainer>
 </com.sn.controlers.slidingtab.blocktab.SNBlockTab>
