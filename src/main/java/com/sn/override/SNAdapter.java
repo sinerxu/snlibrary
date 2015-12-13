@@ -74,4 +74,19 @@ public class SNAdapter extends BaseAdapter {
         }
         return view;
     }
+
+    public ArrayList getDatas() {
+        return list;
+    }
+
+
+    public void removeItem(int pos) {
+        list.remove(pos);
+        notifyDataSetChanged();
+    }
+
+    public void addItem(Object object) {
+        list.add(object);
+        notifyDataSetChanged();
+    }
 }

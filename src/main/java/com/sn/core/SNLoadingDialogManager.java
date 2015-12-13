@@ -13,7 +13,7 @@ import com.sn.lib.R;
 public class SNLoadingDialogManager {
 
     public static Dialog currentLoadingDialog;
-    public static Thread closeThread;
+
 
     public static SNLoadingDialogManager loadingDialogManager;
     Context context;
@@ -56,21 +56,10 @@ public class SNLoadingDialogManager {
     }
 
     public void close() {
-        if (closeThread == null) {
-            closeThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (true) {
-                        if (currentLoadingDialog != null) {
-                            currentLoadingDialog.cancel();
-                            currentLoadingDialog = null;
-                            closeThread = null;
-                            break;
-                        }
-                    }
-                }
-            });
-            closeThread.start();
+
+        if (currentLoadingDialog != null) {
+            currentLoadingDialog.cancel();
+            currentLoadingDialog = null;
         }
     }
 }

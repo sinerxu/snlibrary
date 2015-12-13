@@ -16,4 +16,10 @@
     <color name="actionsheet_red">#FD4A2E</color>
     <color name="actionsheet_gray">#8F8F8F</color>
     <color name="border_color">#ffd7d6db</color>
+
+
+
+    <color name="wheel_date_time_text_first_color">#ccc</color>
+    <color name="wheel_date_time_text_second_color">#bbb</color>
+    <color name="wheel_date_time_text_third_color">#222</color>
 </resources>

@@ -4,4 +4,8 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+
+    <dimen name="wheel_date_time_line_split_height">45dp</dimen>
+
+    <dimen name="wheel_date_time_text_size">60dp</dimen>
 </resources>

@@ -57,6 +57,7 @@ import java.lang.ref.SoftReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -91,6 +92,7 @@ public class SNUtility {
         }
     }
 
+    private static final String DEFAULT_URL_ENCODING = "utf-8";
     private static final String LCAP = "SNUtility Log";
 
     private static HashMap<String, SoftReference<Bitmap>> imageCatch;
@@ -137,6 +139,36 @@ public class SNUtility {
         }
     }
 
+    //region url
+    public String urlDecode(String url) {
+        return urlDecode(url, DEFAULT_URL_ENCODING);
+    }
+
+    public String urlDecode(String url, String encoding) {
+        try {
+            url = URLDecoder.decode(url, encoding);
+        } catch (Exception ex) {
+            Log.e(LCAP, "URLDecoder decode error");
+        }
+        return url;
+    }
+
+
+    public String urlEncode(String url) {
+
+        return urlEncode(url, DEFAULT_URL_ENCODING);
+    }
+
+    public String urlEncode(String url, String encoding) {
+        try {
+            url = URLEncoder.encode(url, encoding);
+        } catch (Exception ex) {
+            Log.e(LCAP, "URLEncoder encode error");
+        }
+        return url;
+    }
+    //endregion
+
     //region http request(http)
     private String httpEncodeParams(String params) {
         String[] ps = params.split("[&]");
@@ -146,7 +178,7 @@ public class SNUtility {
                 if (kv.length == 2) {
                     String value = kv[1];
                     try {
-                        params = params.replace(value, URLEncoder.encode(value, "utf-8"));
+                        params = params.replace(value, URLEncoder.encode(value, DEFAULT_URL_ENCODING));
                     } catch (Exception ex) {
                         Log.e(LCAP, "URLEncoder encode error");
                     }
@@ -1308,6 +1340,10 @@ public class SNUtility {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         return calendar;
+    }
+
+    public Calendar dateNow() {
+        return Calendar.getInstance();
     }
 
     public Calendar dateInstance(int year, int month, int day) {

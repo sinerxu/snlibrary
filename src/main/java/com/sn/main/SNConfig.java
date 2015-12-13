@@ -41,7 +41,7 @@ public class SNConfig {
     //region visibility value
     public static final int SN_UI_NONE = View.GONE;
     public static final int SN_UI_VISIBLE = View.VISIBLE;
-    public static final int SN_UI_BLOCK = View.INVISIBLE;
+    public static final int SN_UI_INVISIBLE = View.INVISIBLE;
     //endregion
 
     //region size

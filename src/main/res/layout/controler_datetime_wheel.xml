@@ -1,0 +1,53 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/viewDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.sn.controlers.wheel.SNWheelView xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/wheelYear"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:layout_weight="1"
+            app:lineSplitHeight="@dimen/wheel_date_time_line_split_height"
+            app:textColorFirst="@color/wheel_date_time_text_first_color"
+            app:textColorSecond="@color/wheel_date_time_text_second_color"
+            app:textColorThird="@color/wheel_date_time_text_third_color"
+            app:textSize="@dimen/wheel_date_time_text_size" />
+
+        <com.sn.controlers.wheel.SNWheelView xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/wheelMonth"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:layout_weight="1"
+            app:lineSplitHeight="@dimen/wheel_date_time_line_split_height"
+            app:textColorFirst="@color/wheel_date_time_text_first_color"
+            app:textColorSecond="@color/wheel_date_time_text_second_color"
+            app:textColorThird="@color/wheel_date_time_text_third_color"
+            app:textSize="@dimen/wheel_date_time_text_size" />
+
+        <com.sn.controlers.wheel.SNWheelView xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/wheelDay"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:layout_weight="1"
+            app:lineSplitHeight="@dimen/wheel_date_time_line_split_height"
+            app:textColorFirst="@color/wheel_date_time_text_first_color"
+            app:textColorSecond="@color/wheel_date_time_text_second_color"
+            app:textColorThird="@color/wheel_date_time_text_third_color"
+            app:textSize="@dimen/wheel_date_time_text_size" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/viewTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"></LinearLayout>
+</LinearLayout>
