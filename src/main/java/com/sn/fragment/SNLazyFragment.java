@@ -28,7 +28,8 @@ public class SNLazyFragment extends SNFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        $box = $.create(inflater.inflate(R.layout.fragment_lazy, container, false));
+        if ($box == null)
+            $box = $.create(inflater.inflate(R.layout.fragment_lazy, container, false));
         return $box.toView();
     }
 

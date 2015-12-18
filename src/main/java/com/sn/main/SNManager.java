@@ -1,6 +1,7 @@
 package com.sn.main;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +28,8 @@ import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
@@ -67,18 +70,26 @@ import java.util.HashMap;
  */
 public class SNManager extends SNConfig {
 
-    Activity activity;
+    Object manager;
     Context context;
     public SNUtility util;
 
-    public SNManager(Context context) {
-        this.activity = (Activity) context;
-        this.context = context;
+    public SNManager(Object manager) {
+        this.manager = manager;
+        if (manager instanceof Activity) {
+            Activity _activity = (Activity) manager;
+            this.context = (Context) _activity;
+        } else if (manager instanceof Dialog) {
+            Dialog dialog = (Dialog) manager;
+            this.context = dialog.getContext();
+        } else if (manager instanceof Context) {
+            this.context = (Context) manager;
+        }
         util = SNUtility.instance();
     }
 
-    public static SNManager instence(Context context) {
-        return new SNManager(context);
+    public static SNManager instence(Object manager) {
+        return new SNManager(manager);
     }
 
     // region message alert
@@ -272,8 +283,8 @@ public class SNManager extends SNConfig {
      */
     public <T> T createFragment(Class<T> c, int resId) {
         T t = null;
-        if (activity instanceof FragmentActivity) {
-            t = (T) ((FragmentActivity) activity).getSupportFragmentManager().findFragmentById(resId);
+        if (getActivity() instanceof FragmentActivity) {
+            t = (T) ((FragmentActivity) getActivity()).getSupportFragmentManager().findFragmentById(resId);
         }
         return t;
     }
@@ -295,7 +306,11 @@ public class SNManager extends SNConfig {
      * @return
      */
     public View findView(int id) {
-        return activity.findViewById(id);
+        if (manager instanceof Activity)
+            return getActivity().findViewById(id);
+        else if (manager instanceof Dialog)
+            return getDialog().findViewById(id);
+        return null;
     }
 
     /**
@@ -319,7 +334,10 @@ public class SNManager extends SNConfig {
      * @param _holder      view inject holder object，refer to : document->view inject
      */
     public void contentView(SNElement element, LayoutParams layoutParams, SNInject _holder) {
-        activity.setContentView(element.toView(), layoutParams);
+        if (manager instanceof Activity)
+            getActivity().setContentView(element.toView(), layoutParams);
+        else if (manager instanceof Dialog)
+            getDialog().setContentView(element.toView(), layoutParams);
         inject(_holder);
     }
 
@@ -330,7 +348,10 @@ public class SNManager extends SNConfig {
      * @param _holder view inject holder object，refer to : document->view inject
      */
     public void contentView(SNElement element, SNInject _holder) {
-        activity.setContentView(element.toView());
+        if (manager instanceof Activity)
+            getActivity().setContentView(element.toView());
+        else if (manager instanceof Dialog)
+            getDialog().setContentView(element.toView());
         inject(_holder);
     }
 
@@ -341,7 +362,10 @@ public class SNManager extends SNConfig {
      * @param layoutParams LayoutParams
      */
     public void contentView(SNElement element, LayoutParams layoutParams) {
-        activity.setContentView(element.toView(), layoutParams);
+        if (manager instanceof Activity)
+            getActivity().setContentView(element.toView(), layoutParams);
+        else if (manager instanceof Dialog)
+            getDialog().setContentView(element.toView(), layoutParams);
     }
 
     /**
@@ -350,7 +374,10 @@ public class SNManager extends SNConfig {
      * @param element SNElement
      */
     public void contentView(SNElement element) {
-        activity.setContentView(element.toView());
+        if (manager instanceof Activity)
+            getActivity().setContentView(element.toView());
+        else if (manager instanceof Dialog)
+            getDialog().setContentView(element.toView());
     }
 
     /**
@@ -369,7 +396,10 @@ public class SNManager extends SNConfig {
      * @param _holder     view inject holder object，refer to : document->view inject
      */
     public void contentView(int layoutResID, SNInject _holder) {
-        activity.setContentView(layoutResID);
+        if (manager instanceof Activity)
+            getActivity().setContentView(layoutResID);
+        else if (manager instanceof Dialog)
+            getDialog().setContentView(layoutResID);
         inject(_holder);
     }
 
@@ -447,7 +477,7 @@ public class SNManager extends SNConfig {
                             field.setAccessible(true);
                             field.set(_holder, obj);
                         } catch (Exception ex) {
-                            throw new IllegalStateException("IOC class constructor parameter must be SNManager class.");
+                            throw new IllegalStateException("IOC class constructor parameter must be SNManager class:" + ex.getMessage());
                         }
                     }
                 }
@@ -476,7 +506,6 @@ public class SNManager extends SNConfig {
      */
     public void startActivity(Class<?> c, int animated) {
         Intent intent = new Intent(context, c);
-
         this.startActivity(intent);
         activityAnimateType(animated);
     }
@@ -487,7 +516,7 @@ public class SNManager extends SNConfig {
      * @param intent Intent
      */
     public void startActivity(Intent intent) {
-        this.activity.startActivity(intent);
+        this.getActivity().startActivity(intent);
     }
 
     /**
@@ -497,7 +526,7 @@ public class SNManager extends SNConfig {
      * @param animated refer to->SNConfig->animate type
      */
     public void startActivity(Intent intent, int animated) {
-        this.activity.startActivity(intent);
+        this.getActivity().startActivity(intent);
         activityAnimateType(animated);
     }
 
@@ -515,7 +544,7 @@ public class SNManager extends SNConfig {
      */
     public void finishActivity(int animated) {
 
-        activity.finish();
+        getActivity().finish();
         activityAnimateType(animated, true);
     }
 
@@ -531,60 +560,60 @@ public class SNManager extends SNConfig {
      */
     public void activityAnimateType(int animated, boolean isFinish) {
         if (animated == SNManager.SN_ANIMATE_ACTIVITY_NO || animated == SNManager.SN_ANIMATE_ACTIVITY_SN) {
-            activity.overridePendingTransition(0, 0);
+            getActivity().overridePendingTransition(0, 0);
         } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_FADE) {
-            activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_SLIDE) {
-            activity.overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+            getActivity().overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
         } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_SCALE) {
             if (isFinish)
-                activity.overridePendingTransition(R.anim.finish_scale_one,
+                getActivity().overridePendingTransition(R.anim.finish_scale_one,
                         R.anim.finish_scale_two);
             else
-                activity.overridePendingTransition(R.anim.start_scale_one,
+                getActivity().overridePendingTransition(R.anim.start_scale_one,
                         R.anim.start_scale_two);
         } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_SCALE_ROTATE) {
             if (isFinish)
-                activity.overridePendingTransition(R.anim.finish_scale_rotate_one,
+                getActivity().overridePendingTransition(R.anim.finish_scale_rotate_one,
                         R.anim.finish_scale_rotate_two);
             else
-                activity.overridePendingTransition(R.anim.start_scale_rotate_one,
+                getActivity().overridePendingTransition(R.anim.start_scale_rotate_one,
                         R.anim.start_scale_rotate_two);
         } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_SCALE_TRANSLATE) {
             if (isFinish)
-                activity.overridePendingTransition(R.anim.finish_scale_translate_one,
+                getActivity().overridePendingTransition(R.anim.finish_scale_translate_one,
                         R.anim.finish_scale_translate_two);
             else
-                activity.overridePendingTransition(R.anim.start_scale_translate_one,
+                getActivity().overridePendingTransition(R.anim.start_scale_translate_one,
                         R.anim.start_scale_translate_two);
         } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_PUSH_POP_HORIZONTAL) {
             if (isFinish)
-                activity.overridePendingTransition(R.anim.finish_pop_horizontal_one,
+                getActivity().overridePendingTransition(R.anim.finish_pop_horizontal_one,
                         R.anim.finish_pop_horizontal_two);
             else
-                activity.overridePendingTransition(R.anim.start_push_horizontal_one,
+                getActivity().overridePendingTransition(R.anim.start_push_horizontal_one,
                         R.anim.start_push_horizontal_two);
         } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_PUSH_POP_VERTICAL) {
             if (isFinish)
 
-                activity.overridePendingTransition(R.anim.finish_pop_vertical_one,
+                getActivity().overridePendingTransition(R.anim.finish_pop_vertical_one,
                         R.anim.finish_pop_vertical_two);
             else
-                activity.overridePendingTransition(R.anim.start_push_vertical_one,
+                getActivity().overridePendingTransition(R.anim.start_push_vertical_one,
                         R.anim.start_push_vertical_two);
         } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_ZOOM) {
             if (isFinish)
-                activity.overridePendingTransition(R.anim.finish_zoom_one,
+                getActivity().overridePendingTransition(R.anim.finish_zoom_one,
                         R.anim.finish_zoom_two);
             else
-                activity.overridePendingTransition(R.anim.start_zoom_one,
+                getActivity().overridePendingTransition(R.anim.start_zoom_one,
                         R.anim.start_zoom_two);
         } else if (animated == SNManager.SN_ANIMATE_ACTIVITY_TEST) {
             if (isFinish)
-                activity.overridePendingTransition(R.anim.finish_zoom_one,
+                getActivity().overridePendingTransition(R.anim.finish_zoom_one,
                         R.anim.finish_zoom_two);
             else
-                activity.overridePendingTransition(R.anim.start_zoom_one, R.anim.start_zoom_two);
+                getActivity().overridePendingTransition(R.anim.start_zoom_one, R.anim.start_zoom_two);
         }
     }
 
@@ -595,12 +624,29 @@ public class SNManager extends SNConfig {
      * @return
      */
     public String packageName() {
-        return activity.getPackageName();
+        return getActivity().getPackageName();
     }
 
     public Activity getActivity() {
+        if (manager instanceof Activity) {
+            return (Activity) manager;
+        } else {
+            new IllegalStateException("Manager must be a activity.");
+        }
+        return null;
+    }
 
-        return activity;
+    public Dialog getDialog() {
+        if (manager instanceof Dialog) {
+            return (Dialog) manager;
+        } else {
+            new IllegalStateException("Manager must be a dialog.");
+        }
+        return null;
+    }
+
+    public Context getContext() {
+        return context;
     }
 
     /**
@@ -611,8 +657,8 @@ public class SNManager extends SNConfig {
      * @return
      */
     public <T> T getActivity(Class<T> activityClass) {
-        if (activityClass.isInstance(activity))
-            return (T) activity;
+        if (activityClass.isInstance(getActivity()))
+            return (T) getActivity();
         return null;
     }
 
@@ -624,7 +670,7 @@ public class SNManager extends SNConfig {
 
             if (util.strIsNotNullOrEmpty(valueBase64)) {
 
-                byte[] base64 =  util.base64Decode(valueBase64.getBytes());
+                byte[] base64 = util.base64Decode(valueBase64.getBytes());
                 ByteArrayInputStream bais = new ByteArrayInputStream(base64);
                 ObjectInputStream bis = new ObjectInputStream(bais);
                 return (T) bis.readObject();
@@ -706,8 +752,8 @@ public class SNManager extends SNConfig {
      * @return
      */
     public FragmentManager supportFragmentManager() {
-        if (activity instanceof FragmentActivity) {
-            FragmentActivity a = (FragmentActivity) activity;
+        if (getActivity() instanceof FragmentActivity) {
+            FragmentActivity a = (FragmentActivity) getActivity();
             return a.getSupportFragmentManager();
         }
         return null;
@@ -754,6 +800,55 @@ public class SNManager extends SNConfig {
         return a;
     }
 
+
+    /**
+     * layout Inflate
+     *
+     * @param resId
+     * @param root
+     * @return
+     */
+    public SNElement layoutInflateResId(int resId, SNElement root, SNInject _holder) {
+
+        return layoutInflateResId(resId, root.toViewGroup(), _holder);
+    }
+
+    /**
+     * layout Inflate
+     *
+     * @param resId
+     * @param root
+     * @return
+     */
+    public SNElement layoutInflateResId(int resId, SNElement root) {
+        return layoutInflateResId(resId, root.toViewGroup());
+    }
+
+    /**
+     * layout Inflate
+     *
+     * @param resId layout id
+     * @param root  root view
+     * @return
+     */
+    public SNElement layoutInflateResId(int resId, SNElement root, boolean _attachToRoot) {
+        return layoutInflateResId(resId, root.toViewGroup(), _attachToRoot);
+    }
+
+    /**
+     * layout Inflate
+     *
+     * @param resId         layout id
+     * @param root          root view
+     * @param _attachToRoot attach root
+     * @param _holder       view inject, refer to document->view inject
+     * @return
+     */
+    public SNElement layoutInflateResId(int resId, SNElement root, boolean _attachToRoot, SNInject _holder) {
+        return layoutInflateResId(resId, root.toViewGroup(), _attachToRoot, _holder);
+    }
+
+
     /**
      * layout Inflate
      *
@@ -762,7 +857,12 @@ public class SNManager extends SNConfig {
      * @return
      */
     public SNElement layoutInflateResId(int resId, ViewGroup root, SNInject _holder) {
-        SNElement r = create(activity.getLayoutInflater().inflate(resId, root));
+        SNElement r = null;
+        if (manager instanceof Activity)
+            r = create(getActivity().getLayoutInflater().inflate(resId, root));
+        else if (manager instanceof Dialog)
+            r = create(getDialog().getLayoutInflater().inflate(resId, root));
+
         r.inject(_holder);
         return r;
     }
@@ -799,7 +899,11 @@ public class SNManager extends SNConfig {
      * @return
      */
     public SNElement layoutInflateResId(int resId, ViewGroup root, boolean _attachToRoot, SNInject _holder) {
-        SNElement r = create(activity.getLayoutInflater().inflate(resId, root, _attachToRoot));
+        SNElement r = null;
+        if (manager instanceof Activity)
+            r = create(getActivity().getLayoutInflater().inflate(resId, root, _attachToRoot));
+        else if (manager instanceof Dialog)
+            r = create(getDialog().getLayoutInflater().inflate(resId, root, _attachToRoot));
         r.inject(_holder);
         return r;
     }
@@ -811,7 +915,12 @@ public class SNManager extends SNConfig {
      * @return
      */
     public SNElement layoutInflateResId(int resId) {
-        return layoutInflateResId(resId, null, null);
+        SNElement r = null;
+        if (manager instanceof Activity)
+            r = create(getActivity().getLayoutInflater().inflate(resId, null));
+        else if (manager instanceof Dialog)
+            r = create(getDialog().getLayoutInflater().inflate(resId, null));
+        return r;
     }
 
     /**
@@ -822,8 +931,12 @@ public class SNManager extends SNConfig {
      * @return
      */
     public SNElement layoutInflateResId(int resId, SNInject _holder) {
-        SNElement r = create(activity.getLayoutInflater().inflate(resId, null, false));
-        r.inject(_holder);
+
+        SNElement r = null;
+        if (manager instanceof Activity)
+            r = create(getActivity().getLayoutInflater().inflate(resId, null, false));
+        else if (manager instanceof Dialog)
+            r = create(getDialog().getLayoutInflater().inflate(resId, null, false));
         return r;
     }
 
@@ -906,8 +1019,8 @@ public class SNManager extends SNConfig {
      * @return
      */
     public int resource(String name, String typeName) {
-        String packageName = activity.getPackageName();
-        return activity.getResources().getIdentifier(name, typeName, packageName);
+        String packageName = getContext().getPackageName();
+        return getContext().getResources().getIdentifier(name, typeName, packageName);
     }
 
     /**
@@ -990,7 +1103,7 @@ public class SNManager extends SNConfig {
      */
     public TypedValue themeTypeValue(int resid) {
         TypedValue typedValue = new TypedValue();
-        activity.getTheme().resolveAttribute(resid, typedValue, true);
+        getContext().getTheme().resolveAttribute(resid, typedValue, true);
         return typedValue;
     }
 
@@ -1011,7 +1124,10 @@ public class SNManager extends SNConfig {
      * @return
      */
     public SNSize displaySize() {
-        Display mDisplay = activity.getWindowManager().getDefaultDisplay();
+        Display mDisplay = null;
+        if (manager instanceof Activity)
+            mDisplay = getActivity().getWindowManager().getDefaultDisplay();
+        else mDisplay = getDialog().getWindow().getWindowManager().getDefaultDisplay();
         Point point = new Point();
         DisplayMetrics displayMetrics = new DisplayMetrics();
         mDisplay.getMetrics(displayMetrics);
@@ -1028,7 +1144,7 @@ public class SNManager extends SNConfig {
      * @return
      */
     public int colorResId(int resId) {
-        return activity.getResources().getColor(resId);
+        return getContext().getResources().getColor(resId);
     }
 
     /**
@@ -1038,7 +1154,7 @@ public class SNManager extends SNConfig {
      * @return String
      */
     public String stringResId(int resId) {
-        return activity.getResources().getString(resId);
+        return getContext().getResources().getString(resId);
     }
 
     /**
@@ -1048,7 +1164,7 @@ public class SNManager extends SNConfig {
      * @return String
      */
     public String[] stringArrayResId(int resId) {
-        return activity.getResources().getStringArray(resId);
+        return getContext().getResources().getStringArray(resId);
     }
 
     public ArrayList<String> stringArrayListResId(int resId) {
@@ -1063,7 +1179,7 @@ public class SNManager extends SNConfig {
      * @return
      */
     public Drawable drawableResId(int resId) {
-        return activity.getResources().getDrawable(resId);
+        return getContext().getResources().getDrawable(resId);
     }
 
     /**
@@ -1084,7 +1200,7 @@ public class SNManager extends SNConfig {
      * @return
      */
     public int dimenResId(int resId) {
-        return activity.getResources().getDimensionPixelOffset(resId);
+        return getContext().getResources().getDimensionPixelOffset(resId);
     }
 
     /**
@@ -1093,7 +1209,8 @@ public class SNManager extends SNConfig {
      * @return
      */
     public Resources resources() {
-        return activity.getResources();
+
+        return getContext().getResources();
     }
 
 
@@ -1122,8 +1239,8 @@ public class SNManager extends SNConfig {
      * @param layoutParams
      */
     public void slidingLeftView(SNElement element, LayoutParams layoutParams) {
-        if (activity instanceof SlidingActivity) {
-            SlidingActivity a = (SlidingActivity) activity;
+        if (getActivity() instanceof SlidingActivity) {
+            SlidingActivity a = (SlidingActivity) getActivity();
             a.setBehindContentView(element.toView(), layoutParams);
         }
     }
@@ -1134,8 +1251,8 @@ public class SNManager extends SNConfig {
      * @param element
      */
     public void slidingLeftView(SNElement element) {
-        if (activity instanceof SlidingActivity) {
-            SlidingActivity a = (SlidingActivity) activity;
+        if (getActivity() instanceof SlidingActivity) {
+            SlidingActivity a = (SlidingActivity) getActivity();
             a.setBehindContentView(element.toView());
         }
     }
@@ -1146,8 +1263,8 @@ public class SNManager extends SNConfig {
      * @param layoutResID
      */
     public void slidingLeftView(int layoutResID) {
-        if (activity instanceof SlidingActivity) {
-            SlidingActivity a = (SlidingActivity) activity;
+        if (getActivity() instanceof SlidingActivity) {
+            SlidingActivity a = (SlidingActivity) getActivity();
             a.setBehindContentView(layoutResID);
         }
     }
@@ -1158,7 +1275,7 @@ public class SNManager extends SNConfig {
      * @param element
      */
     public void slidingRightView(SNElement element) {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.setSecondaryMenu(element.toView());
         }
@@ -1170,7 +1287,7 @@ public class SNManager extends SNConfig {
      * @param layoutResID
      */
     public void slidingRightView(int layoutResID) {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.setSecondaryMenu(layoutResID);
         }
@@ -1182,8 +1299,8 @@ public class SNManager extends SNConfig {
      * @return SlidingMenu
      */
     public SlidingMenu slidingMenu() {
-        if (activity instanceof SlidingActivity) {
-            SlidingActivity a = (SlidingActivity) activity;
+        if (getActivity() instanceof SlidingActivity) {
+            SlidingActivity a = (SlidingActivity) getActivity();
             return a.getSlidingMenu();
         }
         return null;
@@ -1196,7 +1313,7 @@ public class SNManager extends SNConfig {
      *             LEFT_RIGHT；
      */
     public void slidingMode(int mode) {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.setMode(mode);
         }
@@ -1209,7 +1326,7 @@ public class SNManager extends SNConfig {
      *             TOUCHMODE_MARGIN；3、not allow touch：SlidingMenu.TOUCHMODE_NONE。
      */
     public void slidingTouchModeAbove(int mode) {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.setTouchModeAbove(mode);
         }
@@ -1221,7 +1338,7 @@ public class SNManager extends SNConfig {
      * @param resId drawable id
      */
     public void slidingLeftShadow(int resId) {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.setShadowDrawable(resId);
         }
@@ -1232,8 +1349,10 @@ public class SNManager extends SNConfig {
      *
      * @param drawable drawable object
      */
-    public void slidingLeftShadow(Drawable drawable) {
-        if (activity instanceof SlidingActivity) {
+    public void slidingLeftShadow(Drawable drawable)
+
+    {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.setShadowDrawable(drawable);
         }
@@ -1245,7 +1364,7 @@ public class SNManager extends SNConfig {
      * @param resId drawable id
      */
     public void slidingRightShadow(int resId) {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.setSecondaryShadowDrawable(resId);
         }
@@ -1257,7 +1376,7 @@ public class SNManager extends SNConfig {
      * @param drawable drawable object
      */
     public void slidingRightShadow(Drawable drawable) {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.setSecondaryShadowDrawable(drawable);
         }
@@ -1269,7 +1388,7 @@ public class SNManager extends SNConfig {
      * @param px px value
      */
     public void slidingShadowWidth(int px) {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.setShadowWidth(px);
         }
@@ -1281,7 +1400,7 @@ public class SNManager extends SNConfig {
      * @param resId dimen id
      */
     public void slidingShadowWidthRes(int resId) {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.setShadowWidthRes(resId);
         }
@@ -1293,7 +1412,7 @@ public class SNManager extends SNConfig {
      * @param px px value
      */
     public void slidingOffset(int px) {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.setBehindOffset(px);
         }
@@ -1305,7 +1424,7 @@ public class SNManager extends SNConfig {
      * @param resId dimen id
      */
     public void slidingOffsetRes(int resId) {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.setBehindOffsetRes(resId);
         }
@@ -1317,7 +1436,7 @@ public class SNManager extends SNConfig {
      * @param px px value
      */
     public void slidingWidth(int px) {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.setBehindWidth(px);
         }
@@ -1329,7 +1448,7 @@ public class SNManager extends SNConfig {
      * @param resId
      */
     public void slidingWidthRes(int resId) {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.setBehindWidthRes(resId);
         }
@@ -1341,7 +1460,7 @@ public class SNManager extends SNConfig {
      * @param f
      */
     public void slidingFade(float f) {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.setFadeDegree(f);
         }
@@ -1351,7 +1470,7 @@ public class SNManager extends SNConfig {
      * shwo left
      */
     public void showSlidingLeft() {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.showMenu();
         }
@@ -1361,7 +1480,7 @@ public class SNManager extends SNConfig {
      * show right
      */
     public void showSlidingRight() {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.showSecondaryMenu();
         }
@@ -1371,7 +1490,7 @@ public class SNManager extends SNConfig {
      * show main
      */
     public void showSlidingContent() {
-        if (activity instanceof SlidingActivity) {
+        if (getActivity() instanceof SlidingActivity) {
             SlidingMenu menu = slidingMenu();
             menu.showContent();
         }
@@ -1548,8 +1667,39 @@ public class SNManager extends SNConfig {
 
     //region create manager
     public LocationManager locationManager() {
-        return (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+
+        return (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
     }
     //endregion
 
+    //region input
+    public InputMethodManager inputMethodManager() {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        return imm;
+    }
+
+
+    public void inputAwaysVisible() {
+        if (manager instanceof Activity)
+            getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        else if (manager instanceof Dialog)
+            getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+    }
+
+
+    public void inputShow(SNElement element) {
+        InputMethodManager imm = inputMethodManager();
+        imm.showSoftInput(element.toView(), InputMethodManager.SHOW_FORCED);
+    }
+
+    public void inputToggle(SNElement element) {
+        InputMethodManager imm = inputMethodManager();
+        imm.toggleSoftInputFromWindow(element.windowToken(), 0, InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    public void inputHide(SNElement element) {
+        InputMethodManager imm = inputMethodManager();
+        imm.hideSoftInputFromWindow(element.windowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+    //endregion
 }

@@ -10,14 +10,10 @@ public class SNDialog extends Dialog {
 
     public SNDialog(SNManager $) {
         super($.getActivity());
-        this.$ = $;
-        // TODO Auto-generated constructor stub
     }
 
     public SNDialog(SNManager $, int theme) {
         super($.getActivity(), theme);
-        this.$ = $;
-        // TODO Auto-generated constructor stub
     }
 
     public SNDialog(Context context) {

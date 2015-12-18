@@ -5,6 +5,5 @@ package com.sn.interfaces;
  */
 public interface SNThreadListener {
     Object run();
-
     void onFinish(Object object);
 }

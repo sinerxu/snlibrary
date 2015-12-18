@@ -94,7 +94,7 @@
     <style name="HomeBottomTabItemBoxStyle">
         <item name="android:layout_alignParentBottom">true</item>
         <item name="android:background">#efefef</item>
-        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">55dp</item>
     </style>
     <declare-styleable name="SNHomeSlidingTabItem">

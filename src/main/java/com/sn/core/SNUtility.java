@@ -1,6 +1,5 @@
 package com.sn.core;
 
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,20 +19,16 @@ import android.graphics.drawable.NinePatchDrawable;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.text.method.DateTimeKeyListener;
 import android.util.Base64;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
-import com.sn.annotation.SNIOC;
-import com.sn.annotation.SNInjectElement;
 import com.sn.annotation.SNMapping;
 import com.sn.interfaces.SNOnImageLoadListener;
+import com.sn.interfaces.SNThreadDelayedListener;
 import com.sn.interfaces.SNThreadListener;
 import com.sn.main.SNConfig;
-import com.sn.main.SNElement;
-import com.sn.main.SNManager;
 import com.sn.models.SNSize;
 
 import org.apache.http.HttpEntity;
@@ -54,7 +49,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
@@ -92,7 +86,7 @@ public class SNUtility {
         }
     }
 
-    private static final String DEFAULT_URL_ENCODING = "utf-8";
+
     private static final String LCAP = "SNUtility Log";
 
     private static HashMap<String, SoftReference<Bitmap>> imageCatch;
@@ -141,7 +135,7 @@ public class SNUtility {
 
     //region url
     public String urlDecode(String url) {
-        return urlDecode(url, DEFAULT_URL_ENCODING);
+        return urlDecode(url, SNConfig.DEFAULT_ENCODING);
     }
 
     public String urlDecode(String url, String encoding) {
@@ -156,7 +150,7 @@ public class SNUtility {
 
     public String urlEncode(String url) {
 
-        return urlEncode(url, DEFAULT_URL_ENCODING);
+        return urlEncode(url, SNConfig.DEFAULT_ENCODING);
     }
 
     public String urlEncode(String url, String encoding) {
@@ -178,7 +172,7 @@ public class SNUtility {
                 if (kv.length == 2) {
                     String value = kv[1];
                     try {
-                        params = params.replace(value, URLEncoder.encode(value, DEFAULT_URL_ENCODING));
+                        params = params.replace(value, URLEncoder.encode(value, SNConfig.DEFAULT_ENCODING));
                     } catch (Exception ex) {
                         Log.e(LCAP, "URLEncoder encode error");
                     }
@@ -244,8 +238,7 @@ public class SNUtility {
             do {
                 str = str.replace("{" + count + "}", pString);
             } while (str.indexOf("{" + count + "}") >= 0);
-
-            count++;
+            count = count + 1;
         } while (str.indexOf("{" + count + "}") >= 0);
         return str;
     }
@@ -1433,6 +1426,25 @@ public class SNUtility {
             }
         }.start();
     }
+
+    public void threadDelayed(final long time, final SNThreadDelayedListener threadDelayedListener) {
+        threadRun(new SNThreadListener() {
+            @Override
+            public Object run() {
+                try {
+                    Thread.sleep(time);
+                } catch (Exception e) {
+                }
+                return null;
+            }
+
+            @Override
+            public void onFinish(Object object) {
+                if (threadDelayedListener != null) threadDelayedListener.onFinish();
+            }
+        });
+    }
+
     //endregion
 
     //region version(version)

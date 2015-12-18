@@ -3,10 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
-        android:id="@+id/mainBox"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"></RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/loadingBox"
@@ -31,16 +27,19 @@
                 android:layout_gravity="center_vertical" />
 
             <!--<TextView-->
-                <!--android:id="@+id/loadingMsg"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_marginLeft="8dp"-->
-                <!--android:gravity="center_vertical"-->
-                <!--android:text="正在加载..."-->
-                <!--android:textColor="#555"-->
-                <!--android:textSize="16dp" />-->
+            <!--android:id="@+id/loadingMsg"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="8dp"-->
+            <!--android:gravity="center_vertical"-->
+            <!--android:text="正在加载..."-->
+            <!--android:textColor="#555"-->
+            <!--android:textSize="16dp" />-->
         </LinearLayout>
     </RelativeLayout>
 
-
+    <RelativeLayout
+        android:id="@+id/mainBox"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></RelativeLayout>
 </RelativeLayout>

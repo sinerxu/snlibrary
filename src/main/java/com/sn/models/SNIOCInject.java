@@ -9,14 +9,9 @@ public class SNIOCInject {
     public SNManager $;
 
 
-    boolean alreadyInject;
     public SNIOCInject(SNManager _$) {
         this.$ = _$;
-        if (!alreadyInject)
-        {
-            alreadyInject=true;
-            $.injectIOC(this);
-        }
+        $.injectIOC(this);
     }
 
 }

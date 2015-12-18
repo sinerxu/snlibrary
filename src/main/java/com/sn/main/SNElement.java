@@ -1,11 +1,13 @@
 package com.sn.main;
 
 import android.annotation.TargetApi;
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,6 +19,9 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.TranslateAnimation;
+import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -26,7 +31,12 @@ import android.widget.TextView;
 import com.sn.controlers.SNNavTitleBar;
 import com.sn.controlers.SNScrollable;
 import com.sn.controlers.SNSlipNavigation;
+import com.sn.controlers.wheel.adapters.WheelViewAdapter;
+import com.sn.controlers.wheel.views.OnWheelChangedListener;
+import com.sn.controlers.wheel.views.OnWheelScrollListener;
+import com.sn.controlers.wheel.views.WheelView;
 import com.sn.core.SNXListManager;
+import com.sn.dialog.SNDialog;
 import com.sn.interfaces.SNAdapterListener;
 import com.sn.interfaces.SNAdapterOnItemClickListener;
 import com.sn.interfaces.SNAnimationListener;
@@ -433,51 +443,6 @@ public class SNElement extends SNManager {
 
     // endregion
 
-    // region others
-
-    /**
-     * getLayoutParams
-     *
-     * @return
-     */
-    public LayoutParams getLayoutParams() {
-        return elem.getLayoutParams();
-    }
-
-    /**
-     * setLayoutParams
-     *
-     * @param layoutParams
-     * @return
-     */
-    public SNElement setLayoutParams(LayoutParams layoutParams) {
-        elem.setLayoutParams(layoutParams);
-        return this;
-    }
-
-
-    /**
-     * 获取SNAdapter适配器
-     *
-     * @return
-     */
-    public SNAdapter getListViewAdapter() {
-        return listViewAdapter;
-    }
-
-    /**
-     * getContext
-     *
-     * @return
-     */
-    public Context getContext() {
-        if (elem != null) {
-            return elem.getContext();
-        } else {
-            return null;
-        }
-    }
-    // endregion
 
     // region position
 
@@ -588,10 +553,69 @@ public class SNElement extends SNManager {
 
     // endregion
 
-    // region style
-
-
     // region common
+
+    /**
+     * getLayoutParams
+     *
+     * @return
+     */
+    public LayoutParams getLayoutParams() {
+        return elem.getLayoutParams();
+    }
+
+    /**
+     * setLayoutParams
+     *
+     * @param layoutParams
+     * @return
+     */
+    public SNElement setLayoutParams(LayoutParams layoutParams) {
+        elem.setLayoutParams(layoutParams);
+        return this;
+    }
+
+
+    /**
+     * 获取SNAdapter适配器
+     *
+     * @return
+     */
+    public SNAdapter getListViewAdapter() {
+        return listViewAdapter;
+    }
+
+    /**
+     * getContext
+     *
+     * @return
+     */
+    public Context getContext() {
+        if (elem != null) {
+            return elem.getContext();
+        } else {
+            return null;
+        }
+    }
+
+    public SNElement inputToggle() {
+        inputToggle(this);
+        return this;
+    }
+
+    public SNElement inputShow() {
+        inputShow(this);
+        return this;
+    }
+
+    public SNElement inputHide() {
+        inputHide(this);
+        return this;
+    }
+
+    public IBinder windowToken() {
+        return elem.getWindowToken();
+    }
 
     /**
      * set visible
@@ -913,12 +937,99 @@ public class SNElement extends SNManager {
         return this;
     }
 
+    //endregion　
+
+    // region controler
+
+    //region webview
+
+    public WebSettings webSettings(String html) {
+        if (elem instanceof WebView) {
+            WebView webView = (WebView) elem;
+            return webView.getSettings();
+        }
+        return null;
+    }
+
+    public SNElement webResponsive() {
+        if (elem instanceof WebView) {
+            WebView webView = (WebView) elem;
+            webView.getSettings().setDefaultTextEncodingName(SNConfig.DEFAULT_ENCODING);
+            webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
+            webView.getSettings().setJavaScriptEnabled(true);
+        }
+        return null;
+    }
+
+    public SNElement loadUrl(String url) {
+        if (elem instanceof WebView) {
+            WebView webView = (WebView) elem;
+            webView.loadUrl(url);
+        }
+        return null;
+    }
+
+    public SNElement loadHtml(String html) {
+        return loadHtml("about:blank", html, "text/html", SNConfig.DEFAULT_ENCODING, null);
+    }
+
+    public SNElement loadHtml(String baseUrl, String data,
+                              String mimeType, String encoding, String historyUrl) {
+        if (elem instanceof WebView) {
+            WebView webView = (WebView) elem;
+            webView.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl);
+        }
+        return this;
+    }
+    //endregion
+
+
+    //region wheelview
+    public int wheelCurrentItem() {
+        if (elem instanceof WebView) {
+            WheelView wheelView = (WheelView) elem;
+            return wheelView.getCurrentItem();
+        }
+        return 0;
+    }
+
+    public SNElement wheelCurrentItem(int index) {
+        if (elem instanceof WebView) {
+            WheelView wheelView = (WheelView) elem;
+            wheelView.setCurrentItem(index);
+        }
+        return this;
+    }
+
+    public SNElement wheelAdapter(WheelViewAdapter viewAdapter) {
+        if (elem instanceof WebView) {
+            WheelView wheelView = (WheelView) elem;
+            wheelView.setViewAdapter(viewAdapter);
+        }
+        return this;
+    }
+
+    public SNElement wheelScrolling(OnWheelScrollListener onWheelScrollListener) {
+        if (elem instanceof WebView) {
+            WheelView wheelView = (WheelView) elem;
+            wheelView.addScrollingListener(onWheelScrollListener);
+        }
+        return this;
+    }
+
+    public SNElement wheelChanging(OnWheelChangedListener onWheelChangedListener) {
+        if (elem instanceof WebView) {
+            WheelView wheelView = (WheelView) elem;
+            wheelView.addChangingListener(onWheelChangedListener);
+        }
+        return this;
+    }
     //endregion
 
     //region button and textview
 
     /**
-     * 获取TextView文本
+     * Gravity
      *
      * @return
      */
@@ -1299,204 +1410,6 @@ public class SNElement extends SNManager {
     }
     //endregion
 
-
-    // endregion
-
-    // region animate
-
-    /**
-     * 执行动画
-     *
-     * @param animation
-     * @param duration
-     * @param animationListener
-     */
-    public SNElement animate(Animation animation, long duration, final SNAnimationListener animationListener,
-                             final boolean isClearAnimate) {
-        if (animationListener != null) {
-            animation.setAnimationListener(new AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation arg0) {
-                    // TODO Auto-generated method stub
-                    animationListener.onAnimationStart(SNElement.this, arg0);
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation arg0) {
-                    // TODO Auto-generated method stub
-                    animationListener.onAnimationRepeat(SNElement.this, arg0);
-                }
-
-                @Override
-                public void onAnimationEnd(Animation arg0) {
-                    // TODO Auto-generated method stub
-                    if (isClearAnimate) {
-                        SNElement.this.clearAnimate();
-                    }
-                    animationListener.onAnimationEnd(SNElement.this, arg0);
-                }
-            });
-        }
-        animation.setFillAfter(true);
-        animation.setDuration(duration);
-        this.elem.startAnimation(animation);
-        return this;
-    }
-
-    /**
-     * 清除所有动画
-     */
-    public SNElement clearAnimate() {
-        elem.clearAnimation();
-        return this;
-    }
-
-    /**
-     * 滑动
-     *
-     * @param fromX
-     * @param toX
-     * @param fromY
-     * @param toY
-     * @param duration
-     * @param animationListener
-     */
-    public SNElement slide(int fromX, int toX, int fromY, int toY, long duration,
-                           final SNAnimationListener animationListener, final boolean isClearAnimate) {
-        Animation animation = new TranslateAnimation(fromX, toX, fromY, toY);
-        animate(animation, duration, animationListener, isClearAnimate);
-        return this;
-    }
-
-    /**
-     * 左右滑动
-     *
-     * @param toX
-     * @param duration
-     * @param animationListener
-     */
-    public SNElement slideLeft(int toX, long duration, final SNAnimationListener animationListener,
-                               final boolean isClearAnimate) {
-
-        Animation animation = new TranslateAnimation(0, toX, 0, 0);
-        animate(animation, duration, animationListener, isClearAnimate);
-        return this;
-    }
-
-    /**
-     * 上下滑动
-     *
-     * @param toY
-     * @param duration
-     * @param animationListener
-     */
-    public SNElement slideDown(int toY, long duration, final SNAnimationListener animationListener,
-                               final boolean isClearAnimate) {
-        Animation animation = new TranslateAnimation(0, 0, 0, toY);
-        animate(animation, duration, animationListener, isClearAnimate);
-        return this;
-    }
-
-    /**
-     * 渐变
-     *
-     * @param fromOpacity
-     * @param toOpacity
-     * @param duration
-     * @param animationListener
-     */
-    public SNElement fade(float fromOpacity, float toOpacity, long duration,
-                          final SNAnimationListener animationListener, Boolean isClearAnimation) {
-        Animation animation = new AlphaAnimation(fromOpacity, toOpacity);
-        animate(animation, duration, animationListener, isClearAnimation);
-        return this;
-    }
-
-    public SNElement opacity(float opacity) {
-        Animation animation = new AlphaAnimation(0, opacity);
-        animate(animation, 0, null, false);
-        return this;
-    }
-
-    /**
-     * 淡入
-     *
-     * @param duration
-     * @param animationListener
-     */
-    public SNElement fadeIn(float toOpacity, long duration, final SNAnimationListener animationListener) {
-        Animation animation = new AlphaAnimation(0, toOpacity);
-        animate(animation, duration, new SNAnimationListener() {
-            @Override
-            public void onAnimationStart(SNElement view, Animation animation) {
-                // TODO Auto-generated method stub
-                view.visible(SNManager.SN_UI_VISIBLE);
-                if (animationListener != null) {
-                    animationListener.onAnimationStart(view, animation);
-                }
-
-            }
-
-            @Override
-            public void onAnimationRepeat(SNElement view, Animation animation) {
-                // TODO Auto-generated method stub
-                if (animationListener != null) {
-                    animationListener.onAnimationRepeat(view, animation);
-                }
-            }
-
-            @Override
-            public void onAnimationEnd(SNElement view, Animation animation) {
-                // TODO Auto-generated method stub
-                if (animationListener != null) {
-                    animationListener.onAnimationEnd(view, animation);
-                }
-            }
-        }, false);
-        return this;
-    }
-
-    /**
-     * 淡出
-     *
-     * @param opacity           当前的opacity
-     * @param duration
-     * @param animationListener
-     * @return
-     */
-    public SNElement fadeOut(float opacity, long duration, final SNAnimationListener animationListener) {
-        Animation animation = new AlphaAnimation(opacity, 0);
-        animate(animation, duration, new SNAnimationListener() {
-            @Override
-            public void onAnimationStart(SNElement view, Animation animation) {
-                // TODO Auto-generated method stub
-                if (animationListener != null) {
-                    animationListener.onAnimationStart(view, animation);
-                }
-            }
-
-            @Override
-            public void onAnimationRepeat(SNElement view, Animation animation) {
-                // TODO Auto-generated method stub
-                if (animationListener != null) {
-                    animationListener.onAnimationRepeat(view, animation);
-                }
-            }
-
-            @Override
-            public void onAnimationEnd(SNElement view, Animation animation) {
-                // TODO Auto-generated method stub
-                view.visible(SNManager.SN_UI_NONE);
-                if (animationListener != null) {
-                    animationListener.onAnimationEnd(view, animation);
-                }
-            }
-        }, true);
-        return this;
-    }
-
-    // endregion
-
     // region SNSlipNavigation
 
     /**
@@ -1532,16 +1445,25 @@ public class SNElement extends SNManager {
     // endregion
 
     // region listView
+
+    public SNElement bindListAdapter(final SNManager $, SNXListManager listManager, final int layout_id, final Class injectClass) {
+        return bindListAdapter($, listManager.getData(), layout_id, injectClass);
+    }
+
     public SNElement bindListAdapter(SNXListManager listManager, final int layout_id, final Class injectClass) {
         return bindListAdapter(listManager.getData(), layout_id, injectClass);
     }
 
     public SNElement bindListAdapter(ArrayList dataSource, final int layout_id, final Class injectClass) {
+        return bindListAdapter(this, dataSource, layout_id, injectClass);
+    }
+
+    public SNElement bindListAdapter(final SNManager $, ArrayList dataSource, final int layout_id, final Class injectClass) {
         bindListAdapter(dataSource, new SNAdapterListener() {
             @Override
             public SNAdapterViewInject onCreateInject(int pos) {
                 try {
-                    return (SNAdapterViewInject) injectClass.getConstructor(SNElement.class).newInstance(layoutInflateResId(layout_id));
+                    return (SNAdapterViewInject) injectClass.getConstructor(SNElement.class).newInstance($.layoutInflateResId(layout_id));
                 } catch (Exception ex) {
                     throw new IllegalStateException("Inject class is must be SNAdapterViewInject.");
                 }
@@ -1839,7 +1761,7 @@ public class SNElement extends SNManager {
         showNavBack(new SNOnClickListener() {
             @Override
             public void onClick(SNElement view) {
-                activity.finish();
+                getActivity().finish();
             }
         });
         return this;
@@ -2049,4 +1971,203 @@ public class SNElement extends SNManager {
         return this;
     }
     //endregion
+
+    // endregion
+
+    // region animate
+
+    /**
+     * 执行动画
+     *
+     * @param animation
+     * @param duration
+     * @param animationListener
+     */
+    public SNElement animate(Animation animation, long duration, final SNAnimationListener animationListener,
+                             final boolean isClearAnimate) {
+        if (animationListener != null) {
+            animation.setAnimationListener(new AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation arg0) {
+                    // TODO Auto-generated method stub
+                    animationListener.onAnimationStart(SNElement.this, arg0);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation arg0) {
+                    // TODO Auto-generated method stub
+                    animationListener.onAnimationRepeat(SNElement.this, arg0);
+                }
+
+                @Override
+                public void onAnimationEnd(Animation arg0) {
+                    // TODO Auto-generated method stub
+                    if (isClearAnimate) {
+                        SNElement.this.clearAnimate();
+                    }
+                    animationListener.onAnimationEnd(SNElement.this, arg0);
+                }
+            });
+        }
+        animation.setFillAfter(true);
+        animation.setDuration(duration);
+        this.elem.startAnimation(animation);
+        return this;
+    }
+
+    /**
+     * 清除所有动画
+     */
+    public SNElement clearAnimate() {
+        elem.clearAnimation();
+        return this;
+    }
+
+    /**
+     * 滑动
+     *
+     * @param fromX
+     * @param toX
+     * @param fromY
+     * @param toY
+     * @param duration
+     * @param animationListener
+     */
+    public SNElement slide(int fromX, int toX, int fromY, int toY, long duration,
+                           final SNAnimationListener animationListener, final boolean isClearAnimate) {
+        Animation animation = new TranslateAnimation(fromX, toX, fromY, toY);
+        animate(animation, duration, animationListener, isClearAnimate);
+        return this;
+    }
+
+    /**
+     * 左右滑动
+     *
+     * @param toX
+     * @param duration
+     * @param animationListener
+     */
+    public SNElement slideLeft(int toX, long duration, final SNAnimationListener animationListener,
+                               final boolean isClearAnimate) {
+
+        Animation animation = new TranslateAnimation(0, toX, 0, 0);
+        animate(animation, duration, animationListener, isClearAnimate);
+        return this;
+    }
+
+    /**
+     * 上下滑动
+     *
+     * @param toY
+     * @param duration
+     * @param animationListener
+     */
+    public SNElement slideDown(int toY, long duration, final SNAnimationListener animationListener,
+                               final boolean isClearAnimate) {
+        Animation animation = new TranslateAnimation(0, 0, 0, toY);
+        animate(animation, duration, animationListener, isClearAnimate);
+        return this;
+    }
+
+    /**
+     * 渐变
+     *
+     * @param fromOpacity
+     * @param toOpacity
+     * @param duration
+     * @param animationListener
+     */
+    public SNElement fade(float fromOpacity, float toOpacity, long duration,
+                          final SNAnimationListener animationListener, Boolean isClearAnimation) {
+        Animation animation = new AlphaAnimation(fromOpacity, toOpacity);
+        animate(animation, duration, animationListener, isClearAnimation);
+        return this;
+    }
+
+    public SNElement opacity(float opacity) {
+        Animation animation = new AlphaAnimation(0, opacity);
+        animate(animation, 0, null, false);
+        return this;
+    }
+
+    /**
+     * 淡入
+     *
+     * @param duration
+     * @param animationListener
+     */
+    public SNElement fadeIn(float toOpacity, long duration, final SNAnimationListener animationListener) {
+        Animation animation = new AlphaAnimation(0, toOpacity);
+        animate(animation, duration, new SNAnimationListener() {
+            @Override
+            public void onAnimationStart(SNElement view, Animation animation) {
+                // TODO Auto-generated method stub
+                view.visible(SNManager.SN_UI_VISIBLE);
+                if (animationListener != null) {
+                    animationListener.onAnimationStart(view, animation);
+                }
+
+            }
+
+            @Override
+            public void onAnimationRepeat(SNElement view, Animation animation) {
+                // TODO Auto-generated method stub
+                if (animationListener != null) {
+                    animationListener.onAnimationRepeat(view, animation);
+                }
+            }
+
+            @Override
+            public void onAnimationEnd(SNElement view, Animation animation) {
+                // TODO Auto-generated method stub
+                if (animationListener != null) {
+                    animationListener.onAnimationEnd(view, animation);
+                }
+            }
+        }, false);
+        return this;
+    }
+
+    /**
+     * 淡出
+     *
+     * @param opacity           当前的opacity
+     * @param duration
+     * @param animationListener
+     * @return
+     */
+    public SNElement fadeOut(float opacity, long duration, final SNAnimationListener animationListener) {
+        Animation animation = new AlphaAnimation(opacity, 0);
+        animate(animation, duration, new SNAnimationListener() {
+            @Override
+            public void onAnimationStart(SNElement view, Animation animation) {
+                // TODO Auto-generated method stub
+                if (animationListener != null) {
+                    animationListener.onAnimationStart(view, animation);
+                }
+            }
+
+            @Override
+            public void onAnimationRepeat(SNElement view, Animation animation) {
+                // TODO Auto-generated method stub
+                if (animationListener != null) {
+                    animationListener.onAnimationRepeat(view, animation);
+                }
+            }
+
+            @Override
+            public void onAnimationEnd(SNElement view, Animation animation) {
+                // TODO Auto-generated method stub
+                view.visible(SNManager.SN_UI_NONE);
+                if (animationListener != null) {
+                    animationListener.onAnimationEnd(view, animation);
+                }
+            }
+        }, true);
+        return this;
+    }
+
+    // endregion
+
+
 }

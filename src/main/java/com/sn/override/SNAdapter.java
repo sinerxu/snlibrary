@@ -59,19 +59,18 @@ public class SNAdapter extends BaseAdapter {
         } else {
             inject = (SNAdapterViewInject) view.getTag();
         }
-        if (onLoadView != null) {
-            if (inject == null) {
-                inject = new SNAdapterViewInject($.create(view));
-            }
-            inject.setPos(pos);
-            inject.setViewGroup($.create(viewGroup));
-            inject.setData(list.get(pos));
-            //onLoadView.onInject(inject);
-            view = inject.getView().toView();
-            inject.onInjectUI();
-            inject.onInjectEvent();
-            inject.setAdapter(this);
+
+        if (inject == null) {
+            inject = new SNAdapterViewInject($.create(view));
         }
+        inject.setPos(pos);
+        inject.setViewGroup($.create(viewGroup));
+        inject.setData(list.get(pos));
+        //onLoadView.onInject(inject);
+        view = inject.getView().toView();
+        inject.setAdapter(this);
+        inject.onInjectUI();
+        inject.onInjectEvent();
         return view;
     }
 

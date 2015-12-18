@@ -36,12 +36,12 @@ public class SNSlidingTabBar extends SNLinearLayout {
     ArrayList<Fragment> fragments;
     int style = 0;
 
-
-
     int underLineColor;
+
     public int getUnderLineColor() {
         return underLineColor;
     }
+
     public SNSlidingTabBar(Context context, AttributeSet attrs) {
         super(context, attrs);
         int childCount = getChildCount();
@@ -75,7 +75,7 @@ public class SNSlidingTabBar extends SNLinearLayout {
                 tab_layout = R.layout.controler_home_slidingtabbar;
             } else if (style == 2) {
                 tab_layout = R.layout.controler_underline_slidingtabbar;
-            }else if (style == 3) {
+            } else if (style == 3) {
                 tab_layout = R.layout.controler_block_slidingtabbar;
             }
             $tab = $.layoutInflateResId(tab_layout, this, false, inject);
@@ -115,5 +115,10 @@ public class SNSlidingTabBar extends SNLinearLayout {
 
     public void setFragmentManager(FragmentManager _fragmentManager) {
         this.fragmentManager = _fragmentManager;
+    }
+
+
+    public void updateTabItemSize() {
+        inject.tabItemBox.toView(SNSlidingTabItemBox.class).updateSize();
     }
 }

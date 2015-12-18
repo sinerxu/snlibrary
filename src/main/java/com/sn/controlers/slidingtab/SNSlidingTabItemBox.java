@@ -44,21 +44,30 @@ public class SNSlidingTabItemBox extends SNRelativeLayout {
             if (!($hover.toView() instanceof SNSlidingTabItemHover))
                 throw new IllegalStateException(
                         "The last item must be SNSlidingTabItemHover.");
-            itemWidth = $this.width() / (childCount - 1);
-            itemHeight = $this.height();
-            $hover.width(itemWidth);
-            $hover.height(itemHeight);
             for (int i = 0; i < childCount - 1; i++) {
-                Log.d(LCAP, "child index==" + i);
                 SNElement item = $.create(getChildAt(i));
-                item.marginLeft(itemWidth * i);
-                item.width(itemWidth);
-                item.height(itemHeight);
                 $itemList.add(item);
             }
+            updateSize();
             onItemLoadFinish();
         }
     }
+
+
+    public void updateSize() {
+        int childCount = getChildCount();
+        itemWidth = $this.width() / (childCount - 1);
+        itemHeight = $this.height();
+        $hover.width(itemWidth);
+        $hover.height(itemHeight);
+        for (int i = 0; i < childCount - 1; i++) {
+            SNElement item = $.create(getChildAt(i));
+            item.marginLeft(itemWidth * i);
+            item.width(itemWidth);
+            item.height(itemHeight);
+        }
+    }
+
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {

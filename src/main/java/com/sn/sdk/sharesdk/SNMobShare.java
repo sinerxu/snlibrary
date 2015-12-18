@@ -26,7 +26,6 @@ public class SNMobShare extends SNShare implements PlatformActionListener {
         if (snMobShare == null)
             snMobShare = new SNMobShare(_activity);
         _result = snMobShare;
-
         return _result;
     }
 

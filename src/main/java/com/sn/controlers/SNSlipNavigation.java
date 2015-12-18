@@ -49,7 +49,7 @@ public class SNSlipNavigation extends RelativeLayout {
     public int mTouchState = TOUCH_STATE_REST;
     boolean isMenuShow = false;
 
-
+    boolean isInit = false;
     int contentOffset = -1;
 
 
@@ -106,45 +106,52 @@ public class SNSlipNavigation extends RelativeLayout {
 
     @Override
     protected void onLayout(boolean arg0, int arg1, int arg2, int arg3, int arg4) {
-
-        // TODO Auto-generated method stub
-        int childCount = getChildCount();
-        if (childCount != 3) {
-            throw new IllegalStateException(
-                    "The childCount of SlidingMenu must be 3,and the first view is empty relativeLayout.");
-        }
-        if (coverView == null) {
-            coverView = $.create(getChildAt(1));
-            int b_color = coverView.backgroundColor();
-            if (b_color == 0) {
-                coverView.backgroundColor(Color.BLACK);
+        super.onLayout(arg0, arg1, arg2, arg3, arg4);
+        if (!isInit) {
+            isInit = true;
+            int childCount = getChildCount();
+            if (childCount != 3) {
+                throw new IllegalStateException(
+                        "The childCount of SlidingMenu must be 3,and the first view is empty relativeLayout.");
+            }
+            if (coverView == null) {
+                coverView = $.create(getChildAt(1));
+                int b_color = coverView.backgroundColor();
+                if (b_color == 0) {
+                    coverView.backgroundColor(Color.BLACK);
+                }
+            }
+            if (menuView == null) {
+                menuView = $.create(getChildAt(2));
+            }
+            if (contentView == null) {
+                contentView = $.create(getChildAt(0));
+            }
+            coverView.visible(SNManager.SN_UI_NONE);
+            coverView.clickable(true);
+            contentView.layout(0, 0, contentView.width(), contentView.height());
+            coverView.layout(0, 0, coverView.width(), coverView.height());
+            if (needOffset()) {
+                int width = $.displaySize().getWidth() - contentOffset;
+                menuView.width(width);
+                mSlideWidth = width;
+            } else {
+                mSlideWidth = menuView.width();
             }
         }
-        if (menuView == null) {
-            menuView = $.create(getChildAt(2));
-        }
-        if (contentView == null) {
-            contentView = $.create(getChildAt(0));
-        }
-        contentView.layout(0, 0, contentView.width(), contentView.height());
-        coverView.layout(0, 0, coverView.width(), coverView.height());
-
-        coverView.visible(SNManager.SN_UI_NONE);
-        if (needOffset()) {
-            int width = $.displaySize().getWidth() - contentOffset;
-            menuView.width(width);
-            mSlideWidth = width;
-
+        if (isMenuShow) {
+            if (mPopMode == POP_MODE_LEFT)
+                menuView.layout(0, 0, mSlideWidth, menuView.height());
+            else if (mPopMode == POP_MODE_RIGHT)
+                menuView.layout($.displaySize().getWidth() - mSlideWidth, 0, $.displaySize().getWidth(), menuView.height());
         } else {
-            mSlideWidth = menuView.width();
+            if (mPopMode == POP_MODE_LEFT)
+                menuView.layout(-mSlideWidth, 0, 0, menuView.height());
+            else if (mPopMode == POP_MODE_RIGHT)
+                menuView.layout($.displaySize().getWidth(), 0, $.displaySize().getWidth() + mSlideWidth, menuView.height());
         }
 
-        coverView.clickable(true);
-
-        if (mPopMode == POP_MODE_LEFT)
-            menuView.layout(-mSlideWidth, 0, 0, menuView.height());
-        else if (mPopMode == POP_MODE_RIGHT)
-            menuView.layout($.displaySize().getWidth(), 0, $.displaySize().getWidth() + mSlideWidth, menuView.height());
+        // TODO Auto-generated method stub
 
     }
 
@@ -418,7 +425,7 @@ public class SNSlipNavigation extends RelativeLayout {
                 }
 
                 if (mPopMode == POP_MODE_LEFT) {
-                    if ((float) velocityX / 1000 * mDefaultSpeed <= -mSlideWidth/2) {
+                    if ((float) velocityX / 1000 * mDefaultSpeed <= -mSlideWidth / 2) {
                         closeMenu(speed);
                     } else if (Math.abs(menuView.left() + mSlideWidth) <= mSlideWidth / 2) {
                         closeMenu(speed);

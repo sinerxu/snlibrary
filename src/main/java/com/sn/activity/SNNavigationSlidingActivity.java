@@ -50,11 +50,12 @@ public class SNNavigationSlidingActivity extends SlidingActivity {
 
     /**
      * load left view
-     * @param left_id left layout id
-     * @param offset_id offset id
-     * @param shadow_width_id shadow width id
+     *
+     * @param left_id            left layout id
+     * @param offset_id          offset id
+     * @param shadow_width_id    shadow width id
      * @param shadow_drawable_id shadow drawable id
-     * @param fade fade value
+     * @param fade               fade value
      */
     public void loadLeftResId(int left_id, int offset_id, int shadow_width_id, int shadow_drawable_id, float fade) {
 
@@ -78,13 +79,14 @@ public class SNNavigationSlidingActivity extends SlidingActivity {
 
     /**
      * load left view
-     * @param left_id left layout id
-     * @param offset_value offset value
+     *
+     * @param left_id            left layout id
+     * @param offset_value       offset value
      * @param shadow_width_value shadow width value
      * @param shadow_drawable_id shadow drawable style
-     * @param fade fade value
+     * @param fade               fade value
      */
-    public void loadLeft(int left_id, int offset_value, int shadow_width_value,  int shadow_drawable_id, float fade) {
+    public void loadLeft(int left_id, int offset_value, int shadow_width_value, int shadow_drawable_id, float fade) {
 
         $.slidingMode(SlidingMenu.LEFT);
 
@@ -106,10 +108,11 @@ public class SNNavigationSlidingActivity extends SlidingActivity {
 
     /**
      * 加载导航条
-     * @param height 导航条高度
+     *
+     * @param height              导航条高度
      * @param background_color_id 导航条颜色资源id
      */
-    public void loadNavBar(int height,int background_color_id) {
+    public void loadNavBar(int height, int background_color_id) {
         navTitleBar = $.create(new SNNavTitleBar(this));
         navTitleBarContainer.add(navTitleBar);
         navTitleBar.backgroundColorResId(background_color_id);
@@ -119,11 +122,16 @@ public class SNNavigationSlidingActivity extends SlidingActivity {
 
     /**
      * 加载导航条
-     * @param height_id 导航条高度资源id
+     *
+     * @param height_id     导航条高度资源id
      * @param background_id 导航条颜色资源id
      */
-    public void loadNavBarResId(int height_id,int background_id) {
+    public void loadNavBarResId(int height_id, int background_id) {
         int height = $.resources().getDimensionPixelSize(height_id);
         loadNavBar(height, background_id);
+    }
+
+    public SNElement getAdContainer() {
+        return topAdContainer;
     }
 }

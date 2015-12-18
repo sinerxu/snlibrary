@@ -12,7 +12,6 @@ import com.sn.sdk.interfaces.SNShareListener;
 public class SNShare implements SNShareInterface {
 
 
-
     Context context;
     Activity activity;
     SNShareListener _shareListener;
@@ -48,5 +47,11 @@ public class SNShare implements SNShareInterface {
     @Override
     public void share(String title, String content, String url, String imageUrl, SNShareListener shareListener) {
 
+    }
+
+
+    @Override
+    public void setShareListener(SNShareListener listener) {
+        this._shareListener = listener;
     }
 }
