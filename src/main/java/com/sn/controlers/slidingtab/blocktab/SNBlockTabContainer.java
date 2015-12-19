@@ -15,9 +15,7 @@ import java.util.ArrayList;
  */
 public class SNBlockTabContainer extends SNSlidingTabContainer {
 
-    public SNBlockTabContainer(Context _context, FragmentManager _manager, ArrayList<Fragment> _list, boolean _isScrollContainer) {
-        super(_context, _manager, _list, _isScrollContainer);
-    }
+
 
     public SNBlockTabContainer(Context context, AttributeSet attrs) {
         super(context, attrs);

@@ -28,10 +28,10 @@ public class SNUnderLineTab extends SNSlidingTab {
 
     @Override
     public void onPage(int _page, SNElement _item, Fragment _content) {
-        super.onPage(_page, _item, _content);
         resetItem();
         SNUnderLineTabItem item = _item.toView(SNUnderLineTabItem.class);
         item.setTextColor(item.getSelectedColor());
         item.setSrc(item.getSelectedSrc());
+        super.onPage(_page, _item, _content);
     }
 }

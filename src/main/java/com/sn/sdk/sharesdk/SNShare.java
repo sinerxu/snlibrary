@@ -17,6 +17,9 @@ public class SNShare implements SNShareInterface {
     SNShareListener _shareListener;
     public static final int SDKTYPE_MOB = 0;
 
+    public static final int SHARE_RESULT_SUCCESS = 1;
+    public static final int SHARE_RESULT_CANCEL = 0;
+    public static final int SHARE_RESULT_ERROR = -1;
 
     /**
      * 创建分享对象

@@ -8,6 +8,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.IBinder;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,9 +31,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.sn.controlers.SNFragmentScrollable;
 import com.sn.controlers.SNNavTitleBar;
 import com.sn.controlers.SNScrollable;
 import com.sn.controlers.SNSlipNavigation;
+import com.sn.controlers.slidingtab.SNSlidingTabBar;
+import com.sn.controlers.slidingtab.listeners.SNSlidingTabListener;
 import com.sn.controlers.wheel.adapters.WheelViewAdapter;
 import com.sn.controlers.wheel.views.OnWheelChangedListener;
 import com.sn.controlers.wheel.views.OnWheelScrollListener;
@@ -1952,7 +1958,20 @@ public class SNElement extends SNManager {
     }
     //endregion
 
-    //region Scrollable
+
+    //region ViewPager SNSlidingTabBar SNFragmentScrollable SNScrollable
+
+    public SNElement tabListener(SNSlidingTabListener tabListener) {
+        if (elem != null) {
+            if (elem instanceof SNSlidingTabBar) {
+                ((SNSlidingTabBar) elem).setTabListener(tabListener);
+            } else {
+                errorNullOrNotInstance("ViewPager SNSlidingTabBar");
+            }
+        }
+        return this;
+    }
+
 
     /**
      * 绑定SNScrollable的内容
@@ -1970,8 +1989,45 @@ public class SNElement extends SNManager {
         }
         return this;
     }
-    //endregion
 
+    public SNElement currentItem(int item) {
+        if (elem != null) {
+            if (elem instanceof ViewPager) {
+                ((ViewPager) elem).setCurrentItem(item);
+            } else if (elem instanceof SNSlidingTabBar) {
+                ((SNSlidingTabBar) elem).setCurrentItem(item);
+            } else {
+                errorNullOrNotInstance("ViewPager SNSlidingTabBar");
+            }
+        }
+        return this;
+    }
+
+    public SNElement currentItem(int item, boolean animated) {
+        if (elem != null) {
+            if (elem instanceof ViewPager) {
+                ((ViewPager) elem).setCurrentItem(item, animated);
+            } else if (elem instanceof SNSlidingTabBar) {
+                ((SNSlidingTabBar) elem).setCurrentItem(item, animated);
+            } else {
+                errorNullOrNotInstance("ViewPager SNSlidingTabBar");
+            }
+        }
+        return this;
+    }
+
+    public SNElement bindData(FragmentManager manager, ArrayList<Fragment> list, int selectItem) {
+        if (elem != null) {
+            if (elem instanceof SNFragmentScrollable) {
+                ((SNFragmentScrollable) elem).bindData(manager, list, selectItem);
+            } else {
+                errorNullOrNotInstance("SNFragmentScrollable");
+            }
+        }
+        return this;
+    }
+
+    //ednregion
     // endregion
 
     // region animate

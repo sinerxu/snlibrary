@@ -15,10 +15,6 @@ import java.util.ArrayList;
  */
 public class SNHomeSlidingTabContainer extends SNSlidingTabContainer {
 
-    public SNHomeSlidingTabContainer(Context _context, FragmentManager _manager, ArrayList<Fragment> _list, boolean _isScrollContainer) {
-        super(_context, _manager, _list, _isScrollContainer);
-    }
-
     public SNHomeSlidingTabContainer(Context context, AttributeSet attrs) {
         super(context, attrs);
     }

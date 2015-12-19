@@ -761,14 +761,12 @@ public class SNUtility {
         final float y2 = bitmap.getHeight();
         final float x3 = bitmap.getWidth() / 2;
         final float y3 = bitmap.getHeight() - size;
-
         float a = 2 * (x2 - x1);
         float b = 2 * (y2 - y1);
         float c = x2 * x2 + y2 * y2 - x1 * x1 - y1 * y1;
         float d = 2 * (x3 - x2);
         float e = 2 * (y3 - y2);
         float f = x3 * x3 + y3 * y3 - x2 * x2 - y2 * y2;
-
         float x = (b * f - e * c) / (b * d - e * a);
         float y = (d * c - a * f) / (b * d - e * a);
         float r = (float) Math.sqrt(((x - x1) * (x - x1) + (y - y1) * (y - y1)));

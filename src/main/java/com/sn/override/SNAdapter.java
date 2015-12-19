@@ -53,7 +53,6 @@ public class SNAdapter extends BaseAdapter {
         SNAdapterViewInject inject = null;
         if (view == null) {
             inject = onLoadView.onCreateInject(pos);
-
             view = inject.getView().toView();
             view.setTag(inject);
         } else {

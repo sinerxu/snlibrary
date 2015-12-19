@@ -11,6 +11,7 @@ import android.view.View;
 import com.sn.controlers.SNLinearLayout;
 import com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabItem;
 import com.sn.controlers.slidingtab.homeslidingtab.SNHomeSlidingTabItem;
+import com.sn.controlers.slidingtab.listeners.SNSlidingTabListener;
 import com.sn.lib.R;
 import com.sn.main.SNElement;
 import com.sn.models.SNInject;
@@ -24,19 +25,21 @@ import java.util.List;
 public class SNSlidingTabBar extends SNLinearLayout {
     SNElement $tab;
 
+
     class SNSlidingTabBarInject extends SNInject {
         SNElement tabItemHover;
         SNElement tabItemBox;
         SNElement tabContainer;
     }
 
+    SNSlidingTabListener slidingTabBarListener;
     SNSlidingTabBarInject inject = new SNSlidingTabBarInject();
     FragmentManager fragmentManager;
     List<SNElement> items;
     ArrayList<Fragment> fragments;
     int style = 0;
-
     int underLineColor;
+    int selectedItem = 0;
 
     public int getUnderLineColor() {
         return underLineColor;
@@ -48,6 +51,7 @@ public class SNSlidingTabBar extends SNLinearLayout {
         TypedArray a = $.obtainStyledAttr(attrs, R.styleable.SNSlidingTabBar);
         style = a.getInt(R.styleable.SNSlidingTabBar_style, 0);
         underLineColor = a.getColor(R.styleable.SNSlidingTabBar_underline_color, 0);
+        selectedItem = a.getInt(R.styleable.SNSlidingTabBar_selected_index, 0);
         a.recycle();
         setFragmentManager($.supportFragmentManager());
     }
@@ -80,6 +84,7 @@ public class SNSlidingTabBar extends SNLinearLayout {
             }
             $tab = $.layoutInflateResId(tab_layout, this, false, inject);
             $this.add($tab);
+            if (this.slidingTabBarListener != null) setTabListener(this.slidingTabBarListener);
             //移除
             inject.tabItemBox.remove(inject.tabItemHover);
             //添加子项
@@ -107,10 +112,20 @@ public class SNSlidingTabBar extends SNLinearLayout {
                 }
                 fragments.add(fragment);
             }
-            inject.tabContainer.toView(SNSlidingTabContainer.class).bindData(fragmentManager, fragments);
+            inject.tabContainer.toView(SNSlidingTabContainer.class).bindData(fragmentManager, fragments, selectedItem);
             inject.tabItemBox.add(inject.tabItemHover);
-
         }
+    }
+
+
+    public void setCurrentItem(int selectedItem) {
+        this.selectedItem = selectedItem;
+        $tab.toView(SNSlidingTab.class).setCurrentPage(selectedItem);
+    }
+
+    public void setCurrentItem(int selectedItem, boolean animated) {
+        this.selectedItem = selectedItem;
+        $tab.toView(SNSlidingTab.class).setCurrentPage(selectedItem, animated);
     }
 
     public void setFragmentManager(FragmentManager _fragmentManager) {
@@ -120,5 +135,11 @@ public class SNSlidingTabBar extends SNLinearLayout {
 
     public void updateTabItemSize() {
         inject.tabItemBox.toView(SNSlidingTabItemBox.class).updateSize();
+    }
+
+    public void setTabListener(SNSlidingTabListener slidingTabBarListener) {
+        this.slidingTabBarListener = slidingTabBarListener;
+        if ($tab != null)
+            $tab.toView(SNSlidingTab.class).setTabListener(slidingTabBarListener);
     }
 }

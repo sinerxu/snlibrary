@@ -35,10 +35,9 @@ public class SNMobShare extends SNShare implements PlatformActionListener {
             isInitShareSDK = true;
             //初始化shareSDK
             ShareSDK.initSDK(_activity);
-            $=new SNManager(_activity);
+            $ = new SNManager(_activity);
         }
     }
-
 
     @Override
     public void share(String title, String content, String url, String imageUrl, SNShareListener shareListener) {
@@ -59,25 +58,21 @@ public class SNMobShare extends SNShare implements PlatformActionListener {
         oks.show(this.context);
     }
 
-
     @Override
     public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
-        if (this._shareListener != null) {
-            this._shareListener.onCallback(1);
-        }
+        if (this._shareListener != null)
+            this._shareListener.onCallback(SHARE_RESULT_SUCCESS);
     }
 
     @Override
     public void onError(Platform platform, int i, Throwable throwable) {
-        if (this._shareListener != null) {
-            this._shareListener.onCallback(-1);
-        }
+        if (this._shareListener != null)
+            this._shareListener.onCallback(SHARE_RESULT_ERROR);
     }
 
     @Override
     public void onCancel(Platform platform, int i) {
-        if (this._shareListener != null) {
-            this._shareListener.onCallback(0);
-        }
+        if (this._shareListener != null)
+            this._shareListener.onCallback(SHARE_RESULT_CANCEL);
     }
 }

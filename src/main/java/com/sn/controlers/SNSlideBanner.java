@@ -166,7 +166,6 @@ public class SNSlideBanner extends SNLinearLayout {
         }
     }
 
-
     void setDotIndex(int index) {
         for (SNElement item : dots) {
             item.opacity(MIN_OPACITY);
@@ -189,7 +188,6 @@ public class SNSlideBanner extends SNLinearLayout {
     }
 
     public void setCurveShape(int size) {
-
         dotMarginUpdate(size);
         Bitmap _shape = $.util.imgCreate($.displaySize().getWidth(), size);
         inject.ivShape.image($.util.imgCurve(_shape, size));
@@ -199,7 +197,6 @@ public class SNSlideBanner extends SNLinearLayout {
         int size = $.px(20);
         setCurveShape(size);
     }
-
 
     void dotMarginUpdate(int size) {
         inject.viewDotBox.marginBottom(size + $.px(10));

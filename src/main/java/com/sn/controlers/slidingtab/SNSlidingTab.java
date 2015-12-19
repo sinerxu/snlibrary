@@ -7,6 +7,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.sn.controlers.SNRelativeLayout;
+import com.sn.controlers.slidingtab.listeners.SNSlidingTabListener;
 import com.sn.interfaces.SNOnClickListener;
 import com.sn.main.SNElement;
 
@@ -31,7 +32,6 @@ public class SNSlidingTab extends SNRelativeLayout {
         return itemBox;
     }
 
-
     public SNSlidingTabContainer getContent() {
         return content;
     }
@@ -44,13 +44,16 @@ public class SNSlidingTab extends SNRelativeLayout {
         return slidingState;
     }
 
-
     SNElement $content;
     SNSlidingTabItemBox itemBox;
     SNSlidingTabContainer content;
+    SNSlidingTabListener slidingTabListener;
     int direct = 0;
     int x = 0;
 
+    public void setTabListener(SNSlidingTabListener slidingTabListener) {
+        this.slidingTabListener = slidingTabListener;
+    }
 
     /**
      * 实时页
@@ -168,12 +171,13 @@ public class SNSlidingTab extends SNRelativeLayout {
 
     /**
      * 当滑动到指定页面时，会调用这个方法
+     *
      * @param _page
      * @param _item
      * @param _content
      */
     public void onPage(int _page, SNElement _item, Fragment _content) {
-
+        if (slidingTabListener != null) slidingTabListener.onPage(_page, _item, _content);
     }
 
     int getX(int p) {

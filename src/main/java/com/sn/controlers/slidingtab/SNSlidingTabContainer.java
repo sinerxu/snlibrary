@@ -8,6 +8,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 import com.sn.controlers.SNFragmentScrollable;
+import com.sn.controlers.slidingtab.listeners.SNSlidingTabListener;
 import com.sn.lib.R;
 
 import java.util.ArrayList;
@@ -21,10 +22,6 @@ public class SNSlidingTabContainer extends SNFragmentScrollable {
     String LCAP = "SNSlidingTabContainer Log";
     boolean isScrollContainer;
 
-    public SNSlidingTabContainer(Context _context, FragmentManager _manager, ArrayList<Fragment> _list, boolean _isScrollContainer) {
-        super(_context, _manager, _list);
-        this.isScrollContainer = _isScrollContainer;
-    }
 
     public SNSlidingTabContainer(Context context, AttributeSet attrs) {
         super(context, attrs);

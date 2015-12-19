@@ -29,10 +29,10 @@ public class SNHomeBottomTab extends SNSlidingTab {
 
     @Override
     public void onPage(int _page, SNElement _item, Fragment _content) {
-        super.onPage(_page, _item, _content);
         resetItem();
         SNHomeBottomTabItem item = _item.toView(SNHomeBottomTabItem.class);
         item.setTextColor(item.getSelectedColor());
         item.setSrc(item.getSelectedSrc());
+        super.onPage(_page, _item, _content);
     }
 }

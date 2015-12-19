@@ -16,22 +16,22 @@ public class SNFragmentScrollable extends SNViewPager {
     private MyFragmentPagerAdapter awesomeAdapter;
     public ArrayList<Fragment> fragments;
 
-    public SNFragmentScrollable(Context context, FragmentManager manager, ArrayList<Fragment> list) {
+    public SNFragmentScrollable(Context context, FragmentManager manager, ArrayList<Fragment> list, int selectItem) {
         super(context);
-        bindData(manager, list);
+        bindData(manager, list, selectItem);
     }
 
     public SNFragmentScrollable(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public void bindData(FragmentManager manager, ArrayList<Fragment> list) {
+    public void bindData(FragmentManager manager, ArrayList<Fragment> list, int selectItem) {
         fragments = list;
         //DEFAULT_OFFSCREEN_PAGES
         awesomeAdapter = new MyFragmentPagerAdapter(manager, fragments);
         setAdapter(new MyFragmentPagerAdapter(manager, list));
         setOffscreenPageLimit(list.size());
-        setCurrentItem(0);
+        setCurrentItem(selectItem);
     }
 
 
