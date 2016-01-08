@@ -49,7 +49,7 @@ public class SNShare implements SNShareInterface {
 
     @Override
     public void share(String title, String content, String url, String imageUrl, SNShareListener shareListener) {
-
+        this._shareListener = shareListener;
     }
 
 

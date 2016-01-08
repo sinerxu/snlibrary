@@ -16,6 +16,8 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
+import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
@@ -26,9 +28,11 @@ import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
 import com.sn.annotation.SNMapping;
 import com.sn.interfaces.SNOnImageLoadListener;
+import com.sn.interfaces.SNTaskListener;
 import com.sn.interfaces.SNThreadDelayedListener;
 import com.sn.interfaces.SNThreadListener;
 import com.sn.main.SNConfig;
+import com.sn.main.SNManager;
 import com.sn.models.SNSize;
 
 import org.apache.http.HttpEntity;
@@ -40,9 +44,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,6 +58,8 @@ import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
@@ -63,11 +72,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
+
+import libcore.io.DiskLruCache;
 
 public class SNUtility {
     static class ThreadHandler extends Handler {
@@ -102,36 +114,6 @@ public class SNUtility {
         return utility;
     }
 
-    SNImageLoadHandler handler;
-
-    class SNImageLoadResult {
-        public SNOnImageLoadListener onImageLoadListener;
-        public Bitmap bitmap;
-    }
-
-    /**
-     * Avoid leaks by using a non-anonymous handler class.
-     */
-    private static class SNImageLoadHandler extends Handler {
-        SNUtility utility;
-
-        public SNImageLoadHandler(SNUtility utility) {
-            this.utility = utility;
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if (msg.obj != null && msg.obj instanceof SNImageLoadResult) {
-                SNImageLoadResult result = (SNImageLoadResult) msg.obj;
-                if (result.onImageLoadListener != null && result.bitmap != null)
-                    result.onImageLoadListener.onSuccess(result.bitmap);
-                else if (result.onImageLoadListener != null) {
-                    result.onImageLoadListener.onFailure();
-                }
-            }
-        }
-    }
 
     //region url
     public String urlDecode(String url) {
@@ -149,7 +131,6 @@ public class SNUtility {
 
 
     public String urlEncode(String url) {
-
         return urlEncode(url, SNConfig.DEFAULT_ENCODING);
     }
 
@@ -322,6 +303,17 @@ public class SNUtility {
         }
         sbuffer.append(suffix);
         return sbuffer.toString();
+    }
+
+    public String strJoin(String[] strs, String join) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < strs.length; i++) {
+            stringBuilder.append(strs[i]).append(join);
+        }
+        int last_str_index = stringBuilder.length();
+        int last_join_index = last_str_index - join.length();
+        stringBuilder.delete(last_join_index, last_str_index);
+        return stringBuilder.toString();
     }
     //endregion
 
@@ -500,117 +492,6 @@ public class SNUtility {
 
     //region image(img)
 
-    /**
-     * load image from url
-     *
-     * @param url
-     * @param isCache
-     * @return
-     * @throws Exception
-     */
-    Bitmap imgLoadFromUrl(String url, boolean isCache) throws Exception {
-        Bitmap rBitmap = imgCatch(url);
-        if (rBitmap != null) {
-            return rBitmap;
-        }
-        final DefaultHttpClient client = new DefaultHttpClient();
-        final HttpGet getRequest = new HttpGet(url);
-        InputStream is = null;
-        ByteArrayOutputStream baos = null;
-        try {
-            HttpResponse response = client.execute(getRequest);
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                Log.e("PicShow", "Request URL failed, error code =" + statusCode);
-            }
-
-            HttpEntity entity = response.getEntity();
-            if (entity == null) {
-                Log.e("PicShow", "HttpEntity is null");
-            }
-
-            baos = new ByteArrayOutputStream();
-            is = entity.getContent();
-            byte[] buf = new byte[1024];
-            int readBytes = -1;
-            while ((readBytes = is.read(buf)) != -1) {
-                baos.write(buf, 0, readBytes);
-            }
-        } finally {
-            if (baos != null) {
-                baos.close();
-            }
-            if (is != null) {
-                is.close();
-            }
-        }
-        byte[] imageArray = baos.toByteArray();
-        rBitmap = BitmapFactory.decodeByteArray(imageArray, 0, imageArray.length);
-        imgCatch(url, rBitmap);
-        return rBitmap;
-    }
-
-    /**
-     * load image support callback
-     *
-     * @param url                  url
-     * @param _onImageLoadListener onImageLoadListener
-     */
-    public void imgLoad(final String url, final SNOnImageLoadListener _onImageLoadListener) {
-        if (handler == null)
-            handler = new SNImageLoadHandler(this);
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Message msg = new Message();
-                // TODO Auto-generated method stub
-                try {
-                    Bitmap bitmap = imgLoadFromUrl(url, true);
-                    SNImageLoadResult result = new SNImageLoadResult();
-                    result.onImageLoadListener = _onImageLoadListener;
-                    result.bitmap = bitmap;
-                    msg.obj = result;
-                } catch (Exception e) {
-                    msg.obj = null;
-                }
-                handler.sendMessage(msg);
-            }
-        }).start();
-    }
-
-    /**
-     * get image catch by url
-     *
-     * @param url
-     * @return
-     */
-    private Bitmap imgCatch(String url) {
-        if (imageCatch == null || !imageCatch.containsKey(url)) {
-            return null;
-        } else {
-            if (imageCatch.get(url).get() == null) {
-                imageCatch.remove(url);
-                return null;
-            }
-            return imageCatch.get(url).get();
-        }
-    }
-
-    /**
-     * set img catch by url
-     *
-     * @param url
-     * @param img
-     */
-    private void imgCatch(String url, Bitmap img) {
-        if (imageCatch == null) {
-            imageCatch = new HashMap<String, SoftReference<Bitmap>>();
-        }
-        if (!imageCatch.containsKey(url) && img != null) {
-            imageCatch.put(url, new SoftReference<Bitmap>(img));
-        }
-    }
 
     /**
      * scale image
@@ -645,7 +526,7 @@ public class SNUtility {
      */
     public Bitmap imgZoom(Bitmap mapBitmap, boolean isWidth, int val) {
         SNSize size = imgScaleSize(mapBitmap, isWidth, val);
-        return imgZoom(mapBitmap, size.getWidth() / mapBitmap.getWidth(), size.getHeight() / mapBitmap.getHeight());
+        return imgZoom(mapBitmap, ((float) size.getWidth()) / ((float) mapBitmap.getWidth()), ((float) size.getHeight()) / ((float) mapBitmap.getHeight()));
     }
 
     /**
@@ -1013,6 +894,24 @@ public class SNUtility {
 
     private String logName(Class c) {
         return c.getSimpleName() + " Log";
+    }
+
+    /**
+     * log 开关
+     *
+     * @param v
+     */
+    public void logSwitch(boolean v) {
+        SNLogManager.setLogSwitch(v);
+    }
+
+    /**
+     * 文件log开关
+     *
+     * @param v
+     */
+    public void logFileSwitch(boolean v) {
+        SNLogManager.setFileLogSwitch(v);
     }
 
     /**
@@ -1410,9 +1309,23 @@ public class SNUtility {
     //endregion
 
     //region thread
-    public void threadRun(final SNThreadListener threadListener) {
+    public SNTask taskRun(Object param, SNTaskListener taskListener) {
+        SNTask task = new SNTask(taskListener);
+        task.execute(param);
+        return task;
+    }
+
+    /**
+     * 使用taskRun，可以解决多线程并发
+     *
+     * @param threadListener
+     * @return
+     */
+    @Deprecated
+    public Thread threadRun(final SNThreadListener threadListener) {
         final ThreadHandler handler = new ThreadHandler(threadListener);
-        new Thread() {
+
+        Thread thread = new Thread() {
             @Override
             public void run() {
                 super.run();
@@ -1422,11 +1335,13 @@ public class SNUtility {
                     handler.sendMessage(msg);
                 }
             }
-        }.start();
+        };
+        thread.start();
+        return thread;
     }
 
-    public void threadDelayed(final long time, final SNThreadDelayedListener threadDelayedListener) {
-        threadRun(new SNThreadListener() {
+    public Thread threadDelayed(final long time, final SNThreadDelayedListener threadDelayedListener) {
+        return threadRun(new SNThreadListener() {
             @Override
             public Object run() {
                 try {
@@ -1442,6 +1357,7 @@ public class SNUtility {
             }
         });
     }
+
 
     //endregion
 
@@ -1474,4 +1390,50 @@ public class SNUtility {
         return true;
     }
     //endregion
+
+    //region interval
+    public SNInterval interval() {
+        return new SNInterval();
+    }
+    //endregion
+
+    //region print
+
+    /**
+     * 打印bundle
+     *
+     * @param bundle
+     * @return
+     */
+    private static String printBundle(Bundle bundle) {
+        StringBuilder sb = new StringBuilder();
+        for (String key : bundle.keySet()) {
+            sb.append("\nkey:" + key + ", value:" + bundle.get(key));
+        }
+        return sb.toString();
+    }
+    //endregion
+
+
+    class SNTask extends AsyncTask<Object, Void, Object> {
+        SNTaskListener taskListener;
+
+        SNTask(SNTaskListener _taskListener) {
+            this.taskListener = _taskListener;
+        }
+
+        @Override
+        protected Object doInBackground(Object... params) {
+
+            return taskListener.onTask(params[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+            taskListener.onFinish(o);
+        }
+
+
+    }
 }

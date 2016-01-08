@@ -27,7 +27,6 @@ public class SNBlockTab extends SNSlidingTab {
 
     @Override
     public void onPage(int _page, SNElement _item, Fragment _content) {
-
         resetItem();
         SNBlockTabItem item = _item.toView(SNBlockTabItem.class);
         item.setTextColor(item.getSelectedColor());

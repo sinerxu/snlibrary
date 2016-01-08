@@ -158,7 +158,7 @@ public class SNXListManager<T> {
      *
      * @param _listener
      */
-    public void setListener(SNXListListener<T> _listener) {
+    void setListener(SNXListListener<T> _listener) {
         this.listener = _listener;
     }
 

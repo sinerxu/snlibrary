@@ -135,7 +135,6 @@ public class SNMobAuth extends SNAuth implements PlatformActionListener {
     @Override
     public void onError(Platform platform, int i, Throwable throwable) {
         resultHandler.sendEmptyMessage(HANDLE_ACTION_ERROR);
-
     }
 
     @Override

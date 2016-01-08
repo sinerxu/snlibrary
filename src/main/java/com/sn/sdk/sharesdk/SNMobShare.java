@@ -35,6 +35,7 @@ public class SNMobShare extends SNShare implements PlatformActionListener {
             isInitShareSDK = true;
             //初始化shareSDK
             ShareSDK.initSDK(_activity);
+
             $ = new SNManager(_activity);
         }
     }

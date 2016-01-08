@@ -18,13 +18,13 @@ public class SNDialog extends Dialog {
 
     public SNDialog(Context context) {
         super(context);
-        $ = SNManager.instence(context);
+        $ = SNManager.instence(this, context);
         // TODO Auto-generated constructor stub
     }
 
     public SNDialog(Context context, int theme) {
         super(context, theme);
-        $ = SNManager.instence(context);
+        $ = SNManager.instence(this, context);
         // TODO Auto-generated constructor stub
     }
 }

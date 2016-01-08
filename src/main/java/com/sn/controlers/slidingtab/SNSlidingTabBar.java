@@ -117,6 +117,24 @@ public class SNSlidingTabBar extends SNLinearLayout {
         }
     }
 
+    public Fragment getContentItem(int i) {
+        if (fragments != null && i < fragments.size()) {
+            return fragments.get(i);
+        } else {
+            return null;
+        }
+    }
+
+    public <T> T getContentItem(Class<T> _class, int i) {
+        Fragment fragment = getContentItem(i);
+        if (fragment != null)
+            return (T) getContentItem(i);
+        else return null;
+    }
+
+    public void setDefaultItem(int selectedItem) {
+        this.selectedItem = selectedItem;
+    }
 
     public void setCurrentItem(int selectedItem) {
         this.selectedItem = selectedItem;

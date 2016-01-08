@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.sn.core.SNInterval;
 import com.sn.lib.R;
 import com.sn.main.SNElement;
 
@@ -24,8 +25,9 @@ public class SNScrollable extends SNViewPager {
     String LCAT = "SNScrollable Log";
 
     private List<View> mListViews = new ArrayList<View>();
+
     boolean isAutoHeight = false;
-    boolean isShowDot = false;
+
     public List<SNElement> $contentList;
 
     public SNScrollable(Context context, AttributeSet attrs) {
@@ -35,8 +37,8 @@ public class SNScrollable extends SNViewPager {
         awesomeAdapter = new AwesomePagerAdapter();
         TypedArray ta = $.obtainStyledAttr(attrs, R.styleable.SNScrollable);
         isAutoHeight = ta.getBoolean(R.styleable.SNScrollable_layout_auto_height, false);
-        ta.recycle();
 
+        ta.recycle();
     }
 
 
@@ -63,6 +65,8 @@ public class SNScrollable extends SNViewPager {
         } else
             throw new IllegalStateException(
                     "The SNScrollable already bind adapter.");
+
+
 
 
     }
@@ -150,7 +154,6 @@ public class SNScrollable extends SNViewPager {
 
         @Override
         public int getItemPosition(Object object) {
-
             return super.getItemPosition(object);
         }
 
@@ -179,4 +182,8 @@ public class SNScrollable extends SNViewPager {
             return super.getPageWidth(position);
         }
     }
+
+
+
+
 }

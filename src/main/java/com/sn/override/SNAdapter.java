@@ -61,6 +61,7 @@ public class SNAdapter extends BaseAdapter {
 
         if (inject == null) {
             inject = new SNAdapterViewInject($.create(view));
+
         }
         inject.setPos(pos);
         inject.setViewGroup($.create(viewGroup));

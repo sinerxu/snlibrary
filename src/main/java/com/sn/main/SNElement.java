@@ -1,7 +1,6 @@
 package com.sn.main;
 
 import android.annotation.TargetApi;
-import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
@@ -11,6 +10,7 @@ import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,11 +22,12 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.TranslateAnimation;
-import android.view.inputmethod.InputMethodManager;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -41,8 +42,8 @@ import com.sn.controlers.wheel.adapters.WheelViewAdapter;
 import com.sn.controlers.wheel.views.OnWheelChangedListener;
 import com.sn.controlers.wheel.views.OnWheelScrollListener;
 import com.sn.controlers.wheel.views.WheelView;
+import com.sn.core.SNLoadBitmapManager;
 import com.sn.core.SNXListManager;
-import com.sn.dialog.SNDialog;
 import com.sn.interfaces.SNAdapterListener;
 import com.sn.interfaces.SNAdapterOnItemClickListener;
 import com.sn.interfaces.SNAnimationListener;
@@ -56,7 +57,6 @@ import com.sn.models.SNSize;
 import com.sn.models.SNAdapterViewInject;
 import com.sn.override.SNAdapter;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -949,7 +949,37 @@ public class SNElement extends SNManager {
 
     //region webview
 
-    public WebSettings webSettings(String html) {
+    public SNElement webChromeClient(WebChromeClient webChromeClient) {
+        if (elem instanceof WebView) {
+            WebView webView = (WebView) elem;
+            webView.setWebChromeClient(webChromeClient);
+        }
+        return this;
+    }
+
+
+    public SNElement webViewClient(WebViewClient webViewClient) {
+        if (elem instanceof WebView) {
+            WebView webView = (WebView) elem;
+            webView.setWebViewClient(webViewClient);
+        }
+        return this;
+    }
+
+    public SNElement webAllowOpenUrlInApp() {
+        if (elem instanceof WebView) {
+            WebView webView = (WebView) elem;
+            webView.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    return false;
+                }
+            });
+        }
+        return this;
+    }
+
+    public WebSettings webSettings() {
         if (elem instanceof WebView) {
             WebView webView = (WebView) elem;
             return webView.getSettings();
@@ -964,7 +994,16 @@ public class SNElement extends SNManager {
             webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
             webView.getSettings().setJavaScriptEnabled(true);
         }
-        return null;
+        return this;
+    }
+
+    @JavascriptInterface
+    public SNElement jsInterface(Object object, String objectName) {
+        if (elem instanceof WebView) {
+            WebView webView = (WebView) elem;
+            webView.addJavascriptInterface(object, objectName);
+        }
+        return this;
     }
 
     public SNElement loadUrl(String url) {
@@ -972,7 +1011,7 @@ public class SNElement extends SNManager {
             WebView webView = (WebView) elem;
             webView.loadUrl(url);
         }
-        return null;
+        return this;
     }
 
     public SNElement loadHtml(String html) {
@@ -1033,6 +1072,14 @@ public class SNElement extends SNManager {
     //endregion
 
     //region button and textview
+
+    public SNElement textChanged(TextWatcher watcher) {
+        if (elem instanceof TextView) {
+            TextView textView = (TextView) elem;
+            textView.addTextChangedListener(watcher);
+        }
+        return this;
+    }
 
     /**
      * Gravity
@@ -1270,7 +1317,8 @@ public class SNElement extends SNManager {
     public SNElement image(Drawable drawable) {
         if (elem instanceof ImageView) {
             ImageView iv = (ImageView) elem;
-            iv.setImageDrawable(drawable);
+            if (drawable != null)
+                iv.setImageDrawable(drawable);
         }
 
         return this;
@@ -1285,7 +1333,8 @@ public class SNElement extends SNManager {
     public SNElement image(Bitmap bm) {
         if (elem instanceof ImageView) {
             ImageView iv = (ImageView) elem;
-            iv.setImageBitmap(bm);
+            if (bm != null)
+                iv.setImageBitmap(bm);
         }
         return this;
     }
@@ -1313,17 +1362,18 @@ public class SNElement extends SNManager {
      * @param onSetImageListenter 设置图片样式
      * @return SNElement
      */
-    public SNElement image(String url, Bitmap def_bm, final Bitmap err_bm, final SNOnSetImageListenter onSetImageListenter) {
+    public SNElement image(final String url, Bitmap def_bm, final Bitmap err_bm, final SNOnSetImageListenter onSetImageListenter) {
         if (def_bm != null) {
             if (onSetImageListenter != null)
-                def_bm = onSetImageListenter.onLoadBitmap(def_bm);
+                def_bm = onSetImageListenter.onCreateDefaultBitmap(def_bm);
             image(def_bm);
         }
-        util.imgLoad(url, new SNOnImageLoadListener() {
+
+        loadImage(url, new SNOnImageLoadListener() {
             @Override
             public void onSuccess(Bitmap map) {
                 if (onSetImageListenter != null)
-                    map = onSetImageListenter.onLoadBitmap(map);
+                    map = onSetImageListenter.onCreateBitmap(url, map);
                 image(map);
             }
 
@@ -1332,7 +1382,7 @@ public class SNElement extends SNManager {
                 if (err_bm != null) {
                     Bitmap err_bm_2 = null;
                     if (onSetImageListenter != null)
-                        err_bm_2 = onSetImageListenter.onLoadBitmap(err_bm);
+                        err_bm_2 = onSetImageListenter.onCreateErrorBitmap(err_bm);
                     if (err_bm_2 != null)
                         image(err_bm_2);
                 }
@@ -1961,6 +2011,19 @@ public class SNElement extends SNManager {
 
     //region ViewPager SNSlidingTabBar SNFragmentScrollable SNScrollable
 
+
+    public SNElement pageChange(ViewPager.OnPageChangeListener onPageChangeListener) {
+        if (elem != null) {
+            if (elem instanceof ViewPager) {
+                ((ViewPager) elem).setOnPageChangeListener(onPageChangeListener);
+            } else {
+                errorNullOrNotInstance("ViewPager");
+            }
+        }
+        return this;
+    }
+
+
     public SNElement tabListener(SNSlidingTabListener tabListener) {
         if (elem != null) {
             if (elem instanceof SNSlidingTabBar) {
@@ -1979,12 +2042,70 @@ public class SNElement extends SNManager {
      * @param elements SNElement集合
      * @return SNElement
      */
+
+
     public SNElement bindScrollable(List<SNElement> elements) {
         if (elem != null) {
             if (elem instanceof SNScrollable) {
                 ((SNScrollable) elem).bindContent(elements);
             } else {
                 errorNullOrNotInstance("SNScrollable");
+            }
+        }
+        return this;
+    }
+
+    public int pageSize() {
+        if (elem != null) {
+            if (elem instanceof ViewPager) {
+                return ((ViewPager) elem).getAdapter().getCount();
+            } else {
+                errorNullOrNotInstance("ViewPager");
+            }
+        }
+        return 0;
+    }
+
+
+    public Fragment contentItem(int i) {
+        if (elem != null) {
+            if (elem instanceof SNSlidingTabBar) {
+                return ((SNSlidingTabBar) elem).getContentItem(i);
+            } else {
+                errorNullOrNotInstance("SNSlidingTabBar");
+            }
+        }
+        return null;
+    }
+
+    public <T> T contentItem(Class<T> _class, int i) {
+        if (elem != null) {
+            if (elem instanceof SNSlidingTabBar) {
+                return ((SNSlidingTabBar) elem).getContentItem(_class, i);
+            } else {
+                errorNullOrNotInstance("SNSlidingTabBar");
+            }
+        }
+        return null;
+    }
+
+    public int currentItem() {
+        if (elem != null) {
+            if (elem instanceof ViewPager) {
+                return ((ViewPager) elem).getCurrentItem();
+            } else {
+                errorNullOrNotInstance("ViewPager");
+            }
+        }
+        return 0;
+    }
+
+    public SNElement defaultItem(int item) {
+        if (elem != null) {
+            if (elem instanceof SNSlidingTabBar) {
+                ((SNSlidingTabBar) elem).setDefaultItem(item);
+            } else {
+                errorNullOrNotInstance("SNSlidingTabBar");
             }
         }
         return this;

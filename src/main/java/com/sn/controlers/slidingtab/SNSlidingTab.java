@@ -124,7 +124,6 @@ public class SNSlidingTab extends SNRelativeLayout {
                     //Log.d(LCAP, "onPageScrollStateChanged state==" + state);
                     slidingState = state;
                     if (slidingState == 0) {
-                        itemBox.$hover.marginLeft(getX(0));
                         onPage(currentPage, itemBox.$itemList.get(currentPage), content.fragments.get(currentPage));
                     }
                 }
@@ -164,8 +163,7 @@ public class SNSlidingTab extends SNRelativeLayout {
     public void setCurrentPage(int currentPage, boolean isScroll) {
         this.currentPage = currentPage;
         content.setCurrentItem(currentPage, isScroll);
-        if (!isScroll)
-            itemBox.$hover.marginLeft(getX(0));
+
         onPage(currentPage, itemBox.$itemList.get(currentPage), content.fragments.get(currentPage));
     }
 
@@ -178,6 +176,8 @@ public class SNSlidingTab extends SNRelativeLayout {
      */
     public void onPage(int _page, SNElement _item, Fragment _content) {
         if (slidingTabListener != null) slidingTabListener.onPage(_page, _item, _content);
+
+        itemBox.$hover.marginLeft(getX(0));
     }
 
     int getX(int p) {

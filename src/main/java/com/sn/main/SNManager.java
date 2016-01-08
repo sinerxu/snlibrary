@@ -1,7 +1,11 @@
 package com.sn.main;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -40,10 +44,12 @@ import com.loopj.android.http.RequestParams;
 import com.sn.annotation.SNIOC;
 import com.sn.annotation.SNInjectElement;
 import com.sn.core.SNBindInjectManager;
+import com.sn.core.SNLoadBitmapManager;
 import com.sn.core.SNLoadingDialogManager;
 import com.sn.core.SNUtility;
 import com.sn.interfaces.SNOnClickListener;
 import com.sn.interfaces.SNOnHttpResultListener;
+import com.sn.interfaces.SNOnImageLoadListener;
 import com.sn.lib.R;
 import com.sn.models.SNInject;
 import com.sn.models.SNSize;
@@ -63,6 +69,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 /**
@@ -88,11 +95,22 @@ public class SNManager extends SNConfig {
         util = SNUtility.instance();
     }
 
+    public SNManager(Dialog dialog, Context context) {
+        this.manager = dialog;
+        this.context = context;
+        util = SNUtility.instance();
+    }
+
     public static SNManager instence(Object manager) {
         return new SNManager(manager);
     }
 
-    // region message alert
+    public static SNManager instence(Dialog dialog, Context context) {
+        return new SNManager(dialog, context);
+    }
+
+    // region message
+
 
     /**
      * show alert
@@ -189,6 +207,19 @@ public class SNManager extends SNConfig {
     // endregion
 
     //region App
+    public boolean appOnForeground() {
+        Context context = getContext();
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        String packageName = context.getPackageName();
+        List<ActivityManager.RecentTaskInfo> appTask = activityManager.getRecentTasks(Integer.MAX_VALUE, 1);
+        if (appTask == null) {
+            return false;
+        }
+        if (appTask.get(0).baseIntent.toString().contains(packageName)) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * get app version
@@ -628,8 +659,8 @@ public class SNManager extends SNConfig {
     }
 
     public Activity getActivity() {
-        if (manager instanceof Activity) {
-            return (Activity) manager;
+        if (getContext() instanceof Activity) {
+            return (Activity) getContext();
         } else {
             new IllegalStateException("Manager must be a activity.");
         }
@@ -783,6 +814,7 @@ public class SNManager extends SNConfig {
     public float dip(float pxValue) {
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
+
         float dp = pxValue / (metrics.densityDpi / 160f);
         return dp;
     }
@@ -1498,8 +1530,10 @@ public class SNManager extends SNConfig {
 
     // endregion
 
-    //region http request
-
+    //region http
+    public void loadImage(String imageUrl, SNOnImageLoadListener _onImageLoadListener) {
+        SNLoadBitmapManager.instance(this).loadImageFromUrl(imageUrl, _onImageLoadListener);
+    }
 
     /**
      * http post
@@ -1637,7 +1671,7 @@ public class SNManager extends SNConfig {
                 String v = requestParams.get(key);
                 r += util.strFormat("{0}={1}", key, v) + "&";
             }
-            r.substring(0, r.length() - 2);
+            r.substring(0, r.length() - 1);
             util.logInfo(SNManager.class, r);
         }
         if (requestHeader != null) {

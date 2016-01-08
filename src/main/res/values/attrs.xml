@@ -69,8 +69,15 @@
         <attr name="percent_width" format="string"></attr>
         <attr name="percent_height" format="string"></attr>
     </declare-styleable>
+
+    <declare-styleable name="SNSlideBanner">
+        <attr name="auto_switch" format="boolean"></attr>
+        <attr name="auto_switch_duration" format="integer"></attr>
+    </declare-styleable>
+
     <declare-styleable name="SNScrollable">
         <attr name="layout_auto_height" format="boolean"></attr>
+
     </declare-styleable>
     <declare-styleable name="SNSlidingTabContainer">
         <attr name="android:isScrollContainer"></attr>

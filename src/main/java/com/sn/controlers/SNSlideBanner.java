@@ -1,6 +1,7 @@
 package com.sn.controlers;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -10,19 +11,28 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.sn.core.SNInterval;
+import com.sn.interfaces.SNIntervalListener;
 import com.sn.lib.R;
 import com.sn.main.SNElement;
 import com.sn.models.SNInject;
 
 import java.util.ArrayList;
+import java.util.IllegalFormatCodePointException;
 
 /**
  * Created by xuhui on 15/11/22.
  */
 public class SNSlideBanner extends SNLinearLayout {
-
+    final int SCROLL_STATE_LOAD = -1;
+    final int SCROLL_STATE_NORMAL = 0;
+    final int SCROLL_STATE_SCROLLING = 1;
     final float MIN_OPACITY = 0.3f;
     final int DOT_SIZE = $.px(8);
+    boolean auto_switch;
+    int auto_switch_duration;
+    SNInterval interval;
+    int scroll_state = SCROLL_STATE_LOAD;
 
     class SNSlideBannerInject extends SNInject {
         SNElement saSlides;
@@ -39,12 +49,19 @@ public class SNSlideBanner extends SNLinearLayout {
 
     public SNSlideBanner(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init(attrs);
     }
 
     public SNSlideBanner(Context context) {
         super(context);
     }
 
+    void init(AttributeSet attrs) {
+        TypedArray ta = $.obtainStyledAttr(attrs, R.styleable.SNSlideBanner);
+        auto_switch = ta.getBoolean(R.styleable.SNSlideBanner_auto_switch, false);
+        auto_switch_duration = ta.getInt(R.styleable.SNSlideBanner_auto_switch_duration, 10000);
+        ta.recycle();
+    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -88,12 +105,13 @@ public class SNSlideBanner extends SNLinearLayout {
                 }
                 dots.add(dot);
             }
-
             inject.saSlides.toView(SNScrollable.class).setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
                 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                     SNSlideBanner.this.currentPage = position;
                     animateDot(positionOffsetPixels);
+                    if (scroll_state == SCROLL_STATE_LOAD) scroll_state = SCROLL_STATE_NORMAL;
+                    else scroll_state = SCROLL_STATE_SCROLLING;
                 }
 
                 @Override
@@ -104,6 +122,7 @@ public class SNSlideBanner extends SNLinearLayout {
                 @Override
                 public void onPageScrollStateChanged(int state) {
                     if (state == 0) {
+                        scroll_state = SCROLL_STATE_NORMAL;
                         selectedPage = currentPage;
                         setDotIndex(selectedPage);
                     }
@@ -200,5 +219,39 @@ public class SNSlideBanner extends SNLinearLayout {
 
     void dotMarginUpdate(int size) {
         inject.viewDotBox.marginBottom(size + $.px(10));
+    }
+
+
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        super.onWindowFocusChanged(hasWindowFocus);
+        $.util.logDebug(SNScrollable.class, "onWindowFocusChanged＝＝hasWindowFocus＝" + hasWindowFocus);
+        if (auto_switch) {
+            if (hasWindowFocus) {
+                if (interval != null) {
+                    interval.stop();
+                    interval = null;
+                }
+                interval = $.util.interval();
+                interval.start(auto_switch_duration, new SNIntervalListener() {
+                    @Override
+                    public void onInterval(SNInterval interval) {
+                        if (interval.equals(SNSlideBanner.this.interval)) {
+                            if (scroll_state == SCROLL_STATE_SCROLLING)
+                                return;
+                            int next = inject.saSlides.currentItem() + 1;
+                            if (next >= inject.saSlides.pageSize()) next = 0;
+                            inject.saSlides.currentItem(next);
+                        }
+                    }
+                });
+            } else {
+                if (interval != null)
+                    interval.stop();
+                interval = null;
+            }
+        }
+
+
     }
 }

@@ -7,6 +7,11 @@ import android.view.inputmethod.InputMethodManager;
 import com.sn.postting.alert.SNAlert;
 
 public class SNConfig {
+
+
+
+    public static final String IMAGE_CATCH_PATH ="/mnt/sdcard/img/catch/";
+
     public static final String DEFAULT_ENCODING = "utf-8";
     public static final String SHAREDPREFERENCES_KEY="SHAREDPREFERENCES_KEY";
 

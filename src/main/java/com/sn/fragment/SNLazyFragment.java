@@ -44,13 +44,21 @@ public class SNLazyFragment extends SNFragment {
     private boolean alreadyFirstVisible = false;
     private boolean alreadyFirstInvisible = false;
 
+    private boolean isLoadElement = false;
+    /**
+     * 是否需要执行user visible
+     */
+    private boolean isCallUserVisible = false;
 
     @Override
     public void onResume() {
         //SNUtility.logDebug(SNLazyFragment.class, "onResume");
         super.onResume();
+
         if (alreadyFirstVisible && getUserVisibleHint()) {
-            onUserVisible();
+            isCallUserVisible = true;
+            if (isLoadElement)
+                onUserVisible();
         }
     }
 
@@ -221,7 +229,7 @@ public class SNLazyFragment extends SNFragment {
      * @param element
      */
     public void onCreateElementFinish(SNElement element) {
-
+        isLoadElement = true;
     }
 
     //endregion
