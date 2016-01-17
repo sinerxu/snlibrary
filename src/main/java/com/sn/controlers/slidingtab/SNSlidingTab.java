@@ -6,15 +6,17 @@ import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.sn.controlers.SNFrameLayout;
 import com.sn.controlers.SNRelativeLayout;
 import com.sn.controlers.slidingtab.listeners.SNSlidingTabListener;
+import com.sn.fragment.SNFragment;
 import com.sn.interfaces.SNOnClickListener;
 import com.sn.main.SNElement;
 
 /**
  * Created by xuhui on 15/8/11.
  */
-public class SNSlidingTab extends SNRelativeLayout {
+public class SNSlidingTab extends SNFrameLayout {
     String LCAP = "SNSlidingTab Log";
     SNElement $itemBox;
 
@@ -22,11 +24,9 @@ public class SNSlidingTab extends SNRelativeLayout {
         return $itemBox;
     }
 
-
     public SNElement get$content() {
         return $content;
     }
-
 
     public SNSlidingTabItemBox getItemBox() {
         return itemBox;
@@ -48,8 +48,6 @@ public class SNSlidingTab extends SNRelativeLayout {
     SNSlidingTabItemBox itemBox;
     SNSlidingTabContainer content;
     SNSlidingTabListener slidingTabListener;
-    int direct = 0;
-    int x = 0;
 
     public void setTabListener(SNSlidingTabListener slidingTabListener) {
         this.slidingTabListener = slidingTabListener;
@@ -73,13 +71,20 @@ public class SNSlidingTab extends SNRelativeLayout {
 
 
     @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-
-        super.onLayout(changed, l, t, r, b);
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         initChild();
+
+
     }
 
-    void initChild() {
+    @Override
+    protected void onInit() {
+        super.onInit();
+        onPage(currentPage, itemBox.$itemList.get(currentPage), content.fragments.get(currentPage));
+    }
+
+    public void initChild() {
         if ($itemBox == null) {
             int childCount = getChildCount();
             if (childCount != 2)
@@ -103,7 +108,6 @@ public class SNSlidingTab extends SNRelativeLayout {
             }
             itemBox = $itemBox.toView(SNSlidingTabItemBox.class);
             content = $content.toView(SNSlidingTabContainer.class);
-
             content.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
                 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -129,8 +133,7 @@ public class SNSlidingTab extends SNRelativeLayout {
                 }
             });
             this.currentPage = content.getCurrentItem();
-            onPage(currentPage, itemBox.$itemList.get(currentPage), content.fragments.get(currentPage));
-
+            $.util.logInfo(SNSlidingTab.class, "currentPage=" + currentPage);
             if (itemBox.$itemList != null && itemBox.$itemList.size() > 0) {
                 for (int i = 0; i < itemBox.$itemList.size(); i++) {
                     SNElement item = itemBox.$itemList.get(i);
@@ -145,15 +148,7 @@ public class SNSlidingTab extends SNRelativeLayout {
                     });
                 }
             }
-            //Log.d(LCAP, "itemBox.$itemList===" + itemBox.$itemList.size());
         }
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
     }
 
     public void setCurrentPage(int currentPage) {
@@ -163,7 +158,6 @@ public class SNSlidingTab extends SNRelativeLayout {
     public void setCurrentPage(int currentPage, boolean isScroll) {
         this.currentPage = currentPage;
         content.setCurrentItem(currentPage, isScroll);
-
         onPage(currentPage, itemBox.$itemList.get(currentPage), content.fragments.get(currentPage));
     }
 
@@ -176,11 +170,11 @@ public class SNSlidingTab extends SNRelativeLayout {
      */
     public void onPage(int _page, SNElement _item, Fragment _content) {
         if (slidingTabListener != null) slidingTabListener.onPage(_page, _item, _content);
-
         itemBox.$hover.marginLeft(getX(0));
     }
 
     int getX(int p) {
+        $.util.logInfo(SNSlidingTab.class, "getX=" + $itemBox + "===" + $content);
         if ($itemBox != null && $content != null) {
             float _p = (float) p + ($content.width() * currentPage);
             int result = (int) (_p / $content.width() * itemBox.itemWidth);

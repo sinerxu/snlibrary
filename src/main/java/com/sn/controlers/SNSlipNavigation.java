@@ -33,8 +33,14 @@ public class SNSlipNavigation extends RelativeLayout {
     private VelocityTracker mVelocityTracker;
     private final static int POP_MODE_LEFT = 0;
     private final static int POP_MODE_RIGHT = 1;
-    private final static int TOUCH_STATE_REST = 0;
-    private final static int TOUCH_STATE_SCROLLING = 1;
+    /**
+     * 停止滑动
+     */
+    public final static int TOUCH_STATE_REST = 0;
+    /**
+     * 正在滑动
+     */
+    public final static int TOUCH_STATE_SCROLLING = 1;
     boolean mIsMenuSliding = false;
     boolean mAlloyClickClose = false;
     int mPopMode = POP_MODE_RIGHT;
@@ -45,8 +51,8 @@ public class SNSlipNavigation extends RelativeLayout {
     float mLastCoverOpacity = 0;
     float mCoverOpacity = 0.7f;
     int mStartLeft = 0;
-    public int mDefaultSpeed = 300;
-    public int mTouchState = TOUCH_STATE_REST;
+    private int mDefaultSpeed = 300;
+    private int mTouchState = TOUCH_STATE_REST;
     boolean isMenuShow = false;
 
     boolean isInit = false;
@@ -195,6 +201,10 @@ public class SNSlipNavigation extends RelativeLayout {
         }
 
         return mTouchState != TOUCH_STATE_REST;
+    }
+
+    public void closeMenu() {
+        closeMenu(mDefaultSpeed);
     }
 
     // 关闭
@@ -483,5 +493,25 @@ public class SNSlipNavigation extends RelativeLayout {
         }
 
         return opacity;
+    }
+
+    /**
+     * 获取滑动状态
+     * TOUCH_STATE_REST
+     * TOUCH_STATE_SCROLLING
+     *
+     * @return
+     */
+    public int getTouchState() {
+        return mTouchState;
+    }
+
+    /**
+     * 是否显示
+     *
+     * @return
+     */
+    public boolean isShow() {
+        return isMenuShow;
     }
 }

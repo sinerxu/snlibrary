@@ -22,7 +22,6 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.TranslateAnimation;
-import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -37,21 +36,25 @@ import com.sn.controlers.SNNavTitleBar;
 import com.sn.controlers.SNScrollable;
 import com.sn.controlers.SNSlipNavigation;
 import com.sn.controlers.slidingtab.SNSlidingTabBar;
+import com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabItem;
 import com.sn.controlers.slidingtab.listeners.SNSlidingTabListener;
 import com.sn.controlers.wheel.adapters.WheelViewAdapter;
 import com.sn.controlers.wheel.views.OnWheelChangedListener;
 import com.sn.controlers.wheel.views.OnWheelScrollListener;
 import com.sn.controlers.wheel.views.WheelView;
-import com.sn.core.SNLoadBitmapManager;
+import com.sn.core.SNUtility;
 import com.sn.core.SNXListManager;
 import com.sn.interfaces.SNAdapterListener;
 import com.sn.interfaces.SNAdapterOnItemClickListener;
 import com.sn.interfaces.SNAnimationListener;
 import com.sn.interfaces.SNOnClickListener;
+import com.sn.interfaces.SNOnGetImageUrlListener;
+import com.sn.interfaces.SNOnLoadImageFinishListener;
 import com.sn.interfaces.SNOnImageLoadListener;
 import com.sn.interfaces.SNOnLongClickListener;
 import com.sn.interfaces.SNOnSetImageListenter;
 import com.sn.interfaces.SNOnTouchListener;
+import com.sn.interfaces.SNTaskListener;
 import com.sn.models.SNMargins;
 import com.sn.models.SNSize;
 import com.sn.models.SNAdapterViewInject;
@@ -334,13 +337,11 @@ public class SNElement extends SNManager {
         if (elem != null && elem instanceof ListView) {
             ListView view = (ListView) elem;
             view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     // TODO Auto-generated method stub
                     if (onItemClickListener != null) {
                         SNAdapterViewInject holder = (SNAdapterViewInject) view.getTag();
-                        holder.setPos(position);
                         holder.setParent(parent);
                         onItemClickListener.onItemClick(holder);
                     }
@@ -997,7 +998,7 @@ public class SNElement extends SNManager {
         return this;
     }
 
-    @JavascriptInterface
+
     public SNElement jsInterface(Object object, String objectName) {
         if (elem instanceof WebView) {
             WebView webView = (WebView) elem;
@@ -1027,7 +1028,6 @@ public class SNElement extends SNManager {
         return this;
     }
     //endregion
-
 
     //region wheelview
     public int wheelCurrentItem() {
@@ -1340,98 +1340,82 @@ public class SNElement extends SNManager {
     }
 
 
-    public SNElement image(String url, Bitmap def_bm) {
-        return image(url, def_bm, null, null);
-    }
-
-    public SNElement image(String url, Bitmap def_bm, SNOnSetImageListenter onSetImageListenter) {
-        return image(url, def_bm, null, onSetImageListenter);
-    }
-
-    public SNElement image(String url, Bitmap def_bm, final Bitmap err_bm) {
-        image(url, def_bm, err_bm, null);
-        return this;
-    }
-
     /**
      * 设置远程图片
      *
      * @param url                 url
-     * @param def_bm              默认图片
-     * @param err_bm              错误图片
+     * @param def_resource        默认图片
+     * @param err_resource        错误图片
      * @param onSetImageListenter 设置图片样式
      * @return SNElement
      */
-    public SNElement image(final String url, Bitmap def_bm, final Bitmap err_bm, final SNOnSetImageListenter onSetImageListenter) {
-        if (def_bm != null) {
-            if (onSetImageListenter != null)
-                def_bm = onSetImageListenter.onCreateDefaultBitmap(def_bm);
-            image(def_bm);
-        }
+    public SNElement image(final String url, int def_resource, final int err_resource, SNOnSetImageListenter onSetImageListenter, final SNOnGetImageUrlListener onGetImageUrlListener, final SNOnLoadImageFinishListener onLoadImageFinishListener) {
 
-        loadImage(url, new SNOnImageLoadListener() {
-            @Override
-            public void onSuccess(Bitmap map) {
-                if (onSetImageListenter != null)
-                    map = onSetImageListenter.onCreateBitmap(url, map);
-                image(map);
-            }
+        if (def_resource != 0)
+            image(def_resource);
 
-            @Override
-            public void onFailure() {
-                if (err_bm != null) {
-                    Bitmap err_bm_2 = null;
-                    if (onSetImageListenter != null)
-                        err_bm_2 = onSetImageListenter.onCreateErrorBitmap(err_bm);
-                    if (err_bm_2 != null)
-                        image(err_bm_2);
+        if (util.strIsNullOrEmpty(url)) {
+            if (def_resource != 0)
+                image(def_resource);
+        } else {
+            loadImage(url, onSetImageListenter, new SNOnImageLoadListener() {
+                @Override
+                public void onSuccess(Bitmap map) {
+                    if (onLoadImageFinishListener != null) onLoadImageFinishListener.onFinish(map);
+                    if (onGetImageUrlListener != null) {
+                        String u = onGetImageUrlListener.onGetRealUrl();
+                        if (u != null && u.equals(url)) image(map);
+                    } else {
+                        image(map);
+                    }
                 }
-            }
-        });
+
+                @Override
+                public void onFailure() {
+                    if (err_resource != 0) image(err_resource);
+                    if (onLoadImageFinishListener != null) onLoadImageFinishListener.onFinish(null);
+                }
+            });
+        }
         return this;
     }
 
 
     public SNElement image(String url) {
-        image(url, 0, 0, null);
+        image(url, 0, 0, null, null, null);
         return this;
     }
 
     public SNElement image(String url, int def_redId) {
-        image(url, def_redId, 0, null);
+        image(url, def_redId, 0, null, null, null);
         return this;
     }
 
     public SNElement image(String url, int def_redId, final SNOnSetImageListenter onSetImageListenter) {
-        image(url, def_redId, 0, onSetImageListenter);
+        image(url, def_redId, 0, onSetImageListenter, null, null);
+        return this;
+    }
+
+    public SNElement image(String url, int def_redId, final SNOnSetImageListenter onSetImageListenter, final SNOnGetImageUrlListener onGetImageUrlListener) {
+        image(url, def_redId, 0, onSetImageListenter, onGetImageUrlListener, null);
+        return this;
+    }
+
+    public SNElement image(String url, int def_redId, final SNOnSetImageListenter onSetImageListenter, SNOnLoadImageFinishListener onLoadImageFinishListener) {
+        image(url, def_redId, 0, onSetImageListenter, null, onLoadImageFinishListener);
         return this;
     }
 
     public SNElement image(String url, int def_redId, final int err_resId) {
-        image(url, def_redId, err_resId, null);
+        image(url, def_redId, err_resId, null, null, null);
         return this;
     }
 
-    /**
-     * 设置远程图片
-     *
-     * @param url                 url
-     * @param def_redId           默认图片
-     * @param err_resId           错误图片
-     * @param onSetImageListenter 设置图片样式
-     * @return SNElement
-     */
+
     public SNElement image(String url, int def_redId, final int err_resId, final SNOnSetImageListenter onSetImageListenter) {
-        Bitmap def = null;
-        if (def_redId != 0)
-            def = bitmapResId(def_redId);
-        Bitmap err = null;
-        if (err_resId != 0)
-            err = bitmapResId(err_resId);
-        image(url, def, err, onSetImageListenter);
+        image(url, def_redId, err_resId, onSetImageListenter, null, null);
         return this;
     }
-
 
     public SNElement adjustViewBounds(boolean val) {
         if (elem != null && elem instanceof ImageView) {
@@ -1491,7 +1475,7 @@ public class SNElement extends SNManager {
     public SNElement closeSlipMenu() {
         if (elem != null && elem instanceof SNSlipNavigation) {
             SNSlipNavigation slideMenu = (SNSlipNavigation) elem;
-            slideMenu.closeMenu(slideMenu.mDefaultSpeed);
+            slideMenu.closeMenu();
         } else {
             errorNullOrNotInstance("SNSlipNavigation");
         }
@@ -1539,7 +1523,7 @@ public class SNElement extends SNManager {
      * @param onLoadView SNAdapterListener onLoadView call back
      */
     public SNElement bindListAdapter(ArrayList dataSource, SNAdapterListener onLoadView) {
-        SNAdapter adapter = new SNAdapter(dataSource, getContext());
+        SNAdapter adapter = new SNAdapter(this, dataSource, getContext());
         adapter.onLoadView = onLoadView;
         return bindListAdapter(adapter);
     }
@@ -1817,6 +1801,7 @@ public class SNElement extends SNManager {
         showNavBack(new SNOnClickListener() {
             @Override
             public void onClick(SNElement view) {
+                getActivity().setResult(getActivity().RESULT_CANCELED);
                 getActivity().finish();
             }
         });
@@ -2008,9 +1993,19 @@ public class SNElement extends SNManager {
     }
     //endregion
 
+    //region ViewPager SNSlidingTabBar SNFragmentScrollable SNScrollable SNSlidingTabItem
 
-    //region ViewPager SNSlidingTabBar SNFragmentScrollable SNScrollable
 
+    public SNElement bedge(int badge) {
+        if (elem != null) {
+            if (elem instanceof SNHomeBottomTabItem) {
+                ((SNHomeBottomTabItem) elem).setBedge(badge);
+            } else {
+                errorNullOrNotInstance("SNHomeBottomTabItem");
+            }
+        }
+        return this;
+    }
 
     public SNElement pageChange(ViewPager.OnPageChangeListener onPageChangeListener) {
         if (elem != null) {

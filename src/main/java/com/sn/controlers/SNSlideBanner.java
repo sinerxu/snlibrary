@@ -18,7 +18,6 @@ import com.sn.main.SNElement;
 import com.sn.models.SNInject;
 
 import java.util.ArrayList;
-import java.util.IllegalFormatCodePointException;
 
 /**
  * Created by xuhui on 15/11/22.
@@ -41,9 +40,10 @@ public class SNSlideBanner extends SNLinearLayout {
     }
 
     int selectedPage;
-    int currentPage;
+    int currentPosition;
     SNSlideBannerInject inject = new SNSlideBannerInject();
     ArrayList<SNElement> banners;
+    ArrayList<SNElement> dataBanners;
     ArrayList<SNElement> dots;
     SNElement $main;
 
@@ -64,30 +64,26 @@ public class SNSlideBanner extends SNLinearLayout {
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-        if (banners == null && getChildCount() > 0) {
-            banners = new ArrayList<SNElement>();
-            int childCount = getChildCount();
-            for (int i = 0; i < childCount; i++) {
-                View item = getChildAt(i);
-                banners.add($.create(item));
-            }
-            removeAllViews();
-            init();
+    protected void onInit() {
+        super.onInit();
+        dataBanners = new ArrayList<SNElement>();
+        int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View item = getChildAt(i);
+            dataBanners.add($.create(item));
         }
+        removeAllViews();
+        init();
     }
 
-
     void init() {
-        if (banners != null) {
+        if (dataBanners != null) {
             dots = new ArrayList<SNElement>();
             $main = $.layoutInflateResId(R.layout.controler_slide_banner, $this.toViewGroup());
             $main.inject(inject);
-            inject.saSlides.bindScrollable(banners);
-            for (int i = 0; i < banners.size(); i++) {
-                SNElement banner = banners.get(i);
+            setSelectedPage(0);
+            for (int i = 0; i < dataBanners.size(); i++) {
+                SNElement banner = dataBanners.get(i);
                 banner.adjustViewBounds(true);
                 banner.scaleType(ImageView.ScaleType.FIT_XY);
                 SNElement dot = $.create(new LinearLayout($.getActivity()));
@@ -105,26 +101,30 @@ public class SNSlideBanner extends SNLinearLayout {
                 }
                 dots.add(dot);
             }
-            inject.saSlides.toView(SNScrollable.class).setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            inject.saSlides.pageChange(new ViewPager.OnPageChangeListener() {
                 @Override
                 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                    SNSlideBanner.this.currentPage = position;
-                    animateDot(positionOffsetPixels);
-                    if (scroll_state == SCROLL_STATE_LOAD) scroll_state = SCROLL_STATE_NORMAL;
-                    else scroll_state = SCROLL_STATE_SCROLLING;
+                    currentPosition = position;
+                    if (positionOffsetPixels != 0)
+                        animateDot(positionOffsetPixels);
                 }
 
                 @Override
                 public void onPageSelected(int position) {
-                    selectedPage = currentPage;
+                    currentPosition = position;
                 }
 
                 @Override
                 public void onPageScrollStateChanged(int state) {
                     if (state == 0) {
                         scroll_state = SCROLL_STATE_NORMAL;
-                        selectedPage = currentPage;
+                        setSelectedPage(positionToPage(currentPosition));
                         setDotIndex(selectedPage);
+                    } else if (state == 1) {
+                        scroll_state = SCROLL_STATE_SCROLLING;
+                    } else if (state == 2) {
+                        scroll_state = SCROLL_STATE_SCROLLING;
                     }
                 }
             });
@@ -133,9 +133,49 @@ public class SNSlideBanner extends SNLinearLayout {
 
     }
 
-    public void setBanners(ArrayList<SNElement> _banners) {
-        this.banners = _banners;
-        init();
+
+    public void setSelectedPage(int page) {
+        this.selectedPage = page;
+        banners = new ArrayList<SNElement>();
+        if (dataBanners.size() <= 2) {
+            for (SNElement elem : dataBanners) {
+                banners.add(elem);
+            }
+            inject.saSlides.bindScrollable(banners);
+            inject.saSlides.currentItem(page);
+            currentPosition = page;
+        } else if (dataBanners.size() > 2) {
+            if (selectedPage == 0) {
+                banners.add(dataBanners.get(dataBanners.size() - 1));
+                banners.add(dataBanners.get(0));
+                banners.add(dataBanners.get(1));
+            } else if (selectedPage == dataBanners.size() - 1) {
+                banners.add(dataBanners.get(dataBanners.size() - 2));
+                banners.add(dataBanners.get(dataBanners.size() - 1));
+                banners.add(dataBanners.get(0));
+            } else {
+                banners.add(dataBanners.get(selectedPage - 1));
+                banners.add(dataBanners.get(selectedPage));
+                banners.add(dataBanners.get(selectedPage + 1));
+            }
+            inject.saSlides.bindScrollable(banners);
+            inject.saSlides.currentItem(1);
+            currentPosition = 1;
+        }
+
+
+    }
+
+    int positionToPage(int viewPage) {
+        if (dataBanners.size() > 2) {
+            if (viewPage == 1) {
+                return selectedPage;
+            } else if (viewPage == 0) {
+                return getSafePage(selectedPage - 1);
+            } else {
+                return getSafePage(selectedPage + 1);
+            }
+        } else return viewPage;
     }
 
     /**
@@ -145,10 +185,13 @@ public class SNSlideBanner extends SNLinearLayout {
      * @return -1向左，1向右
      */
     int getDirect(int positionOffsetPixels) {
-        int c = positionOffsetPixels + inject.saSlides.width() * this.currentPage;
+        int toPage = positionToPage(currentPosition);
+        int c = positionOffsetPixels + inject.saSlides.width() * toPage;
         int s = inject.saSlides.width() * this.selectedPage;
         if (c > s) {
-            return 1;
+            if (selectedPage == 0 && toPage == dataBanners.size() - 1)
+                return -1;
+            else return 1;
         } else if (c < s) {
             return -1;
         } else {
@@ -159,10 +202,13 @@ public class SNSlideBanner extends SNLinearLayout {
 
     //0.3/1    positionOffsetPixels   /   inject.saSlides.width()
     float getOpacity(int positionOffsetPixels) {
+        int r = positionToPage(currentPosition);
+        if (this.selectedPage == 0 && r == dataBanners.size() - 1)
+            r = -1;
         //停留位置
         int s = inject.saSlides.width() * this.selectedPage;
         //当前位置
-        int c = positionOffsetPixels + inject.saSlides.width() * this.currentPage;
+        int c = positionOffsetPixels + inject.saSlides.width() * r;
         //偏移
         int o = c - s;
         //偏移量
@@ -178,11 +224,18 @@ public class SNSlideBanner extends SNLinearLayout {
         float t = 1 + 0.3f - o;
         if (direct == 1) {
             dots.get(selectedPage).opacity(t);
-            dots.get(selectedPage + 1).opacity(o);
+            dots.get(getSafePage(selectedPage + 1)).opacity(o);
         } else if (direct == -1) {
-            dots.get(selectedPage - 1).opacity(o);
+
+            dots.get(getSafePage(selectedPage - 1)).opacity(o);
             dots.get(selectedPage).opacity(t);
         }
+    }
+
+    int getSafePage(int page) {
+        if (page >= dataBanners.size()) page = 0;
+        if (page < 0) page = dataBanners.size() - 1;
+        return page;
     }
 
     void setDotIndex(int index) {
@@ -190,6 +243,11 @@ public class SNSlideBanner extends SNLinearLayout {
             item.opacity(MIN_OPACITY);
         }
         dots.get(index).opacity(1);
+    }
+
+    public void setBanners(ArrayList<SNElement> _banners) {
+        this.dataBanners = _banners;
+        init();
     }
 
     public SNElement getDotBox() {
@@ -221,7 +279,6 @@ public class SNSlideBanner extends SNLinearLayout {
         inject.viewDotBox.marginBottom(size + $.px(10));
     }
 
-
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
@@ -239,9 +296,14 @@ public class SNSlideBanner extends SNLinearLayout {
                         if (interval.equals(SNSlideBanner.this.interval)) {
                             if (scroll_state == SCROLL_STATE_SCROLLING)
                                 return;
-                            int next = inject.saSlides.currentItem() + 1;
-                            if (next >= inject.saSlides.pageSize()) next = 0;
-                            inject.saSlides.currentItem(next);
+                            if (dataBanners.size() <= 2) {
+                                int p = currentPosition + 1;
+                                if (p >= dataBanners.size()) p = 0;
+                                inject.saSlides.currentItem(p);
+                            } else {
+                                inject.saSlides.currentItem(currentPosition + 1);
+                            }
+
                         }
                     }
                 });

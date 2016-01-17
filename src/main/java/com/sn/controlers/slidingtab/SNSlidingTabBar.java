@@ -8,10 +8,12 @@ import android.util.AttributeSet;
 import android.view.View;
 
 
+import com.sn.controlers.SNFrameLayout;
 import com.sn.controlers.SNLinearLayout;
 import com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabItem;
 import com.sn.controlers.slidingtab.homeslidingtab.SNHomeSlidingTabItem;
 import com.sn.controlers.slidingtab.listeners.SNSlidingTabListener;
+import com.sn.fragment.SNFragment;
 import com.sn.lib.R;
 import com.sn.main.SNElement;
 import com.sn.models.SNInject;
@@ -40,6 +42,7 @@ public class SNSlidingTabBar extends SNLinearLayout {
     int style = 0;
     int underLineColor;
     int selectedItem = 0;
+    String parentFragment;
 
     public int getUnderLineColor() {
         return underLineColor;
@@ -52,16 +55,42 @@ public class SNSlidingTabBar extends SNLinearLayout {
         style = a.getInt(R.styleable.SNSlidingTabBar_style, 0);
         underLineColor = a.getColor(R.styleable.SNSlidingTabBar_underline_color, 0);
         selectedItem = a.getInt(R.styleable.SNSlidingTabBar_selected_index, 0);
+        parentFragment = a.getString(R.styleable.SNSlidingTabBar_parent_fragment);
         a.recycle();
-        setFragmentManager($.supportFragmentManager());
     }
 
+
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    protected void onFinishInflate() {
+        super.onFinishInflate();
 
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        initView();
+    }
 
+    void initFm() {
+        boolean isLoadActivityFM = true;
+        if (parentFragment != null && $.supportFragmentManager().getFragments() != null) {
+            List<Fragment> fragments = $.supportFragmentManager().getFragments();
+            for (Fragment item : fragments) {
+                if (item instanceof SNFragment) {
+                    SNFragment sf = (SNFragment) item;
+                    if (sf.getName() != null) {
+                        $.util.logInfo(SNSlidingTabBar.class, "supportFragmentManager activity == " + sf.getName());
+                        if (sf.getName().equals(parentFragment)) {
+                            setFragmentManager(sf.getChildFragmentManager());
+                            isLoadActivityFM = false;
+                        }
+                    }
+                }
+            }
+        }
+        if (isLoadActivityFM)
+            setFragmentManager($.supportFragmentManager());
+    }
+
+    public void initView() {
         if (items == null) {
+            initFm();
             if (fragmentManager == null)
                 throw new IllegalStateException("Must be set fragment manager.");
             items = new ArrayList<SNElement>();
@@ -87,6 +116,7 @@ public class SNSlidingTabBar extends SNLinearLayout {
             if (this.slidingTabBarListener != null) setTabListener(this.slidingTabBarListener);
             //移除
             inject.tabItemBox.remove(inject.tabItemHover);
+
             //添加子项
             fragments = new ArrayList<Fragment>();
             for (SNElement item : items) {
@@ -102,19 +132,25 @@ public class SNSlidingTabBar extends SNLinearLayout {
                         all_f_name = $.packageName() + ".app.controllers.fragments." + fragmentName;
                     }
                 }
-                Fragment fragment = null;
+                SNFragment fragment = null;
                 try {
-                    fragment = $.util.refInstanceObject(Fragment.class, all_f_name);
+                    fragment = $.util.refInstanceObject(SNFragment.class, all_f_name);
                     if (fragment == null)
                         throw new IllegalStateException($.util.strFormat("The {0} instance is error.", all_f_name));
                 } catch (Exception ex) {
                     throw new IllegalStateException($.util.strFormat("The {0} instance is error.", all_f_name));
                 }
+                fragment.setName(fragmentName);
                 fragments.add(fragment);
             }
+            $.util.logInfo(SNSlidingTabBar.class, "selected_index=" + selectedItem);
             inject.tabContainer.toView(SNSlidingTabContainer.class).bindData(fragmentManager, fragments, selectedItem);
             inject.tabItemBox.add(inject.tabItemHover);
         }
+        inject.tabItemBox.toView(SNSlidingTabItemBox.class).initChild();
+        $tab.toView(SNSlidingTab.class).initChild();
+        if (slidingTabBarListener != null)
+            slidingTabBarListener.onInitFinish();
     }
 
     public Fragment getContentItem(int i) {

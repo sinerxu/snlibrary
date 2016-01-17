@@ -22,7 +22,6 @@ public class SNSlidingTabContainer extends SNFragmentScrollable {
     String LCAP = "SNSlidingTabContainer Log";
     boolean isScrollContainer;
 
-
     public SNSlidingTabContainer(Context context, AttributeSet attrs) {
         super(context, attrs);
         TypedArray a = $.obtainStyledAttr(attrs, R.styleable.SNSlidingTabContainer);

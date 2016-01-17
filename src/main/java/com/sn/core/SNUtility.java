@@ -1309,9 +1309,8 @@ public class SNUtility {
     //endregion
 
     //region thread
-    public SNTask taskRun(Object param, SNTaskListener taskListener) {
+    public SNTask taskRun(SNTaskListener taskListener) {
         SNTask task = new SNTask(taskListener);
-        task.execute(param);
         return task;
     }
 
@@ -1415,7 +1414,7 @@ public class SNUtility {
     //endregion
 
 
-    class SNTask extends AsyncTask<Object, Void, Object> {
+    public class SNTask extends AsyncTask<Object, Void, Object> {
         SNTaskListener taskListener;
 
         SNTask(SNTaskListener _taskListener) {
@@ -1424,14 +1423,15 @@ public class SNUtility {
 
         @Override
         protected Object doInBackground(Object... params) {
-
-            return taskListener.onTask(params[0]);
+            if (params.length > 0)
+                return taskListener.onTask(this, params[0]);
+            else return taskListener.onTask(this, null);
         }
 
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
-            taskListener.onFinish(o);
+            taskListener.onFinish(this, o);
         }
 
 

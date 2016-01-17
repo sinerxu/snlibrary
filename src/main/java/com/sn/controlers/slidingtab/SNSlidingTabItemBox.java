@@ -28,15 +28,10 @@ public class SNSlidingTabItemBox extends SNRelativeLayout {
     }
 
 
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
-
-    }
-
-    void initChild() {
+    public void initChild() {
         if ($itemList.size() == 0) {
             int childCount = getChildCount();
+            if (childCount == 0) return;
             if (childCount <= 1)
                 throw new IllegalStateException(
                         "The childCount of SNSlidingTabItemBox must be >=1.");
@@ -49,12 +44,11 @@ public class SNSlidingTabItemBox extends SNRelativeLayout {
                 $itemList.add(item);
             }
             updateSize();
-            onItemLoadFinish();
         }
     }
 
-
     public void updateSize() {
+        isLoadSize = true;
         int childCount = getChildCount();
         itemWidth = $this.width() / (childCount - 1);
         itemHeight = $this.height();
@@ -66,13 +60,16 @@ public class SNSlidingTabItemBox extends SNRelativeLayout {
             item.width(itemWidth);
             item.height(itemHeight);
         }
+        onItemLoadFinish();
     }
 
+    boolean isLoadSize = false;
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         initChild();
+        updateSize();
     }
 
     public void onItemLoadFinish() {

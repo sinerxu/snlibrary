@@ -9,4 +9,6 @@ import com.sn.main.SNElement;
  */
 public interface SNSlidingTabListener {
     void onPage(int _page, SNElement _item, Fragment _content);
+
+    void onInitFinish();
 }

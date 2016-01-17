@@ -103,6 +103,7 @@
         </attr>
         <attr name="underline_color" format="color" />
         <attr name="selected_index" format="integer" />
+        <attr name="parent_fragment" format="string" />
     </declare-styleable>
 
     <declare-styleable name="SNActionString">

@@ -12,7 +12,6 @@ import com.sn.controlers.slidingtab.SNSlidingTabItemHover;
 public class SNHomeBottomTabItemHover extends SNSlidingTabItemHover {
     public SNHomeBottomTabItemHover(Context context, AttributeSet attrs) {
         super(context, attrs);
-
         $this = $.layoutInflateResId(R.layout.controler_home_bottomtabitemhover, (ViewGroup) $this.toView());
     }
 }

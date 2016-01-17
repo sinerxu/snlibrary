@@ -23,7 +23,7 @@ public class SNScrollable extends SNViewPager {
 
     private AwesomePagerAdapter awesomeAdapter;
     String LCAT = "SNScrollable Log";
-
+    boolean isLoad = false;
     private List<View> mListViews = new ArrayList<View>();
 
     boolean isAutoHeight = false;
@@ -55,6 +55,7 @@ public class SNScrollable extends SNViewPager {
     }
 
     public void bindContent(List<SNElement> elements) {
+        awesomeAdapter = new AwesomePagerAdapter();
         if ($contentList.size() == 0 && mListViews.size() == 0) {
             for (SNElement item : elements) {
                 $contentList.add(item);
@@ -62,15 +63,16 @@ public class SNScrollable extends SNViewPager {
             }
             SNScrollable.this.removeAllViews();
             SNScrollable.this.setAdapter(awesomeAdapter);
-        } else
-            throw new IllegalStateException(
-                    "The SNScrollable already bind adapter.");
-
-
-
-
+        } else {
+            $contentList.clear();
+            mListViews.clear();
+            for (SNElement item : elements) {
+                $contentList.add(item);
+                mListViews.add(item.toView());
+            }
+            SNScrollable.this.setAdapter(awesomeAdapter);
+        }
     }
-
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -95,7 +97,10 @@ public class SNScrollable extends SNViewPager {
         } else {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }
-        bindContent();
+        if (isLoad == false) {
+            bindContent();
+            isLoad = true;
+        }
     }
 
     private class AwesomePagerAdapter extends PagerAdapter {
@@ -182,8 +187,5 @@ public class SNScrollable extends SNViewPager {
             return super.getPageWidth(position);
         }
     }
-
-
-
 
 }

@@ -43,13 +43,16 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.sn.annotation.SNIOC;
 import com.sn.annotation.SNInjectElement;
+import com.sn.core.SNAppEventListenerManager;
 import com.sn.core.SNBindInjectManager;
 import com.sn.core.SNLoadBitmapManager;
 import com.sn.core.SNLoadingDialogManager;
 import com.sn.core.SNUtility;
+import com.sn.interfaces.SNAppEventListener;
 import com.sn.interfaces.SNOnClickListener;
 import com.sn.interfaces.SNOnHttpResultListener;
 import com.sn.interfaces.SNOnImageLoadListener;
+import com.sn.interfaces.SNOnSetImageListenter;
 import com.sn.lib.R;
 import com.sn.models.SNInject;
 import com.sn.models.SNSize;
@@ -228,8 +231,9 @@ public class SNManager extends SNConfig {
      */
     public String appVersion() {
         try {
-            PackageManager manager = getActivity().getPackageManager();
-            PackageInfo info = manager.getPackageInfo(getActivity().getPackageName(), 0);
+
+            PackageManager manager = getContext().getPackageManager();
+            PackageInfo info = manager.getPackageInfo(getContext().getPackageName(), 0);
 
             String version = info.versionName;
             return version;
@@ -240,8 +244,9 @@ public class SNManager extends SNConfig {
     }
 
     public String deviceCode() {
-        TelephonyManager TelephonyMgr = (TelephonyManager) getActivity()
-                .getSystemService(getActivity().TELEPHONY_SERVICE);
+
+        TelephonyManager TelephonyMgr = (TelephonyManager) getContext()
+                .getSystemService(getContext().TELEPHONY_SERVICE);
         String m_szImei = TelephonyMgr.getDeviceId();
         String m_szDevIDShort = "35"
                 + // we make this look like a valid IMEI
@@ -253,7 +258,7 @@ public class SNManager extends SNConfig {
                 + Build.MODEL.length() % 10 + Build.PRODUCT.length() % 10
                 + Build.TAGS.length() % 10 + Build.TYPE.length() % 10
                 + Build.USER.length() % 10; // 13 digits
-        String m_szAndroidID = Settings.Secure.getString(getActivity()
+        String m_szAndroidID = Settings.Secure.getString(getContext()
                 .getContentResolver(), Settings.Secure.ANDROID_ID);
 
         // WifiManager wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);
@@ -289,6 +294,60 @@ public class SNManager extends SNConfig {
         m_szUniqueID = m_szUniqueID.toUpperCase();
         return m_szUniqueID;
     }
+
+
+    /**
+     * 移除
+     *
+     * @param key
+     */
+
+    public void removeAppEventListener(String key) {
+        SNAppEventListenerManager.instance().remove(key);
+    }
+
+    /**
+     * 设置
+     *
+     * @param key
+     */
+    public void setAppEventListener(String key, SNAppEventListener appEventListener) {
+        SNAppEventListenerManager.instance().set(key, appEventListener);
+    }
+
+    /**
+     * 执行
+     *
+     * @param key
+     * @return
+     */
+
+    public void fireAppEventListener(String key, HashMap<String, Object> args) {
+        fireAppEventListener(key, args, false);
+    }
+
+    /**
+     * 执行
+     *
+     * @param key
+     * @return
+     */
+
+    public void fireAppEventListener(String key) {
+        fireAppEventListener(key, null);
+    }
+
+    /**
+     * 执行
+     *
+     * @param key
+     * @param args
+     * @param isRemove @return
+     */
+    public void fireAppEventListener(String key, HashMap<String, Object> args, boolean isRemove) {
+        SNAppEventListenerManager.instance().fire(key, args, isRemove);
+    }
+
     //endregion
 
     // region View
@@ -547,7 +606,7 @@ public class SNManager extends SNConfig {
      * @param intent Intent
      */
     public void startActivity(Intent intent) {
-        this.getActivity().startActivity(intent);
+        this.getContext().startActivity(intent);
     }
 
     /**
@@ -557,7 +616,7 @@ public class SNManager extends SNConfig {
      * @param animated refer to->SNConfig->animate type
      */
     public void startActivity(Intent intent, int animated) {
-        this.getActivity().startActivity(intent);
+        this.getContext().startActivity(intent);
         activityAnimateType(animated);
     }
 
@@ -655,7 +714,7 @@ public class SNManager extends SNConfig {
      * @return
      */
     public String packageName() {
-        return getActivity().getPackageName();
+        return getContext().getPackageName();
     }
 
     public Activity getActivity() {
@@ -695,7 +754,7 @@ public class SNManager extends SNConfig {
 
     public <T> T prop(Class<T> _class, String key) {
         try {
-            SharedPreferences sp = getActivity().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
+            SharedPreferences sp = getContext().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
 
             String valueBase64 = sp.getString(key, "");
 
@@ -715,7 +774,7 @@ public class SNManager extends SNConfig {
 
     public boolean propExist(String key) {
         try {
-            SharedPreferences sp = getActivity().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
+            SharedPreferences sp = getContext().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
             if (sp.contains(key)) {
                 String r = sp.getString(key, "");
                 return util.strIsNotNullOrEmpty(r);
@@ -729,7 +788,7 @@ public class SNManager extends SNConfig {
 
     public void removeProp(String key) {
         try {
-            SharedPreferences sp = getActivity().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
+            SharedPreferences sp = getContext().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
             SharedPreferences.Editor prefEditor = sp.edit();
             prefEditor.remove(key);
             prefEditor.commit();
@@ -740,7 +799,7 @@ public class SNManager extends SNConfig {
 
     public void prop(String key, Object value) {
         try {
-            SharedPreferences sp = getActivity().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
+            SharedPreferences sp = getContext().getSharedPreferences(SNConfig.SHAREDPREFERENCES_KEY, Context.MODE_WORLD_WRITEABLE);
             SharedPreferences.Editor prefEditor = sp.edit();
             if (value != null) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -1248,7 +1307,7 @@ public class SNManager extends SNConfig {
 
     public String readAssetsFile(String fileName) {
         try {
-            InputStreamReader inputReader = new InputStreamReader(getActivity().getResources().getAssets().open(fileName));
+            InputStreamReader inputReader = new InputStreamReader(getContext().getResources().getAssets().open(fileName));
             BufferedReader bufReader = new BufferedReader(inputReader);
             String line = "";
             String Result = "";
@@ -1531,8 +1590,12 @@ public class SNManager extends SNConfig {
     // endregion
 
     //region http
+    public void loadImage(String imageUrl, SNOnSetImageListenter onSetImageListenter, SNOnImageLoadListener _onImageLoadListener) {
+        SNLoadBitmapManager.instance(this).loadImageFromUrl(imageUrl, onSetImageListenter, _onImageLoadListener);
+    }
+
     public void loadImage(String imageUrl, SNOnImageLoadListener _onImageLoadListener) {
-        SNLoadBitmapManager.instance(this).loadImageFromUrl(imageUrl, _onImageLoadListener);
+        SNLoadBitmapManager.instance(this).loadImageFromUrl(imageUrl, null, _onImageLoadListener);
     }
 
     /**
@@ -1715,6 +1778,7 @@ public class SNManager extends SNConfig {
 
     public void inputAwaysVisible() {
         if (manager instanceof Activity)
+
             getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         else if (manager instanceof Dialog)
             getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);

@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import com.sn.controlers.slidingtab.SNSlidingTabItem;
 import com.sn.lib.R;
+import com.sn.main.SNElement;
 
 /**
  * @style style="?attr/theme_home_bottomtabitem_style"    需要添加的的样式
@@ -24,6 +25,8 @@ public class SNHomeBottomTabItem extends SNSlidingTabItem {
     int textColor;
     Drawable selectedSrc;
 
+
+    SNElement viewBedgeBox, tvBedge;
 
     public int getSelectedColor() {
         return selectedColor;
@@ -75,8 +78,9 @@ public class SNHomeBottomTabItem extends SNSlidingTabItem {
 
     public SNHomeBottomTabItem(Context context, AttributeSet attrs) {
         super(context, attrs);
-
         $this = $.layoutInflateResId(R.layout.controler_home_bottomtabitem, (ViewGroup) $this.toView());
+        viewBedgeBox = $this.find(R.id.viewBedgeBox);
+        tvBedge = $this.find(R.id.tvBedge);
         TypedArray array = $.obtainStyledAttr(attrs, R.styleable.SNImageTextTabItem);
         text = array.getString(R.styleable.SNImageTextTabItem_android_text);
         src = array.getDrawable(R.styleable.SNImageTextTabItem_android_src);
@@ -85,12 +89,26 @@ public class SNHomeBottomTabItem extends SNSlidingTabItem {
         selectedColor = array.getColor(R.styleable.SNImageTextTabItem_selected_color, 0xFF555555);
 
         array.recycle();
-//        if (SNUtility.isNullOrEmpty(fragmentName))
-//            new IllegalStateException("The fragment name is require.");
+
         if (!$.util.strIsNullOrEmpty(text))
             setText(text);
         if (src != null)
             setSrc(src);
         setTextColor(textColor);
+        setBedge(0);
+    }
+
+
+    public void setBedge(int bedge) {
+        if (bedge == 0)
+            viewBedgeBox.visible($.SN_UI_NONE);
+        else {
+            viewBedgeBox.visible($.SN_UI_VISIBLE);
+            if (bedge <= 99) {
+                tvBedge.text(String.valueOf(bedge));
+            } else {
+                tvBedge.text(String.valueOf(bedge) + "+");
+            }
+        }
     }
 }

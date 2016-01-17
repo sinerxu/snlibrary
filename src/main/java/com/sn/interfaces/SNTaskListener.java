@@ -1,11 +1,13 @@
 package com.sn.interfaces;
 
+import com.sn.core.SNUtility;
+
 /**
  * Created by xuhui on 15/12/1.
  */
 public interface SNTaskListener {
 
-    Object onTask(Object param);
+    Object onTask(SNUtility.SNTask task, Object param);
 
-    void onFinish(Object object);
+    void onFinish(SNUtility.SNTask task, Object object);
 }

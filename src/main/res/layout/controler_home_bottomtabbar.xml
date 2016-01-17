@@ -1,6 +1,3 @@
-
-
-
 <com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTab xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/HomeBottomTabStyle">
@@ -13,8 +10,8 @@
 
     <com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabItemBox
         android:id="@+id/tabItemBox"
-        style="@style/HomeBottomTabItemBoxStyle">
-
+        style="@style/HomeBottomTabItemBoxStyle"
+        android:layout_gravity="bottom">
 
         <com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabItemHover
             android:id="@+id/tabItemHover"

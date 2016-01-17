@@ -4,13 +4,12 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.LruCache;
 
 import com.sn.interfaces.SNOnImageLoadListener;
+import com.sn.interfaces.SNOnSetImageListenter;
 import com.sn.interfaces.SNTaskListener;
-import com.sn.interfaces.SNThreadListener;
 import com.sn.main.SNManager;
 
 import java.io.BufferedInputStream;
@@ -70,7 +69,7 @@ public class SNLoadBitmapManager {
      *
      * @return
      */
-    public void loadImageFromUrl(final String imageUrl, final SNOnImageLoadListener _onImageLoadListener) {
+    public void loadImageFromUrl(final String imageUrl, final SNOnSetImageListenter onSetImageListenter, final SNOnImageLoadListener _onImageLoadListener) {
         if ($.util.strIsNullOrEmpty(imageUrl)) {
             _onImageLoadListener.onFailure();
         } else {
@@ -78,15 +77,18 @@ public class SNLoadBitmapManager {
             //先调用一级缓存
             Bitmap bitmap = getBitmapFromMemoryCache(key);
             if (bitmap == null) {
-                SNUtility.SNTask task = $.util.taskRun(imageUrl, new SNTaskListener() {
+                SNUtility.SNTask task = $.util.taskRun(new SNTaskListener() {
                     @Override
-                    public Object onTask(Object param) {
+                    public Object onTask(SNUtility.SNTask task, Object param) {
                         try {
                             String imageUrl = param.toString();
                             String key = getImageNameByUrl(imageUrl);
                             //二级缓存
                             Bitmap bitmap = getBitmapFromDisk(key);
+
                             if (bitmap != null) {
+                                if (onSetImageListenter != null)
+                                    bitmap = onSetImageListenter.onSetBitmap(bitmap);
                                 addBitmapToMemoryCache(key, bitmap);
                                 return bitmap;
                             }
@@ -104,8 +106,12 @@ public class SNLoadBitmapManager {
                             DiskLruCache.Snapshot snapShot = mDiskLruCache.get(key);
                             if (snapShot != null) {
                                 bitmap = getBitmapFromDisk(key);
-                                addBitmapToMemoryCache(key, bitmap);
-                                return bitmap;
+                                if (bitmap != null) {
+                                    if (onSetImageListenter != null)
+                                        bitmap = onSetImageListenter.onSetBitmap(bitmap);
+                                    addBitmapToMemoryCache(key, bitmap);
+                                    return bitmap;
+                                }
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -114,7 +120,7 @@ public class SNLoadBitmapManager {
                     }
 
                     @Override
-                    public void onFinish(Object object) {
+                    public void onFinish(SNUtility.SNTask task, Object object) {
                         if (_onImageLoadListener != null) {
                             try {
                                 Bitmap bitmap = (Bitmap) object;
@@ -124,10 +130,11 @@ public class SNLoadBitmapManager {
                                 _onImageLoadListener.onFailure();
                             }
                         }
-                        taskCollection.remove(this);
+                        taskCollection.remove(task);
                     }
                 });
                 taskCollection.add(task);
+                task.execute(imageUrl);
             } else {
                 if (_onImageLoadListener != null) _onImageLoadListener.onSuccess(bitmap);
             }

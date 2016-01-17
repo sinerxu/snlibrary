@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import com.sn.interfaces.SNAdapterListener;
+import com.sn.main.SNElement;
 import com.sn.main.SNManager;
 import com.sn.models.SNAdapterViewInject;
 
@@ -21,12 +22,18 @@ public class SNAdapter extends BaseAdapter {
     public Context context;
     public LayoutInflater layoutInflater;
     private ArrayList<Object> list;
+    private SNElement master;
 
-    public SNAdapter(ArrayList<Object> list, Context context) {
+    public SNElement getMaster() {
+        return master;
+    }
+
+    public SNAdapter(SNElement master, ArrayList<Object> list, Context context) {
         $ = SNManager.instence(context);
         this.context = context;
         this.list = list;
         this.layoutInflater = LayoutInflater.from(context);
+        this.master = master;
     }
 
     @Override
@@ -49,6 +56,7 @@ public class SNAdapter extends BaseAdapter {
 
     @Override
     public View getView(int pos, View view, ViewGroup viewGroup) {
+        $.util.logDebug(SNAdapter.class, "position=" + pos);
         // TODO Auto-generated method stub
         SNAdapterViewInject inject = null;
         if (view == null) {
@@ -61,7 +69,6 @@ public class SNAdapter extends BaseAdapter {
 
         if (inject == null) {
             inject = new SNAdapterViewInject($.create(view));
-
         }
         inject.setPos(pos);
         inject.setViewGroup($.create(viewGroup));

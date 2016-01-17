@@ -11,6 +11,17 @@ import com.sn.models.SNFragmentInject;
 import com.sn.models.SNInject;
 
 public class SNFragment extends Fragment {
+
+    String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     SNFragmentInject inject;
 
     public <T> T getInject(Class<T> _class) {

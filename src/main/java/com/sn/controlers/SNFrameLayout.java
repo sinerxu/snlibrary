@@ -3,32 +3,38 @@ package com.sn.controlers;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
-import android.view.DragEvent;
-import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 
 import com.sn.main.SNElement;
 import com.sn.main.SNManager;
 
 /**
- * Created by xuhui on 15/8/11.
+ * Created by xuhui on 16/1/10.
  */
-public class SNLinearLayout extends LinearLayout {
+public class SNFrameLayout extends FrameLayout {
     public SNManager $;
     public SNElement $this;
-    boolean isInit = false;
 
-    public SNLinearLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        $ = new SNManager(context);
-        $this = $.create(this);
-    }
-
-    public SNLinearLayout(Context context) {
+    public SNFrameLayout(Context context) {
         super(context);
+
         $ = new SNManager(context);
         $this = $.create(this);
     }
 
+    public SNFrameLayout(Context context, AttributeSet attrs) {
+        super(context, attrs);
+
+        $ = new SNManager(context);
+        $this = $.create(this);
+    }
+
+    public SNFrameLayout(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        $ = new SNManager(context);
+        $this = $.create(this);
+    }
+    boolean isInit = false;
     protected void onInit() {
     }
 
