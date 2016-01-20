@@ -1,13 +1,9 @@
 package com.sn.controlers.slidingtab.underlinetab;
 
 import android.content.Context;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
 
 import com.sn.controlers.slidingtab.SNSlidingTabContainer;
-
-import java.util.ArrayList;
 
 /**
  * @style  style="?attr/theme_home_slidingtabcontent_style"  需要添加的的样式

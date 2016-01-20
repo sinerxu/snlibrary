@@ -4,6 +4,7 @@
 package com.sn.override;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -21,14 +22,14 @@ public class SNAdapter extends BaseAdapter {
     public SNAdapterListener onLoadView;
     public Context context;
     public LayoutInflater layoutInflater;
-    private ArrayList<Object> list;
+    private List<Object> list;
     private SNElement master;
 
     public SNElement getMaster() {
         return master;
     }
 
-    public SNAdapter(SNElement master, ArrayList<Object> list, Context context) {
+    public SNAdapter(SNElement master, List<Object> list, Context context) {
         $ = SNManager.instence(context);
         this.context = context;
         this.list = list;
@@ -81,7 +82,7 @@ public class SNAdapter extends BaseAdapter {
         return view;
     }
 
-    public ArrayList getDatas() {
+    public List getDatas() {
         return list;
     }
 

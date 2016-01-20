@@ -3,9 +3,6 @@ package com.sn.main;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Dialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -70,7 +67,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -505,6 +501,7 @@ public class SNManager extends SNConfig {
             Field[] fields = _holder.getClass().getDeclaredFields();
             for (Field field : fields) {
                 String fieldName = field.getName();
+                util.logInfo(SNManager.class, fieldName);
                 if (field.isAnnotationPresent(SNInjectElement.class)) {
                     try {
                         SNInjectElement bindId = (SNInjectElement) field.getAnnotation(SNInjectElement.class);
@@ -518,14 +515,22 @@ public class SNManager extends SNConfig {
                     Class c = field.getType();
                     Class t = SNBindInjectManager.instance().to(c);
                     if (t != null) {
+                        util.logInfo(SNManager.class, "t != null");
                         try {
+                            util.logInfo(SNManager.class, "getDeclaredConstructor start==" + t.getName());
                             Constructor c1 = t.getDeclaredConstructor(SNManager.class);
+                            util.logInfo(SNManager.class, "getDeclaredConstructor" + c1);
                             c1.setAccessible(true);
+                            util.logInfo(SNManager.class, "setAccessible success");
                             Object obj = c1.newInstance(this);
+                            util.logInfo(SNManager.class, "newInstance success");
                             field.setAccessible(true);
+                            util.logInfo(SNManager.class, "setAccessible success");
                             field.set(_holder, obj);
+                            util.logInfo(SNManager.class, "field set");
                         } catch (Exception ex) {
-                            throw new IllegalStateException("IOC class constructor parameter must be SNManager class.");
+                            ex.printStackTrace();
+                            throw new IllegalStateException("IOC class constructor parameter must be SNManager class." + ex.getMessage());
                         }
                     }
                 } else {
@@ -595,7 +600,7 @@ public class SNManager extends SNConfig {
      * @param animated refer to->SNConfig->animate type
      */
     public void startActivity(Class<?> c, int animated) {
-        Intent intent = new Intent(context, c);
+        Intent intent = new Intent(getContext(), c);
         this.startActivity(intent);
         activityAnimateType(animated);
     }
@@ -619,6 +624,33 @@ public class SNManager extends SNConfig {
         this.getContext().startActivity(intent);
         activityAnimateType(animated);
     }
+
+
+    public void startActivityResult(Class<?> c, int requestCode, int animated) {
+        Intent intent = new Intent(getContext(), c);
+        this.startActivityResult(intent, requestCode);
+        activityAnimateType(animated);
+    }
+
+    /**
+     * start activity
+     *
+     * @param intent Intent
+     */
+    public void startActivityResult(Intent intent, int requestCode, int animated) {
+        this.startActivityResult(intent, requestCode);
+        activityAnimateType(animated);
+    }
+
+    /**
+     * start activity
+     *
+     * @param intent Intent
+     */
+    public void startActivityResult(Intent intent, int requestCode) {
+        this.getActivity().startActivityForResult(intent, requestCode);
+    }
+
 
     /**
      * start activity
@@ -1258,7 +1290,7 @@ public class SNManager extends SNConfig {
         return getContext().getResources().getStringArray(resId);
     }
 
-    public ArrayList<String> stringArrayListResId(int resId) {
+    public List<String> stringArrayListResId(int resId) {
         String[] a = stringArrayResId(resId);
         return util.arrayToList(a);
     }

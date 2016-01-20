@@ -15,6 +15,7 @@ import com.sn.main.SNElement;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * Created by xuhui on 15/11/14.
@@ -64,7 +65,7 @@ public class SNCalendarDayLayout extends SNRelativeLayout {
     }
 
     public void showCalendarDays() {
-        ArrayList<String> days = new ArrayList<String>();
+        List<String> days = new ArrayList<String>();
         int day = $.util.dateDayOfMonth(mSelectedDatetime);
         int cDay = 1;
         for (int y = 0; y < 6; y++) {

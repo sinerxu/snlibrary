@@ -42,25 +42,22 @@ import com.sn.controlers.wheel.adapters.WheelViewAdapter;
 import com.sn.controlers.wheel.views.OnWheelChangedListener;
 import com.sn.controlers.wheel.views.OnWheelScrollListener;
 import com.sn.controlers.wheel.views.WheelView;
-import com.sn.core.SNUtility;
 import com.sn.core.SNXListManager;
 import com.sn.interfaces.SNAdapterListener;
 import com.sn.interfaces.SNAdapterOnItemClickListener;
 import com.sn.interfaces.SNAnimationListener;
 import com.sn.interfaces.SNOnClickListener;
 import com.sn.interfaces.SNOnGetImageUrlListener;
-import com.sn.interfaces.SNOnLoadImageFinishListener;
 import com.sn.interfaces.SNOnImageLoadListener;
+import com.sn.interfaces.SNOnLoadImageFinishListener;
 import com.sn.interfaces.SNOnLongClickListener;
 import com.sn.interfaces.SNOnSetImageListenter;
 import com.sn.interfaces.SNOnTouchListener;
-import com.sn.interfaces.SNTaskListener;
+import com.sn.models.SNAdapterViewInject;
 import com.sn.models.SNMargins;
 import com.sn.models.SNSize;
-import com.sn.models.SNAdapterViewInject;
 import com.sn.override.SNAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import me.maxwin.view.XListView;
@@ -1494,11 +1491,11 @@ public class SNElement extends SNManager {
         return bindListAdapter(listManager.getData(), layout_id, injectClass);
     }
 
-    public SNElement bindListAdapter(ArrayList dataSource, final int layout_id, final Class injectClass) {
+    public SNElement bindListAdapter(List dataSource, final int layout_id, final Class injectClass) {
         return bindListAdapter(this, dataSource, layout_id, injectClass);
     }
 
-    public SNElement bindListAdapter(final SNManager $, ArrayList dataSource, final int layout_id, final Class injectClass) {
+    public SNElement bindListAdapter(final SNManager $, List dataSource, final int layout_id, final Class injectClass) {
         bindListAdapter(dataSource, new SNAdapterListener() {
             @Override
             public SNAdapterViewInject onCreateInject(int pos) {
@@ -1522,7 +1519,7 @@ public class SNElement extends SNManager {
      * @param dataSource ArrayList dataSource
      * @param onLoadView SNAdapterListener onLoadView call back
      */
-    public SNElement bindListAdapter(ArrayList dataSource, SNAdapterListener onLoadView) {
+    public SNElement bindListAdapter(List dataSource, SNAdapterListener onLoadView) {
         SNAdapter adapter = new SNAdapter(this, dataSource, getContext());
         adapter.onLoadView = onLoadView;
         return bindListAdapter(adapter);
@@ -2095,16 +2092,7 @@ public class SNElement extends SNManager {
         return 0;
     }
 
-    public SNElement defaultItem(int item) {
-        if (elem != null) {
-            if (elem instanceof SNSlidingTabBar) {
-                ((SNSlidingTabBar) elem).setDefaultItem(item);
-            } else {
-                errorNullOrNotInstance("SNSlidingTabBar");
-            }
-        }
-        return this;
-    }
+
 
     public SNElement currentItem(int item) {
         if (elem != null) {
@@ -2132,7 +2120,7 @@ public class SNElement extends SNManager {
         return this;
     }
 
-    public SNElement bindData(FragmentManager manager, ArrayList<Fragment> list, int selectItem) {
+    public SNElement bindData(FragmentManager manager, List<Fragment> list, int selectItem) {
         if (elem != null) {
             if (elem instanceof SNFragmentScrollable) {
                 ((SNFragmentScrollable) elem).bindData(manager, list, selectItem);

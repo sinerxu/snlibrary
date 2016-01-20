@@ -1,18 +1,13 @@
 package com.sn.fragment;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.sn.lib.R;
 import com.sn.main.SNElement;
 
-import java.util.ArrayList;
 import java.util.Date;
 
 /**

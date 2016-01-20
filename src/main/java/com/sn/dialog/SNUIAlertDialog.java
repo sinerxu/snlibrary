@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -23,6 +24,14 @@ public class SNUIAlertDialog extends Dialog {
     public SNUIAlertDialog(Context context, int theme) {
         super(context, theme);
         this.setCanceledOnTouchOutside(false);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     public static class Builder {

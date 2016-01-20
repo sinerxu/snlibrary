@@ -5,9 +5,7 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.util.AttributeSet;
-import android.view.ViewGroup;
 
 import com.sn.fragment.SNFragment;
 
@@ -19,9 +17,9 @@ import java.util.List;
  */
 public class SNFragmentScrollable extends SNViewPager {
     private MyFragmentPagerAdapter awesomeAdapter;
-    public ArrayList<Fragment> fragments;
+    public List<Fragment> fragments;
 
-    public SNFragmentScrollable(Context context, FragmentManager manager, ArrayList<Fragment> list, int selectItem) {
+    public SNFragmentScrollable(Context context, FragmentManager manager, List<Fragment> list, int selectItem) {
         super(context);
         bindData(manager, list, selectItem);
     }
@@ -30,7 +28,7 @@ public class SNFragmentScrollable extends SNViewPager {
         super(context, attrs);
     }
 
-    public void bindData(FragmentManager manager, ArrayList<Fragment> list, int selectItem) {
+    public void bindData(FragmentManager manager, List<Fragment> list, int selectItem) {
         fragments = list;
         //DEFAULT_OFFSCREEN_PAGES
         awesomeAdapter = new MyFragmentPagerAdapter(manager, fragments);
@@ -43,11 +41,11 @@ public class SNFragmentScrollable extends SNViewPager {
 
     private class MyFragmentPagerAdapter extends FragmentPagerAdapter {
 
-        private ArrayList<Fragment> fragments;
+        private List<Fragment> fragments;
         FragmentManager fm;
         List<Boolean> fragmentsUpdateFlag;
 
-        public MyFragmentPagerAdapter(FragmentManager fm, ArrayList<Fragment> list) {
+        public MyFragmentPagerAdapter(FragmentManager fm, List<Fragment> list) {
             super(fm);
             fragmentsUpdateFlag = new ArrayList<Boolean>();
             for (Fragment f : list) {

@@ -9,12 +9,13 @@ import com.sn.lib.R;
 import com.sn.main.SNElement;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by xuhui on 15/11/22.
  */
 public class SNActionBox extends SNLinearLayout {
-    ArrayList<SNElement> actions;
+    List<SNElement> actions;
     SNElement $main;
     SNElement $actionBox;
 

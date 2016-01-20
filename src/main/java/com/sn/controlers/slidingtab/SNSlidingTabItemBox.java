@@ -8,6 +8,7 @@ import com.sn.controlers.SNRelativeLayout;
 import com.sn.main.SNElement;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by xuhui on 15/8/11.
@@ -17,7 +18,7 @@ public class SNSlidingTabItemBox extends SNRelativeLayout {
 
     String LCAP = "SNSlidingTabItemBox Log";
 
-    public ArrayList<SNElement> $itemList;
+    public List<SNElement> $itemList;
     public int itemWidth = 0;
     public int itemHeight = 0;
     public SNElement $hover;

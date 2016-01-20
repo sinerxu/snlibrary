@@ -18,6 +18,7 @@ import com.sn.main.SNElement;
 public class SNNavigationSlidingActivity extends SlidingActivity {
     public final String LCAP = this.getClass().getName() + " Log";
     public SNElement container;
+    public SNElement mainContainer;
     SNElement navTitleBarContainer;
     SNElement topAdContainer;
     public SNElement navTitleBar;
@@ -33,7 +34,6 @@ public class SNNavigationSlidingActivity extends SlidingActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         super.setContentView(R.layout.activity_navigation_sliding);
-
         //首先设置主题
         initBase();
         $.layoutInflateResId(id, container.toView(ViewGroup.class));
@@ -45,6 +45,7 @@ public class SNNavigationSlidingActivity extends SlidingActivity {
         container = $.create(R.id.container);
         $.slidingMode(SlidingMenu.LEFT_RIGHT_NONE);
         navTitleBarContainer = $.create(R.id.navTitleBarContainer);
+        mainContainer = $.create(R.id.mainContainer);
         topAdContainer = $.create(R.id.topAdContainer);
     }
 

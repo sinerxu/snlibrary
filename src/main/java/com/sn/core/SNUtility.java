@@ -27,29 +27,19 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
 import com.sn.annotation.SNMapping;
-import com.sn.interfaces.SNOnImageLoadListener;
 import com.sn.interfaces.SNTaskListener;
 import com.sn.interfaces.SNThreadDelayedListener;
 import com.sn.interfaces.SNThreadListener;
 import com.sn.main.SNConfig;
-import com.sn.main.SNManager;
 import com.sn.models.SNSize;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,8 +48,6 @@ import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
@@ -72,14 +60,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Objects;
+import java.util.List;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
-
-import libcore.io.DiskLruCache;
 
 public class SNUtility {
     static class ThreadHandler extends Handler {
@@ -341,7 +327,7 @@ public class SNUtility {
     //endregion
 
     //region Array(array)
-    public <T> ArrayList<T> arrayToList(T[] t) {
+    public <T> List<T> arrayToList(T[] t) {
         ArrayList<T> a = new ArrayList<T>();
         for (int i = 0; i < t.length; i++) {
             a.add(t[i]);

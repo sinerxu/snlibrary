@@ -18,6 +18,7 @@ import com.sn.main.SNElement;
 import com.sn.models.SNInject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by xuhui on 15/11/22.
@@ -42,9 +43,9 @@ public class SNSlideBanner extends SNLinearLayout {
     int selectedPage;
     int currentPosition;
     SNSlideBannerInject inject = new SNSlideBannerInject();
-    ArrayList<SNElement> banners;
-    ArrayList<SNElement> dataBanners;
-    ArrayList<SNElement> dots;
+    List<SNElement> banners;
+    List<SNElement> dataBanners;
+    List<SNElement> dots;
     SNElement $main;
 
     public SNSlideBanner(Context context, AttributeSet attrs) {
@@ -245,7 +246,7 @@ public class SNSlideBanner extends SNLinearLayout {
         dots.get(index).opacity(1);
     }
 
-    public void setBanners(ArrayList<SNElement> _banners) {
+    public void setBanners(List<SNElement> _banners) {
         this.dataBanners = _banners;
         init();
     }

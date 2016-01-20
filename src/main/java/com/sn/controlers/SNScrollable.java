@@ -9,7 +9,6 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.sn.core.SNInterval;
 import com.sn.lib.R;
 import com.sn.main.SNElement;
 
@@ -43,7 +42,7 @@ public class SNScrollable extends SNViewPager {
 
 
     public void bindContent() {
-        ArrayList<SNElement> _contentList = new ArrayList<SNElement>();
+        List<SNElement> _contentList = new ArrayList<SNElement>();
         int childCount = getChildCount();
         //Log.d(LCAT, SNUtility.format("childCount {0}", childCount));
         if (mListViews.size() == 0 && getChildCount() > 0) {

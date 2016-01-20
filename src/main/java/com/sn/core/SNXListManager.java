@@ -4,6 +4,7 @@ import com.sn.interfaces.SNXListListener;
 import com.sn.main.SNElement;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import me.maxwin.view.XListView;
 
@@ -38,11 +39,11 @@ public class SNXListManager<T> {
         this.isDone = isDone;
     }
 
-    public ArrayList<T> getData() {
+    public List<T> getData() {
         return data;
     }
 
-    public void setData(ArrayList<T> data) {
+    public void setData(List<T> data) {
         if (data == null) data = new ArrayList<T>();
         if (this.data != null) {
             this.data.clear();
@@ -52,7 +53,7 @@ public class SNXListManager<T> {
         }
     }
 
-    public void addData(ArrayList<T> data) {
+    public void addData(List<T> data) {
         if (data == null) data = new ArrayList<T>();
         if (this.data != null) {
             for (T t : data) {
@@ -75,7 +76,7 @@ public class SNXListManager<T> {
 
     int pageSize;
     boolean isDone;
-    ArrayList<T> data;
+    List<T> data;
     SNXListListener<T> listener;
 
     public static void create(SNElement _element, int _pageSize, SNXListListener listener) {

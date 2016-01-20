@@ -7,8 +7,6 @@ import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
 import android.view.View;
 
-
-import com.sn.controlers.SNFrameLayout;
 import com.sn.controlers.SNLinearLayout;
 import com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabItem;
 import com.sn.controlers.slidingtab.homeslidingtab.SNHomeSlidingTabItem;
@@ -38,7 +36,7 @@ public class SNSlidingTabBar extends SNLinearLayout {
     SNSlidingTabBarInject inject = new SNSlidingTabBarInject();
     FragmentManager fragmentManager;
     List<SNElement> items;
-    ArrayList<Fragment> fragments;
+    List<Fragment> fragments;
     int style = 0;
     int underLineColor;
     int selectedItem = 0;
@@ -166,10 +164,6 @@ public class SNSlidingTabBar extends SNLinearLayout {
         if (fragment != null)
             return (T) getContentItem(i);
         else return null;
-    }
-
-    public void setDefaultItem(int selectedItem) {
-        this.selectedItem = selectedItem;
     }
 
     public void setCurrentItem(int selectedItem) {

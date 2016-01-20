@@ -16,6 +16,7 @@ import com.sn.models.SNInject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * Created by xuhui on 15/11/14.
@@ -32,9 +33,9 @@ public class SNCalendar extends SNLinearLayout {
 
     SNCalendarInject inject = new SNCalendarInject();
     SNElement $main;
-    ArrayList<String> mWeekCodes;
-    ArrayList<String> mMonthCodes;
-    ArrayList<SNElement> mCalendarDays;
+    List<String> mWeekCodes;
+    List<String> mMonthCodes;
+    List<SNElement> mCalendarDays;
     int mDirect;
 
     public SNCalendar(Context context, AttributeSet attrs) {
