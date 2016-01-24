@@ -502,6 +502,38 @@ public class SNUtility {
         return size;
     }
 
+
+    public SNSize imgScaleSize(Bitmap mapBitmap, int max, int min, double percent) {
+        SNSize size = new SNSize();
+        if (mapBitmap == null)
+            return size;
+        double p = percent * 0.01;
+        double height = mapBitmap.getHeight();
+        double width = mapBitmap.getWidth();
+        if (height > min && width > min) {
+            height = height * p;
+            width = width * p;
+            if (height > max) {
+                double temp = height;
+                height = max;
+                width = width / temp * max;
+            }
+            if (width > max) {
+                double temp = width;
+                width = max;
+                height = height / temp * width;
+            }
+        }
+        size.setHeight((int) height);
+        size.setWidth((int) width);
+        return size;
+    }
+
+    public Bitmap imgZoom(Bitmap mapBitmap, int max, int min, double percent) {
+        SNSize size = imgScaleSize(mapBitmap, max, min, percent);
+        return imgZoom(mapBitmap, ((float) size.getWidth()) / ((float) mapBitmap.getWidth()), ((float) size.getHeight()) / ((float) mapBitmap.getHeight()));
+    }
+
     /**
      * 等比例缩放图片（指定宽度或者高度）
      *
