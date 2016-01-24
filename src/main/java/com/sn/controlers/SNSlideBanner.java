@@ -15,7 +15,6 @@ import com.sn.core.SNInterval;
 import com.sn.interfaces.SNIntervalListener;
 import com.sn.lib.R;
 import com.sn.main.SNElement;
-import com.sn.models.SNInject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,15 +33,11 @@ public class SNSlideBanner extends SNLinearLayout {
     SNInterval interval;
     int scroll_state = SCROLL_STATE_LOAD;
 
-    class SNSlideBannerInject extends SNInject {
-        SNElement saSlides;
-        SNElement viewDotBox;
-        SNElement ivShape;
-    }
-
+    SNElement saSlides;
+    SNElement viewDotBox;
+    SNElement ivShape;
     int selectedPage;
     int currentPosition;
-    SNSlideBannerInject inject = new SNSlideBannerInject();
     List<SNElement> banners;
     List<SNElement> dataBanners;
     List<SNElement> dots;
@@ -81,14 +76,19 @@ public class SNSlideBanner extends SNLinearLayout {
         if (dataBanners != null) {
             dots = new ArrayList<SNElement>();
             $main = $.layoutInflateResId(R.layout.controler_slide_banner, $this.toViewGroup());
-            $main.inject(inject);
+
+
+            saSlides = $main.create(R.id.saSlides);
+            viewDotBox = $main.create(R.id.viewDotBox);
+            ivShape = $main.create(R.id.ivShape);
+
             setSelectedPage(0);
             for (int i = 0; i < dataBanners.size(); i++) {
                 SNElement banner = dataBanners.get(i);
                 banner.adjustViewBounds(true);
                 banner.scaleType(ImageView.ScaleType.FIT_XY);
                 SNElement dot = $.create(new LinearLayout($.getActivity()));
-                inject.viewDotBox.add(dot);
+                viewDotBox.add(dot);
                 dot.marginLeft(DOT_SIZE);
                 dot.width(DOT_SIZE);
                 dot.height(DOT_SIZE);
@@ -103,7 +103,7 @@ public class SNSlideBanner extends SNLinearLayout {
                 dots.add(dot);
             }
 
-            inject.saSlides.pageChange(new ViewPager.OnPageChangeListener() {
+            saSlides.pageChange(new ViewPager.OnPageChangeListener() {
                 @Override
                 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                     currentPosition = position;
@@ -142,8 +142,8 @@ public class SNSlideBanner extends SNLinearLayout {
             for (SNElement elem : dataBanners) {
                 banners.add(elem);
             }
-            inject.saSlides.bindScrollable(banners);
-            inject.saSlides.currentItem(page);
+            saSlides.bindScrollable(banners);
+            saSlides.currentItem(page);
             currentPosition = page;
         } else if (dataBanners.size() > 2) {
             if (selectedPage == 0) {
@@ -159,8 +159,8 @@ public class SNSlideBanner extends SNLinearLayout {
                 banners.add(dataBanners.get(selectedPage));
                 banners.add(dataBanners.get(selectedPage + 1));
             }
-            inject.saSlides.bindScrollable(banners);
-            inject.saSlides.currentItem(1);
+            saSlides.bindScrollable(banners);
+            saSlides.currentItem(1);
             currentPosition = 1;
         }
 
@@ -187,8 +187,8 @@ public class SNSlideBanner extends SNLinearLayout {
      */
     int getDirect(int positionOffsetPixels) {
         int toPage = positionToPage(currentPosition);
-        int c = positionOffsetPixels + inject.saSlides.width() * toPage;
-        int s = inject.saSlides.width() * this.selectedPage;
+        int c = positionOffsetPixels + saSlides.width() * toPage;
+        int s = saSlides.width() * this.selectedPage;
         if (c > s) {
             if (selectedPage == 0 && toPage == dataBanners.size() - 1)
                 return -1;
@@ -201,19 +201,19 @@ public class SNSlideBanner extends SNLinearLayout {
 
     }
 
-    //0.3/1    positionOffsetPixels   /   inject.saSlides.width()
+    //0.3/1    positionOffsetPixels   /   saSlides.width()
     float getOpacity(int positionOffsetPixels) {
         int r = positionToPage(currentPosition);
         if (this.selectedPage == 0 && r == dataBanners.size() - 1)
             r = -1;
         //停留位置
-        int s = inject.saSlides.width() * this.selectedPage;
+        int s = saSlides.width() * this.selectedPage;
         //当前位置
-        int c = positionOffsetPixels + inject.saSlides.width() * r;
+        int c = positionOffsetPixels + saSlides.width() * r;
         //偏移
         int o = c - s;
         //偏移量
-        float op = (float) o / inject.saSlides.width();
+        float op = (float) o / saSlides.width();
         //最小值
         float p = 1 - MIN_OPACITY;
         return Math.abs(op) * p + 0.3f;
@@ -252,7 +252,7 @@ public class SNSlideBanner extends SNLinearLayout {
     }
 
     public SNElement getDotBox() {
-        return inject.viewDotBox;
+        return viewDotBox;
     }
 
     public void setShape(Bitmap _shape) {
@@ -262,13 +262,13 @@ public class SNSlideBanner extends SNLinearLayout {
 
     public void setShape(Bitmap _shape, int size) {
         dotMarginUpdate(size);
-        inject.ivShape.image($.util.imgCurve(_shape, size));
+        ivShape.image($.util.imgCurve(_shape, size));
     }
 
     public void setCurveShape(int size) {
         dotMarginUpdate(size);
         Bitmap _shape = $.util.imgCreate($.displaySize().getWidth(), size);
-        inject.ivShape.image($.util.imgCurve(_shape, size));
+        ivShape.image($.util.imgCurve(_shape, size));
     }
 
     public void setCurveShape() {
@@ -277,7 +277,7 @@ public class SNSlideBanner extends SNLinearLayout {
     }
 
     void dotMarginUpdate(int size) {
-        inject.viewDotBox.marginBottom(size + $.px(10));
+        viewDotBox.marginBottom(size + $.px(10));
     }
 
     @Override
@@ -300,9 +300,9 @@ public class SNSlideBanner extends SNLinearLayout {
                             if (dataBanners.size() <= 2) {
                                 int p = currentPosition + 1;
                                 if (p >= dataBanners.size()) p = 0;
-                                inject.saSlides.currentItem(p);
+                                saSlides.currentItem(p);
                             } else {
-                                inject.saSlides.currentItem(currentPosition + 1);
+                                saSlides.currentItem(currentPosition + 1);
                             }
 
                         }

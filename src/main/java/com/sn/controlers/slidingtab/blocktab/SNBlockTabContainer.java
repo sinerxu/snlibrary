@@ -11,8 +11,6 @@ import com.sn.controlers.slidingtab.SNSlidingTabContainer;
  */
 public class SNBlockTabContainer extends SNSlidingTabContainer {
 
-
-
     public SNBlockTabContainer(Context context, AttributeSet attrs) {
         super(context, attrs);
     }

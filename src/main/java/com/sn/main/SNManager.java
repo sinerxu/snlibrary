@@ -46,12 +46,12 @@ import com.sn.core.SNLoadBitmapManager;
 import com.sn.core.SNLoadingDialogManager;
 import com.sn.core.SNUtility;
 import com.sn.interfaces.SNAppEventListener;
+import com.sn.interfaces.SNInjectListener;
 import com.sn.interfaces.SNOnClickListener;
 import com.sn.interfaces.SNOnHttpResultListener;
 import com.sn.interfaces.SNOnImageLoadListener;
 import com.sn.interfaces.SNOnSetImageListenter;
 import com.sn.lib.R;
-import com.sn.models.SNInject;
 import com.sn.models.SNSize;
 import com.sn.postting.alert.SNAlert;
 
@@ -419,7 +419,7 @@ public class SNManager extends SNConfig {
      * @param layoutParams LayoutParams
      * @param _holder      view inject holder object，refer to : document->view inject
      */
-    public void contentView(SNElement element, LayoutParams layoutParams, SNInject _holder) {
+    public void contentView(SNElement element, LayoutParams layoutParams, Object _holder) {
         if (manager instanceof Activity)
             getActivity().setContentView(element.toView(), layoutParams);
         else if (manager instanceof Dialog)
@@ -433,7 +433,7 @@ public class SNManager extends SNConfig {
      * @param element SNElement
      * @param _holder view inject holder object，refer to : document->view inject
      */
-    public void contentView(SNElement element, SNInject _holder) {
+    public void contentView(SNElement element, Object _holder) {
         if (manager instanceof Activity)
             getActivity().setContentView(element.toView());
         else if (manager instanceof Dialog)
@@ -481,7 +481,7 @@ public class SNManager extends SNConfig {
      * @param layoutResID layout id
      * @param _holder     view inject holder object，refer to : document->view inject
      */
-    public void contentView(int layoutResID, SNInject _holder) {
+    public void contentView(int layoutResID, Object _holder) {
         if (manager instanceof Activity)
             getActivity().setContentView(layoutResID);
         else if (manager instanceof Dialog)
@@ -489,19 +489,23 @@ public class SNManager extends SNConfig {
         inject(_holder);
     }
 
+    public void inject(Object _holder) {
+        inject(_holder, null);
+    }
+
     /**
      * view inject, refer to : document->view inject
      *
      * @param _holder view inject holder object,refer to : document->view inject
      */
-    public void inject(SNInject _holder) {
+    public void inject(Object _holder, SNInjectListener injectListener) {
         if (_holder != null) {
-            _holder.$ = this;
-            _holder.onInjectStart();
+            if (injectListener != null) injectListener.onStart();
             Field[] fields = _holder.getClass().getDeclaredFields();
             for (Field field : fields) {
                 String fieldName = field.getName();
                 util.logInfo(SNManager.class, fieldName);
+
                 if (field.isAnnotationPresent(SNInjectElement.class)) {
                     try {
                         SNInjectElement bindId = (SNInjectElement) field.getAnnotation(SNInjectElement.class);
@@ -534,18 +538,18 @@ public class SNManager extends SNConfig {
                         }
                     }
                 } else {
-                    int id = resourceId(fieldName);
-                    if (id != 0) {
-                        field.setAccessible(true);
-                        try {
-                            field.set(_holder, create(id));
-                        } catch (Exception ex2) {
-
-                        }
-                    }
+//                    int id = resourceId(fieldName);
+//                    if (id != 0) {
+//                        field.setAccessible(true);
+//                        try {
+//                            field.set(_holder, create(id));
+//                        } catch (Exception ex2) {
+//
+//                        }
+//                    }
                 }
             }
-            _holder.onInjectFinish();
+            if (injectListener != null) injectListener.onFinish(_holder);
         }
 
     }
@@ -931,7 +935,7 @@ public class SNManager extends SNConfig {
      * @param root
      * @return
      */
-    public SNElement layoutInflateResId(int resId, SNElement root, SNInject _holder) {
+    public SNElement layoutInflateResId(int resId, SNElement root, Object _holder) {
 
         return layoutInflateResId(resId, root.toViewGroup(), _holder);
     }
@@ -967,7 +971,7 @@ public class SNManager extends SNConfig {
      * @param _holder       view inject, refer to document->view inject
      * @return
      */
-    public SNElement layoutInflateResId(int resId, SNElement root, boolean _attachToRoot, SNInject _holder) {
+    public SNElement layoutInflateResId(int resId, SNElement root, boolean _attachToRoot, Object _holder) {
         return layoutInflateResId(resId, root.toViewGroup(), _attachToRoot, _holder);
     }
 
@@ -979,7 +983,7 @@ public class SNManager extends SNConfig {
      * @param root
      * @return
      */
-    public SNElement layoutInflateResId(int resId, ViewGroup root, SNInject _holder) {
+    public SNElement layoutInflateResId(int resId, ViewGroup root, Object _holder) {
         SNElement r = null;
         if (manager instanceof Activity)
             r = create(getActivity().getLayoutInflater().inflate(resId, root));
@@ -1021,7 +1025,7 @@ public class SNManager extends SNConfig {
      * @param _holder       view inject, refer to document->view inject
      * @return
      */
-    public SNElement layoutInflateResId(int resId, ViewGroup root, boolean _attachToRoot, SNInject _holder) {
+    public SNElement layoutInflateResId(int resId, ViewGroup root, boolean _attachToRoot, Object _holder) {
         SNElement r = null;
         if (manager instanceof Activity)
             r = create(getActivity().getLayoutInflater().inflate(resId, root, _attachToRoot));
@@ -1053,7 +1057,7 @@ public class SNManager extends SNConfig {
      * @param _holder view inject, refer to document->view inject
      * @return
      */
-    public SNElement layoutInflateResId(int resId, SNInject _holder) {
+    public SNElement layoutInflateResId(int resId, Object _holder) {
 
         SNElement r = null;
         if (manager instanceof Activity)
@@ -1095,7 +1099,7 @@ public class SNManager extends SNConfig {
      * @param _holder       view inject, refer to document->view inject
      * @return
      */
-    public SNElement layoutInflateName(String name, ViewGroup root, boolean _attachToRoot, SNInject _holder) {
+    public SNElement layoutInflateName(String name, ViewGroup root, boolean _attachToRoot, Object _holder) {
         int resId = resource(name, "layout");
         return layoutInflateResId(resId, root, _attachToRoot, _holder);
     }
@@ -1108,7 +1112,7 @@ public class SNManager extends SNConfig {
      * @param _holder view inject, refer to document->view inject
      * @return
      */
-    public SNElement layoutInflateName(String name, ViewGroup root, SNInject _holder) {
+    public SNElement layoutInflateName(String name, ViewGroup root, Object _holder) {
         int resId = resource(name, "layout");
         return layoutInflateResId(resId, root, _holder);
     }
@@ -1120,7 +1124,7 @@ public class SNManager extends SNConfig {
      * @param _holder view inject, refer to document->view inject
      * @return
      */
-    public SNElement layoutInflateName(String name, SNInject _holder) {
+    public SNElement layoutInflateName(String name, Object _holder) {
         return layoutInflateName(name, null, _holder);
     }
 
