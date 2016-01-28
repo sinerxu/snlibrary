@@ -21,14 +21,14 @@ public class SNActionString extends SNLinearLayout {
     SNElement viewSplit;
 
     SNElement $main;
-    Drawable image;
+    int image;
     String title;
     String description;
 
     public SNActionString(Context context, AttributeSet attrs) {
         super(context, attrs);
         TypedArray ta = $.obtainStyledAttr(attrs, R.styleable.SNActionString);
-        image = ta.getDrawable(R.styleable.SNActionString_android_src);
+        image = ta.getResourceId(R.styleable.SNActionString_android_src, 0);
         title = ta.getString(R.styleable.SNActionString_android_text);
         description = ta.getString(R.styleable.SNActionString_description);
         ta.recycle();
@@ -43,25 +43,17 @@ public class SNActionString extends SNLinearLayout {
     void initView() {
         if ($main == null) {
             $main = $.layoutInflateResId(R.layout.controler_action_string, $this.toView(ViewGroup.class));
-
-
             ivActionImage = $main.create(R.id.ivActionImage);
             tvTitle = $main.create(R.id.tvTitle);
             tvDescription = $main.create(R.id.tvDescription);
             viewSplit = $main.create(R.id.viewSplit);
-
-
-            if (image != null)
-                setImage(image);
+            setImage(image);
             if ($.util.strIsNotNullOrEmpty(title))
                 setTitle(title);
             if ($.util.strIsNotNullOrEmpty(description))
                 setDescription(description);
             $this.clickable(true);
             $this.background(R.drawable.action_item_default_selected);
-
-            // android:background="@drawable/action_item_default_selected"
-            // android:clickable="true"
         }
     }
 
@@ -74,8 +66,8 @@ public class SNActionString extends SNLinearLayout {
         viewSplit.visible($.SN_UI_NONE);
     }
 
-    public void setImage(Drawable image) {
-        this.image = image;
+    public void setImage(int resid) {
+        this.image = resid;
         ivActionImage.image(image);
     }
 
