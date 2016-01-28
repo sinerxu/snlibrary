@@ -112,5 +112,7 @@
         <attr name="description" format="string" />
     </declare-styleable>
 
-
+    <declare-styleable name="SNImageView">
+        <attr name="image" format="reference" />
+    </declare-styleable>
 </resources>

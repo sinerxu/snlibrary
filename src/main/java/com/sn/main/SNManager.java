@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
@@ -31,6 +32,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.Toast;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
@@ -60,6 +62,8 @@ import org.apache.http.Header;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -1208,6 +1212,24 @@ public class SNManager extends SNConfig {
         return resource(name, "drawable");
     }
 
+
+    public Bitmap readBitMap(int resId) {
+        try {
+            BitmapFactory.Options opt = new BitmapFactory.Options();
+            opt.inPreferredConfig = Bitmap.Config.RGB_565;
+            InputStream is = getContext().getResources().openRawResource(resId);
+            Bitmap bitmap = BitmapFactory.decodeStream(is, null, opt);
+            is.close();
+            return bitmap;
+        } catch (OutOfMemoryError e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
     /**
      * get layout id
      *
@@ -1302,7 +1324,10 @@ public class SNManager extends SNConfig {
      * @return
      */
     public Drawable drawableResId(int resId) {
-        return getContext().getResources().getDrawable(resId);
+        Bitmap bitmap = readBitMap(resId);
+        if (bitmap != null)
+            return util.imgParseDrawable(bitmap);
+        else return null;
     }
 
     /**
@@ -1622,6 +1647,14 @@ public class SNManager extends SNConfig {
     // endregion
 
     //region http
+
+    public void loadImage(SNElement listView, int position, String imageUrl, SNOnSetImageListenter onSetImageListenter, SNOnImageLoadListener _onImageLoadListener) {
+        AbsListView absListView = null;
+        if (listView != null && listView.toView() instanceof AbsListView)
+            absListView = listView.toView(AbsListView.class);
+        SNLoadBitmapManager.instance(this).loadImageFromUrl(absListView, position, imageUrl, onSetImageListenter, _onImageLoadListener);
+    }
+
     public void loadImage(String imageUrl, SNOnSetImageListenter onSetImageListenter, SNOnImageLoadListener _onImageLoadListener) {
         SNLoadBitmapManager.instance(this).loadImageFromUrl(imageUrl, onSetImageListenter, _onImageLoadListener);
     }

@@ -24,14 +24,14 @@ public class SNActionString extends SNLinearLayout {
 
     ActionStringInject inject = new ActionStringInject();
     SNElement $main;
-    Drawable image;
+    int image;
     String title;
     String description;
 
     public SNActionString(Context context, AttributeSet attrs) {
         super(context, attrs);
         TypedArray ta = $.obtainStyledAttr(attrs, R.styleable.SNActionString);
-        image = ta.getDrawable(R.styleable.SNActionString_android_src);
+        image = ta.getResourceId(R.styleable.SNActionString_android_src, 0);
         title = ta.getString(R.styleable.SNActionString_android_text);
         description = ta.getString(R.styleable.SNActionString_description);
         ta.recycle();
@@ -47,8 +47,7 @@ public class SNActionString extends SNLinearLayout {
         if ($main == null) {
             $main = $.layoutInflateResId(R.layout.controler_action_string, $this.toView(ViewGroup.class));
             $main.inject(inject);
-            if (image != null)
-                setImage(image);
+            setImage(image);
             if ($.util.strIsNotNullOrEmpty(title))
                 setTitle(title);
             if ($.util.strIsNotNullOrEmpty(description))
@@ -70,8 +69,8 @@ public class SNActionString extends SNLinearLayout {
         inject.viewSplit.visible($.SN_UI_NONE);
     }
 
-    public void setImage(Drawable image) {
-        this.image = image;
+    public void setImage(int resid) {
+        this.image = resid;
         inject.ivActionImage.image(image);
     }
 

@@ -26,12 +26,14 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.sn.controlers.SNFragmentScrollable;
+import com.sn.controlers.SNImageView;
 import com.sn.controlers.SNNavTitleBar;
 import com.sn.controlers.SNScrollable;
 import com.sn.controlers.SNSlipNavigation;
@@ -42,6 +44,7 @@ import com.sn.controlers.wheel.adapters.WheelViewAdapter;
 import com.sn.controlers.wheel.views.OnWheelChangedListener;
 import com.sn.controlers.wheel.views.OnWheelScrollListener;
 import com.sn.controlers.wheel.views.WheelView;
+import com.sn.core.SNLoadBitmapManager;
 import com.sn.core.SNXListManager;
 import com.sn.interfaces.SNAdapterListener;
 import com.sn.interfaces.SNAdapterOnItemClickListener;
@@ -58,6 +61,7 @@ import com.sn.models.SNMargins;
 import com.sn.models.SNSize;
 import com.sn.override.SNAdapter;
 
+import java.util.AbstractSequentialList;
 import java.util.List;
 
 import me.maxwin.view.XListView;
@@ -446,7 +450,6 @@ public class SNElement extends SNManager {
     }
 
     // endregion
-
 
     // region position
 
@@ -1294,7 +1297,15 @@ public class SNElement extends SNManager {
      * @return
      */
     public SNElement image(int resid) {
-        if (elem instanceof ImageView) {
+
+        if (elem instanceof SNImageView) {
+            SNImageView iv = (SNImageView) elem;
+            if (resid == 0) {
+                iv.setImageBitmap(null);
+            } else {
+                iv.imageResource(resid);
+            }
+        } else if (elem instanceof ImageView) {
             ImageView iv = (ImageView) elem;
             if (resid == 0) {
                 iv.setImageBitmap(null);
@@ -1336,18 +1347,7 @@ public class SNElement extends SNManager {
         return this;
     }
 
-
-    /**
-     * 设置远程图片
-     *
-     * @param url                 url
-     * @param def_resource        默认图片
-     * @param err_resource        错误图片
-     * @param onSetImageListenter 设置图片样式
-     * @return SNElement
-     */
-    public SNElement image(final String url, int def_resource, final int err_resource, SNOnSetImageListenter onSetImageListenter, final SNOnGetImageUrlListener onGetImageUrlListener, final SNOnLoadImageFinishListener onLoadImageFinishListener) {
-
+    public SNElement image(SNElement listview, int position, final String url, int def_resource, final int err_resource, SNOnSetImageListenter onSetImageListenter, final SNOnGetImageUrlListener onGetImageUrlListener, final SNOnLoadImageFinishListener onLoadImageFinishListener) {
         if (def_resource != 0)
             image(def_resource);
 
@@ -1355,7 +1355,7 @@ public class SNElement extends SNManager {
             if (def_resource != 0)
                 image(def_resource);
         } else {
-            loadImage(url, onSetImageListenter, new SNOnImageLoadListener() {
+            loadImage(listview, position, url, onSetImageListenter, new SNOnImageLoadListener() {
                 @Override
                 public void onSuccess(Bitmap map) {
                     if (onLoadImageFinishListener != null) onLoadImageFinishListener.onFinish(map);
@@ -1374,6 +1374,26 @@ public class SNElement extends SNManager {
                 }
             });
         }
+        return this;
+    }
+
+    /**
+     * 设置远程图片
+     *
+     * @param url                 url
+     * @param def_resource        默认图片
+     * @param err_resource        错误图片
+     * @param onSetImageListenter 设置图片样式
+     * @return SNElement
+     */
+    public SNElement image(final String url, int def_resource, final int err_resource, SNOnSetImageListenter onSetImageListenter, final SNOnGetImageUrlListener onGetImageUrlListener, final SNOnLoadImageFinishListener onLoadImageFinishListener) {
+        image(null, 0, url, def_resource, err_resource, onSetImageListenter, onGetImageUrlListener, onLoadImageFinishListener);
+        return this;
+    }
+
+
+    public SNElement image(SNElement listview, int position, String url, int def_redId, final SNOnSetImageListenter onSetImageListenter, final SNOnGetImageUrlListener onGetImageUrlListener) {
+        image(listview, position, url, def_redId, 0, onSetImageListenter, onGetImageUrlListener, null);
         return this;
     }
 
@@ -1482,6 +1502,53 @@ public class SNElement extends SNManager {
     // endregion
 
     // region listView
+    public SNElement lazyLoadImage() {
+        if (elem != null) {
+            if (elem instanceof AbsListView) {
+                AbsListView listView = (AbsListView) elem;
+                SNLoadBitmapManager.instance(SNElement.this).unlock();
+                listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(AbsListView view, int scrollState) {
+                        switch (scrollState) {
+
+                            case AbsListView.OnScrollListener.SCROLL_STATE_FLING:
+
+                                SNLoadBitmapManager.instance(SNElement.this).lock();
+
+                                break;
+
+                            case AbsListView.OnScrollListener.SCROLL_STATE_IDLE:
+
+
+                                SNLoadBitmapManager.instance(SNElement.this).unlock();
+
+                                break;
+
+                            case AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
+
+                                SNLoadBitmapManager.instance(SNElement.this).lock();
+
+                                break;
+
+                            default:
+
+                                break;
+
+                        }
+                    }
+
+                    @Override
+                    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+                    }
+                });
+            } else {
+                errorNullOrNotInstance("ListView");
+            }
+        }
+        return this;
+    }
 
     public SNElement bindListAdapter(final SNManager $, SNXListManager listManager, final int layout_id, final Class injectClass) {
         return bindListAdapter($, listManager.getData(), layout_id, injectClass);
@@ -2091,7 +2158,6 @@ public class SNElement extends SNManager {
         }
         return 0;
     }
-
 
 
     public SNElement currentItem(int item) {

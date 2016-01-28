@@ -724,7 +724,16 @@ public class SNUtility {
      * @return
      */
     public Bitmap imgParse(InputStream is) {
-        return BitmapFactory.decodeStream(is);
+        try {
+            BitmapFactory.Options opts = new BitmapFactory.Options();
+            opts.inPreferredConfig = Bitmap.Config.RGB_565;
+            opts.inSampleSize = 1;
+            Bitmap bitmap = BitmapFactory.decodeStream(is, null, opts);
+            return bitmap;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -810,18 +819,21 @@ public class SNUtility {
      * @return byte[]
      */
     public byte[] byteParse(InputStream is) {
-        String str = "";
-        byte[] readByte = new byte[1024];
-        int readCount = -1;
         try {
-            while ((readCount = is.read(readByte, 0, 1024)) != -1) {
-                str += new String(readByte).trim();
+            byte[] buffer = new byte[1024];
+            int len = -1;
+            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+            while ((len = is.read(buffer)) != -1) {
+                outStream.write(buffer, 0, len);
             }
-            return str.getBytes();
+            byte[] data = outStream.toByteArray();
+            outStream.close();
+            is.close();
+            return data;
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     /**
@@ -1338,7 +1350,7 @@ public class SNUtility {
      * @param threadListener
      * @return
      */
-    @Deprecated
+
     public Thread threadRun(final SNThreadListener threadListener) {
         final ThreadHandler handler = new ThreadHandler(threadListener);
 

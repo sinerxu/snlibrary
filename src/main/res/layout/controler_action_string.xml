@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="44dp"
-
     android:orientation="vertical">
 
-    <ImageView
+
+    <com.sn.controlers.SNImageView
         android:id="@+id/ivActionImage"
         android:layout_width="16dp"
         android:layout_height="16dp"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="20dp" />
+        android:layout_marginLeft="20dp"  />
+
 
     <TextView
         android:id="@+id/tvTitle"
@@ -22,14 +24,16 @@
         android:textColor="#3d3d3d"
         android:textSize="14dp" />
 
-    <ImageView
+
+    <com.sn.controlers.SNImageView
         android:id="@+id/ivArrowRight"
         android:layout_width="12dp"
         android:layout_height="12dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="10dp"
-        android:src="@drawable/right_bababa" />
+        app:image="@drawable/right_bababa" />
+
 
     <TextView
         android:id="@+id/tvDescription"
