@@ -7,8 +7,7 @@ import android.support.v4.app.Fragment;
 import android.util.AttributeSet;
 
 import com.sn.main.SNManager;
-import com.sn.models.SNFragmentInject;
-import com.sn.models.SNInject;
+
 
 public class SNFragment extends Fragment {
 
@@ -22,15 +21,6 @@ public class SNFragment extends Fragment {
         this.name = name;
     }
 
-    SNFragmentInject inject;
-
-    public <T> T getInject(Class<T> _class) {
-        return (T) inject;
-    }
-
-    public SNFragmentInject getInject() {
-        return inject;
-    }
 
     public SNManager $;
 
@@ -55,19 +45,7 @@ public class SNFragment extends Fragment {
         super.onResume();
 
     }
-    //    @Override
-//    public void setUserVisibleHint(boolean isVisibleToUser) {
-//        super.setUserVisibleHint(isVisibleToUser);
-//        if ($ == null)
-//            $ = SNManager.instence(SNFragment.this.getActivity());
-//    }
-//
-//    @Override
-//    public void onActivityCreated(Bundle savedInstanceState) {
-//        super.onActivityCreated(savedInstanceState);
-//        if ($ == null)
-//            $ = SNManager.instence(SNFragment.this.getActivity());
-//    }
+
 
     @Override
     public void onInflate(Activity activity, AttributeSet attrs, Bundle savedInstanceState) {

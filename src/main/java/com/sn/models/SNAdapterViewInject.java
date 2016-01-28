@@ -3,9 +3,39 @@ package com.sn.models;
 import android.widget.AdapterView;
 
 import com.sn.main.SNElement;
+import com.sn.main.SNManager;
 import com.sn.override.SNAdapter;
 
-public class SNAdapterViewInject extends SNInject {
+public class SNAdapterViewInject {
+    public SNManager $;
+
+    /**
+     * 注入开始之前
+     */
+    public void onInjectStart() {
+
+    }
+
+    /**
+     * 注入结束，可以初始化操作
+     */
+    public void onInjectFinish() {
+
+    }
+
+    /**
+     * 注入事件
+     */
+    public void onInjectEvent() {
+
+    }
+
+    /**
+     * 注入UI
+     */
+    public void onInjectUI() {
+
+    }
 
 
     SNAdapter adapter;

@@ -1,22 +1,16 @@
 package com.sn.fragment;
 
 import android.os.Bundle;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 
-import com.sn.annotation.SNInjectFragment;
 import com.sn.interfaces.SNAnimationListener;
 import com.sn.interfaces.SNLazyFragmentSetElementListener;
 import com.sn.interfaces.SNThreadListener;
 import com.sn.lib.R;
 import com.sn.main.SNElement;
-import com.sn.models.SNFragmentInject;
-
-import java.lang.annotation.Annotation;
-import java.util.Objects;
 
 
 public class SNLazyFragment extends SNFragment {
@@ -156,30 +150,6 @@ public class SNLazyFragment extends SNFragment {
 
     public void setMainElement(int resId, final SNLazyFragmentSetElementListener setElementListener) {
         setMainElement(resId, true, setElementListener);
-    }
-
-    public void injectFragment() {
-        try {
-            for (Annotation item : this.getClass().getDeclaredAnnotations()) {
-                if (item instanceof SNInjectFragment) {
-                    SNInjectFragment injectFragment = (SNInjectFragment) item;
-                    int lid = injectFragment.injectView();
-                    Class c = injectFragment.injectClass();
-                    inject = (SNFragmentInject) c.newInstance();
-                    setMainElement(lid, injectFragment.animated(), new SNLazyFragmentSetElementListener() {
-                        @Override
-                        public void onFinish(SNElement element) {
-                            element.inject(inject);
-                        }
-                    });
-
-                }
-            }
-        } catch (IllegalAccessException e) {
-            inject = null;
-        } catch (java.lang.InstantiationException e) {
-            inject = null;
-        }
     }
 
 

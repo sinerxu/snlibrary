@@ -14,7 +14,6 @@ import com.sn.controlers.slidingtab.listeners.SNSlidingTabListener;
 import com.sn.fragment.SNFragment;
 import com.sn.lib.R;
 import com.sn.main.SNElement;
-import com.sn.models.SNInject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,14 +25,14 @@ public class SNSlidingTabBar extends SNLinearLayout {
     SNElement $tab;
 
 
-    class SNSlidingTabBarInject extends SNInject {
-        SNElement tabItemHover;
-        SNElement tabItemBox;
-        SNElement tabContainer;
-    }
+    SNElement tabItemHover;
+
+    SNElement tabItemBox;
+
+    SNElement tabContainer;
+
 
     SNSlidingTabListener slidingTabBarListener;
-    SNSlidingTabBarInject inject = new SNSlidingTabBarInject();
     FragmentManager fragmentManager;
     List<SNElement> items;
     List<Fragment> fragments;
@@ -48,6 +47,7 @@ public class SNSlidingTabBar extends SNLinearLayout {
 
     public SNSlidingTabBar(Context context, AttributeSet attrs) {
         super(context, attrs);
+
         int childCount = getChildCount();
         TypedArray a = $.obtainStyledAttr(attrs, R.styleable.SNSlidingTabBar);
         style = a.getInt(R.styleable.SNSlidingTabBar_style, 0);
@@ -109,16 +109,24 @@ public class SNSlidingTabBar extends SNLinearLayout {
             } else if (style == 3) {
                 tab_layout = R.layout.controler_block_slidingtabbar;
             }
-            $tab = $.layoutInflateResId(tab_layout, this, false, inject);
+            $tab = $.layoutInflateResId(tab_layout, this, false);
+
+            tabItemHover = $tab.create(R.id.tabItemHover);
+
+            tabItemBox = $tab.create(R.id.tabItemBox);
+
+            tabContainer = $tab.create(R.id.tabContainer);
+
+
             $this.add($tab);
             if (this.slidingTabBarListener != null) setTabListener(this.slidingTabBarListener);
             //移除
-            inject.tabItemBox.remove(inject.tabItemHover);
+            tabItemBox.remove(tabItemHover);
 
             //添加子项
             fragments = new ArrayList<Fragment>();
             for (SNElement item : items) {
-                inject.tabItemBox.add(item);
+                tabItemBox.add(item);
                 String fragmentName = item.toView(SNSlidingTabItem.class).getFragmentName();
                 String all_f_name = "";
                 if (fragmentName.contains($.packageName())) {
@@ -142,10 +150,10 @@ public class SNSlidingTabBar extends SNLinearLayout {
                 fragments.add(fragment);
             }
             $.util.logInfo(SNSlidingTabBar.class, "selected_index=" + selectedItem);
-            inject.tabContainer.toView(SNSlidingTabContainer.class).bindData(fragmentManager, fragments, selectedItem);
-            inject.tabItemBox.add(inject.tabItemHover);
+            tabContainer.toView(SNSlidingTabContainer.class).bindData(fragmentManager, fragments, selectedItem);
+            tabItemBox.add(tabItemHover);
         }
-        inject.tabItemBox.toView(SNSlidingTabItemBox.class).initChild();
+        tabItemBox.toView(SNSlidingTabItemBox.class).initChild();
         $tab.toView(SNSlidingTab.class).initChild();
         if (slidingTabBarListener != null)
             slidingTabBarListener.onInitFinish();
@@ -182,7 +190,7 @@ public class SNSlidingTabBar extends SNLinearLayout {
 
 
     public void updateTabItemSize() {
-        inject.tabItemBox.toView(SNSlidingTabItemBox.class).updateSize();
+        tabItemBox.toView(SNSlidingTabItemBox.class).updateSize();
     }
 
     public void setTabListener(SNSlidingTabListener slidingTabBarListener) {

@@ -12,7 +12,6 @@ import com.sn.controlers.SNScrollable;
 import com.sn.interfaces.SNCalendarListener;
 import com.sn.lib.R;
 import com.sn.main.SNElement;
-import com.sn.models.SNInject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -22,16 +21,14 @@ import java.util.List;
  * Created by xuhui on 15/11/14.
  */
 public class SNCalendar extends SNLinearLayout {
-    class SNCalendarInject extends SNInject {
-        SNElement viewHeaderDate;
-        SNElement viewHeaderWeek;
-        SNElement tvDate;
-        SNElement calendarDayBox;
-    }
+    SNElement viewHeaderDate;
+    SNElement viewHeaderWeek;
+    SNElement tvDate;
+    SNElement calendarDayBox;
 
     Calendar mCurrentCalendar;
 
-    SNCalendarInject inject = new SNCalendarInject();
+
     SNElement $main;
     List<String> mWeekCodes;
     List<String> mMonthCodes;
@@ -51,7 +48,7 @@ public class SNCalendar extends SNLinearLayout {
     }
 
     void updateShowCurentDate() {
-        inject.tvDate.text($.util.strFormat("{0}  {1}  {2}  周{3}", $.util.dateToString(mCurrentCalendar, "yyyy"), mMonthCodes.get(mCurrentCalendar.get(Calendar.MONTH)), $.util.dateToString(mCurrentCalendar, "dd"), mWeekCodes.get($.util.dateWeek(mCurrentCalendar))));
+        tvDate.text($.util.strFormat("{0}  {1}  {2}  周{3}", $.util.dateToString(mCurrentCalendar, "yyyy"), mMonthCodes.get(mCurrentCalendar.get(Calendar.MONTH)), $.util.dateToString(mCurrentCalendar, "dd"), mWeekCodes.get($.util.dateWeek(mCurrentCalendar))));
     }
 
     @Override
@@ -59,7 +56,10 @@ public class SNCalendar extends SNLinearLayout {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         if ($this.childCount() == 0) {
             $main = $.layoutInflateResId(R.layout.view_calendar, $this.toViewGroup());
-            $main.inject(inject);
+            viewHeaderDate = $main.create(R.id.viewHeaderDate);
+            viewHeaderWeek = $main.create(R.id.viewHeaderWeek);
+            tvDate = $main.create(R.id.tvDate);
+            calendarDayBox = $main.create(R.id.calendarDayBox);
             updateShowCurentDate();
             for (int i = 0; i < mWeekCodes.size(); i++) {
                 String item = mWeekCodes.get(i);
@@ -69,7 +69,7 @@ public class SNCalendar extends SNLinearLayout {
                 tvDay.textSize(12);
                 tvDay.textColor(Color.WHITE);
                 tvDay.backgroundColor(Color.TRANSPARENT);
-                inject.viewHeaderWeek.add(tvDay);
+                viewHeaderWeek.add(tvDay);
                 tvDay.gravity(Gravity.CENTER);
                 tvDay.width(w);
             }
@@ -96,9 +96,9 @@ public class SNCalendar extends SNLinearLayout {
                 mCalendarDays.add($.create(calendarDay));
             }
             allowLoad();
-            inject.calendarDayBox.bindScrollable(mCalendarDays);
-            inject.calendarDayBox.toView(SNScrollable.class).setCurrentItem(1, false);
-            inject.calendarDayBox.toView(SNScrollable.class).setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            calendarDayBox.bindScrollable(mCalendarDays);
+            calendarDayBox.toView(SNScrollable.class).setCurrentItem(1, false);
+            calendarDayBox.toView(SNScrollable.class).setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
                 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                     mDirect = position - 1;
@@ -126,7 +126,7 @@ public class SNCalendar extends SNLinearLayout {
                         //update day
                         allowLoad();
                         updateAll();
-                        inject.calendarDayBox.toView(SNScrollable.class).setCurrentItem(1, false);
+                        calendarDayBox.toView(SNScrollable.class).setCurrentItem(1, false);
                         mCurrentCalendar = currCalendar;
                         updateShowCurentDate();
                     }
