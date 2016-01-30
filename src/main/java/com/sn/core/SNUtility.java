@@ -26,7 +26,6 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
-import com.sn.annotation.SNMapping;
 import com.sn.interfaces.SNTaskListener;
 import com.sn.interfaces.SNThreadDelayedListener;
 import com.sn.interfaces.SNThreadListener;
@@ -46,7 +45,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -415,64 +413,6 @@ public class SNUtility {
             return null;
         }
     }
-
-    public <T> T jsonMapping(Class<T> tClass, String json) {
-        return jsonMapping(tClass, jsonParse(json));
-    }
-
-    public <T> T jsonMapping(Class<T> tClass, JSONObject jsonObject) {
-        try {
-            T result = tClass.newInstance();
-            Field[] fields = tClass.getDeclaredFields();
-            for (Field field : fields) {
-                field.setAccessible(true);
-                String fieldNames = field.getName();
-                if (field.isAnnotationPresent(SNMapping.class)) {
-                    try {
-                        SNMapping mapping = (SNMapping) field.getAnnotation(SNMapping.class);
-                        fieldNames = mapping.value();
-                    } catch (Exception ex) {
-                        fieldNames = field.getName();
-                    }
-                }
-                String[] fns = fieldNames.split(",");
-                for (String fieldName : fns) {
-
-                    if (jsonNotIsNullOrNoHas(jsonObject, fieldName)) {
-                        try {
-                            if (refClassIsEqual(field.getType(), String.class)) {
-                                field.set(result, jsonObject.get(fieldName).toString());
-                            } else if (refClassIsEqual(field.getType(), int.class)) {
-                                field.set(result, Integer.parseInt(jsonObject.get(fieldName).toString()));
-                            } else if (refClassIsEqual(field.getType(), boolean.class)) {
-                                String r = jsonObject.get(fieldName).toString();
-                                if (r.equals("0")) {
-                                    field.set(result, false);
-                                } else if (r.equals("1")) {
-                                    field.set(result, true);
-                                } else {
-                                    field.set(result, Boolean.parseBoolean(r));
-                                }
-                            } else if (refClassIsEqual(field.getType(), float.class)) {
-                                field.set(result, Float.parseFloat(jsonObject.get(fieldName).toString()));
-                            } else if (refClassIsEqual(field.getType(), double.class)) {
-                                field.set(result, Double.parseDouble(jsonObject.get(fieldName).toString()));
-                            }
-                        } catch (Exception ex) {
-
-                        }
-                        break;
-                    }
-                }
-
-            }
-            return result;
-        } catch (Exception e) {
-            return null;
-        }
-
-    }
-
 
     //endregion
 
