@@ -28,15 +28,20 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.sn.controlers.SNFragmentScrollable;
+import com.sn.controlers.SNGridView;
 import com.sn.controlers.SNImageView;
+import com.sn.controlers.SNListView;
 import com.sn.controlers.SNNavTitleBar;
 import com.sn.controlers.SNScrollable;
 import com.sn.controlers.SNSlipNavigation;
+import com.sn.controlers.pullrefresh.SNPullRefreshLayout;
 import com.sn.controlers.slidingtab.SNSlidingTabBar;
 import com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabItem;
 import com.sn.controlers.slidingtab.listeners.SNSlidingTabListener;
@@ -45,6 +50,7 @@ import com.sn.controlers.wheel.views.OnWheelChangedListener;
 import com.sn.controlers.wheel.views.OnWheelScrollListener;
 import com.sn.controlers.wheel.views.WheelView;
 import com.sn.core.SNLoadBitmapManager;
+import com.sn.core.SNPullRefreshManager;
 import com.sn.core.SNXListManager;
 import com.sn.interfaces.SNAdapterListener;
 import com.sn.interfaces.SNAdapterOnItemClickListener;
@@ -88,7 +94,7 @@ public class SNElement extends SNManager {
     }
 
     // region member
-    SNAdapter listViewAdapter;
+
     View elem;
 
     // endregion
@@ -203,6 +209,22 @@ public class SNElement extends SNManager {
         if (elem != null && elem instanceof ViewGroup) {
             ViewGroup viewGroup = (ViewGroup) elem;
             viewGroup.addView(element.elem);
+        } else {
+            errorNullOrNotInstance("ViewGroup");
+        }
+        return this;
+    }
+
+    /**
+     * add a elem
+     *
+     * @param element elem
+     * @return
+     */
+    public SNElement add(SNElement element, int index) {
+        if (elem != null && elem instanceof ViewGroup) {
+            ViewGroup viewGroup = (ViewGroup) elem;
+            viewGroup.addView(element.elem, index);
         } else {
             errorNullOrNotInstance("ViewGroup");
         }
@@ -335,8 +357,8 @@ public class SNElement extends SNManager {
      * @return
      */
     public SNElement itemClick(final SNAdapterOnItemClickListener onItemClickListener) {
-        if (elem != null && elem instanceof ListView) {
-            ListView view = (ListView) elem;
+        if (elem != null && elem instanceof AbsListView) {
+            AbsListView view = (AbsListView) elem;
             view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -352,6 +374,17 @@ public class SNElement extends SNManager {
         return this;
     }
 
+    public SNElement scrollEnable(boolean enable) {
+        if (elem != null && elem instanceof SNListView) {
+            SNListView view = (SNListView) elem;
+            view.setScrollEnable(enable);
+        } else if (elem != null && elem instanceof SNGridView) {
+            SNGridView view = (SNGridView) elem;
+            view.setScrollEnable(enable);
+        }
+        return this;
+    }
+
     /**
      * 主动触发itemClick
      *
@@ -359,8 +392,8 @@ public class SNElement extends SNManager {
      * @return
      */
     public SNElement itemClick(SNAdapterViewInject holder) {
-        if (elem != null && elem instanceof ListView) {
-            ListView view = (ListView) elem;
+        if (elem != null && elem instanceof AbsListView) {
+            AbsListView view = (AbsListView) elem;
             view.performItemClick(holder.getView().toView(), holder.getPos(), 0);
         }
         return this;
@@ -582,15 +615,6 @@ public class SNElement extends SNManager {
         return this;
     }
 
-
-    /**
-     * 获取SNAdapter适配器
-     *
-     * @return
-     */
-    public SNAdapter getListViewAdapter() {
-        return listViewAdapter;
-    }
 
     /**
      * getContext
@@ -1554,6 +1578,10 @@ public class SNElement extends SNManager {
         return bindListAdapter($, listManager.getData(), layout_id, injectClass);
     }
 
+    public SNElement bindListAdapter(SNPullRefreshManager listManager, final int layout_id, final Class injectClass) {
+        return bindListAdapter(this, listManager.getData(), layout_id, injectClass);
+    }
+
     public SNElement bindListAdapter(SNXListManager listManager, final int layout_id, final Class injectClass) {
         return bindListAdapter(listManager.getData(), layout_id, injectClass);
     }
@@ -1574,6 +1602,24 @@ public class SNElement extends SNManager {
             }
         });
         return this;
+    }
+
+
+    public SNAdapter listAdapter() {
+        if (elem != null) {
+            if (elem instanceof AbsListView) {
+                AbsListView temp = (AbsListView) elem;
+                ListAdapter adapter = temp.getAdapter();
+                if (adapter instanceof SNAdapter) {
+                    return (SNAdapter) temp.getAdapter();
+                } else {
+                    errorNullOrNotInstance("is not a SNAdapter");
+                }
+            } else {
+                errorNullOrNotInstance("AbsListView");
+            }
+        }
+        return null;
     }
 
     public SNElement bindListAdapter(SNXListManager listManager, SNAdapterListener onLoadView) {
@@ -1600,12 +1646,12 @@ public class SNElement extends SNManager {
      */
     public SNElement bindListAdapter(SNAdapter adapter) {
         if (elem != null) {
-            if (elem instanceof ListView) {
-                ListView temp = (ListView) elem;
-                this.listViewAdapter = adapter;
-                temp.setAdapter(this.listViewAdapter);
+            if (elem instanceof AbsListView) {
+                AbsListView temp = (AbsListView) elem;
+
+                temp.setAdapter(adapter);
             } else {
-                errorNullOrNotInstance("ListView");
+                errorNullOrNotInstance("AbsListView");
             }
         }
         return this;
@@ -1629,6 +1675,18 @@ public class SNElement extends SNManager {
         return this;
     }
 
+    public SNElement pullListener(SNPullRefreshLayout.SNPullRefreshListener listener) {
+        if (elem != null) {
+            if (elem instanceof SNPullRefreshLayout) {
+                SNPullRefreshLayout temp = (SNPullRefreshLayout) elem;
+                temp.setPullRefreshListener(listener);
+            } else {
+                errorNullOrNotInstance("SNPullRefreshLayout");
+            }
+        }
+        return this;
+    }
+
     /**
      * 开始加载更多
      *
@@ -1640,8 +1698,12 @@ public class SNElement extends SNManager {
             if (elem instanceof XListView) {
                 XListView temp = (XListView) elem;
                 temp.setPullLoadEnable(enable);
+            }
+            if (elem instanceof SNPullRefreshLayout) {
+                SNPullRefreshLayout temp = (SNPullRefreshLayout) elem;
+                temp.setLoadMoreEnable(enable);
             } else {
-                errorNullOrNotInstance("XListView");
+                errorNullOrNotInstance("XListView or SNPullRefreshLayout");
             }
         }
         return this;
@@ -1658,8 +1720,12 @@ public class SNElement extends SNManager {
             if (elem instanceof XListView) {
                 XListView temp = (XListView) elem;
                 temp.setPullRefreshEnable(enable);
+            }
+            if (elem instanceof SNPullRefreshLayout) {
+                SNPullRefreshLayout temp = (SNPullRefreshLayout) elem;
+                temp.setRefreshEnable(enable);
             } else {
-                errorNullOrNotInstance("XListView");
+                errorNullOrNotInstance("XListView or SNPullRefreshLayout");
             }
         }
         return this;
@@ -1675,8 +1741,11 @@ public class SNElement extends SNManager {
             if (elem instanceof XListView) {
                 XListView temp = (XListView) elem;
                 temp.stopRefresh();
+            } else if (elem instanceof SNPullRefreshLayout) {
+                SNPullRefreshLayout temp = (SNPullRefreshLayout) elem;
+                temp.setRefreshState(SNPullRefreshLayout.REFRESH_STATE_NORMAL);
             } else {
-                errorNullOrNotInstance("XListView");
+                errorNullOrNotInstance("XListView or SNPullRefreshLayout");
             }
         }
         return this;
@@ -1692,8 +1761,11 @@ public class SNElement extends SNManager {
             if (elem instanceof XListView) {
                 XListView temp = (XListView) elem;
                 temp.stopLoadMore();
+            } else if (elem instanceof SNPullRefreshLayout) {
+                SNPullRefreshLayout temp = (SNPullRefreshLayout) elem;
+                temp.setLoadState(SNPullRefreshLayout.LOAD_STATE_NORMAL);
             } else {
-                errorNullOrNotInstance("XListView");
+                errorNullOrNotInstance("XListView or SNPullRefreshLayout");
             }
         }
         return this;
@@ -1752,8 +1824,10 @@ public class SNElement extends SNManager {
             if (elem instanceof XListView) {
                 XListView temp = (XListView) elem;
                 temp.loadFinish();
+            } else if (elem instanceof SNPullRefreshLayout) {
+                pullStopRefresh();
             } else {
-                errorNullOrNotInstance("XListView");
+                errorNullOrNotInstance("XListView or SNPullRefreshLayout");
             }
         }
         return this;
@@ -1769,8 +1843,11 @@ public class SNElement extends SNManager {
             if (elem instanceof XListView) {
                 XListView temp = (XListView) elem;
                 temp.getFooterView().setState(XListViewFooter.STATE_NORMAL);
+            } else if (elem instanceof SNPullRefreshLayout) {
+                SNPullRefreshLayout temp = (SNPullRefreshLayout) elem;
+                temp.setLoadMoreDone(false);
             } else {
-                errorNullOrNotInstance("XListView");
+                errorNullOrNotInstance("XListView or SNPullRefreshLayout");
             }
         }
         return this;
@@ -1799,6 +1876,9 @@ public class SNElement extends SNManager {
             if (elem instanceof XListView) {
                 XListView temp = (XListView) elem;
                 temp.getFooterView().showHintMessage(messageResId);
+            } else if (elem instanceof SNPullRefreshLayout) {
+                SNPullRefreshLayout temp = (SNPullRefreshLayout) elem;
+                temp.setLoadState(SNPullRefreshLayout.LOAD_STATE_ERROR, stringResId(messageResId));
             } else {
                 errorNullOrNotInstance("XListView");
             }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/plFooter"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ProgressBar
+            android:id="@+id/plFooterProgressbar"
+            style="@android:style/Widget.Holo.Light.ProgressBar.Large"
+            android:layout_width="15dip"
+            android:layout_height="15dip"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/plFooterStateName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="加载更多" />
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -99,7 +99,6 @@ public class XListViewHeader extends LinearLayout {
 			if (mState == STATE_REFRESHING) {
 				mArrowImageView.clearAnimation();
 			}
-			
 			mHintTextView.setText($.resource("xlistview_header_hint_normal","string"));
 			break;
 		case STATE_READY:

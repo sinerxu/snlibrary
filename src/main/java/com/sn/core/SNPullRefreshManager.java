@@ -1,6 +1,7 @@
 package com.sn.core;
 
-import com.sn.interfaces.SNXListListener;
+import com.sn.controlers.pullrefresh.SNPullRefreshLayout;
+import com.sn.interfaces.SNPullRefreshManagerListener;
 import com.sn.main.SNElement;
 
 import java.util.ArrayList;
@@ -11,9 +12,13 @@ import me.maxwin.view.XListView;
 /**
  * Created by xuhui on 15/10/25.
  */
-public class SNXListManager<T> {
-    SNElement listView;
+public class SNPullRefreshManager<T> {
+    SNElement pullRefreshLayout;
     int page;
+
+    public SNPullRefreshLayout getPullRefreshLayout() {
+        return pullRefreshLayout.toView(SNPullRefreshLayout.class);
+    }
 
     public int getPage() {
         return page;
@@ -77,31 +82,31 @@ public class SNXListManager<T> {
     int pageSize;
     boolean isDone;
     List<T> data;
-    SNXListListener<T> listener;
+    SNPullRefreshManagerListener<T> listener;
 
-    public static void create(SNElement _element, int _pageSize, SNXListListener listener) {
-        new SNXListManager(_element, _pageSize, listener);
+    public static void create(SNElement _element, int _pageSize, SNPullRefreshManagerListener listener) {
+        new SNPullRefreshManager(_element, _pageSize, listener);
     }
 
-    public static void create(SNElement _element, SNXListListener listener) {
-        new SNXListManager(_element, listener);
+    public static void create(SNElement _element, SNPullRefreshManagerListener listener) {
+        new SNPullRefreshManager(_element, listener);
     }
 
-    SNXListManager(SNElement _element, int _pageSize, SNXListListener<T> listener) {
-        this.listView = _element;
+    SNPullRefreshManager(SNElement _element, int _pageSize, SNPullRefreshManagerListener<T> listener) {
+        this.pullRefreshLayout = _element;
         this.page = 1;
         this.pageSize = _pageSize;
         this.listener = listener;
-        listView.pullRefreshEnable(true);
-        listView.pullLoadEnable(true);
-        listView.pullListener(new XListView.IXListViewListener() {
+        getPullRefreshLayout().setRefreshEnable(true);
+        getPullRefreshLayout().setLoadMoreEnable(true);
+        getPullRefreshLayout().setPullRefreshListener(new SNPullRefreshLayout.SNPullRefreshListener() {
             @Override
-            public void onRefresh() {
+            public void onRefresh(SNPullRefreshLayout pullRefreshLayout) {
                 refresh();
             }
 
             @Override
-            public void onLoadMore() {
+            public void onLoadMore(SNPullRefreshLayout pullRefreshLayout) {
                 loadMore();
             }
         });
@@ -109,20 +114,20 @@ public class SNXListManager<T> {
         if (listener != null) listener.onCreate(this);
     }
 
-    SNXListManager(SNElement _element, SNXListListener<T> listener) {
+    SNPullRefreshManager(SNElement _element, SNPullRefreshManagerListener<T> listener) {
         this.page = 1;
-        this.listView = _element;
+        this.pullRefreshLayout = _element;
         this.listener = listener;
-        listView.pullRefreshEnable(true);
-        listView.pullLoadEnable(false);
-        listView.pullListener(new XListView.IXListViewListener() {
+        getPullRefreshLayout().setRefreshEnable(true);
+        getPullRefreshLayout().setLoadMoreEnable(false);
+        getPullRefreshLayout().setPullRefreshListener(new SNPullRefreshLayout.SNPullRefreshListener() {
             @Override
-            public void onRefresh() {
+            public void onRefresh(SNPullRefreshLayout pullRefreshLayout) {
                 refresh();
             }
 
             @Override
-            public void onLoadMore() {
+            public void onLoadMore(SNPullRefreshLayout pullRefreshLayout) {
                 loadMore();
             }
         });
@@ -137,7 +142,6 @@ public class SNXListManager<T> {
     public void refresh() {
         this.page = 1;
         this.isDone = false;
-        listView.pullReset();
         if (listener != null)
             listener.onRefresh(this);
     }
@@ -146,7 +150,7 @@ public class SNXListManager<T> {
      * 加载更多
      */
     public void loadMore() {
-        if (this.isDone && listView != null) {
+        if (this.isDone) {
             this.done();
             return;
         }
@@ -159,7 +163,7 @@ public class SNXListManager<T> {
      *
      * @param _listener
      */
-    void setListener(SNXListListener<T> _listener) {
+    void setListener(SNPullRefreshManagerListener<T> _listener) {
         this.listener = _listener;
     }
 
@@ -167,39 +171,19 @@ public class SNXListManager<T> {
      * 加载成功后调用
      */
     public void success() {
-        this.listView.pullStop();
+        this.getPullRefreshLayout().setRefreshState(SNPullRefreshLayout.REFRESH_STATE_NORMAL);
+        this.getPullRefreshLayout().setLoadState(SNPullRefreshLayout.LOAD_STATE_NORMAL);
         this.page++;
         this.isDone = false;
-        listView.listAdapter().notifyDataSetChanged();
+        getPullRefreshLayout().notifyDataSetChanged();
     }
 
-    /**
-     * 加载成功后调用
-     *
-     * @param msgResId msg string id
-     */
-    public void success(int msgResId) {
-        success();
-        msg(msgResId);
-    }
-
-    /**
-     * 加载成功后调用
-     *
-     * @param msg msg string
-     */
-    public void success(String msg) {
-        success();
-        msg(msg);
-    }
 
     /**
      * 数据全部加载完成后调用
      */
     public void done() {
-        this.listView.pullLoadFinish();
-        this.isDone = true;
-        listView.listAdapter().notifyDataSetChanged();
+        done(null);
     }
 
     /**
@@ -208,8 +192,7 @@ public class SNXListManager<T> {
      * @param msgResId msg string id
      */
     public void done(int msgResId) {
-        done();
-        msg(msgResId);
+        done(pullRefreshLayout.stringResId(msgResId));
     }
 
     /**
@@ -218,8 +201,10 @@ public class SNXListManager<T> {
      * @param msg msg string
      */
     public void done(String msg) {
-        done();
-        this.listView.pullHintMessage(msg);
+        this.isDone = true;
+        this.getPullRefreshLayout().setRefreshState(SNPullRefreshLayout.REFRESH_STATE_NORMAL);
+        this.getPullRefreshLayout().setLoadState(SNPullRefreshLayout.LOAD_STATE_DONE, msg);
+        getPullRefreshLayout().notifyDataSetChanged();
     }
 
     /**
@@ -228,8 +213,9 @@ public class SNXListManager<T> {
      * @param msg msg string
      */
     public void error(String msg) {
-        error();
-        msg(msg);
+        this.getPullRefreshLayout().setRefreshState(SNPullRefreshLayout.REFRESH_STATE_NORMAL);
+        this.getPullRefreshLayout().setLoadState(SNPullRefreshLayout.LOAD_STATE_ERROR, msg);
+        getPullRefreshLayout().notifyDataSetChanged();
     }
 
     /**
@@ -238,34 +224,15 @@ public class SNXListManager<T> {
      * @param msgResId msg string id
      */
     public void error(int msgResId) {
-        error();
-        msg(msgResId);
+        error(pullRefreshLayout.stringResId(msgResId));
+
     }
 
     /**
      * 数据加载失败后调用
      */
     public void error() {
-        this.listView.pullStop();
-        listView.listAdapter().notifyDataSetChanged();
-        this.listView.pullLoadError();
+        error(null);
     }
 
-    /**
-     * 可以设置底部提示信息
-     *
-     * @param msgResId msg string id
-     */
-    public void msg(int msgResId) {
-        this.listView.pullHintMessage(msgResId);
-    }
-
-    /**
-     * 可以设置底部提示信息 msg string
-     *
-     * @param msg
-     */
-    public void msg(String msg) {
-        this.listView.pullHintMessage(msg);
-    }
 }
