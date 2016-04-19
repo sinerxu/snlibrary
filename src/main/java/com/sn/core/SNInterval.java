@@ -19,12 +19,10 @@ public class SNInterval {
 
     }
 
-
     public void start(int duration, SNIntervalListener intervalListener) {
         if (isRunning) return;
         this.duration = duration;
         isRunning = true;
-
         run(intervalListener);
     }
 
@@ -32,7 +30,6 @@ public class SNInterval {
         isRunning = false;
         runCount = 0;
         runFinishCount = 0;
-
     }
 
     void run(final SNIntervalListener intervalListener) {

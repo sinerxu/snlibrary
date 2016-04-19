@@ -1018,6 +1018,8 @@ public class SNElement extends SNManager {
             webView.getSettings().setDefaultTextEncodingName(SNConfig.DEFAULT_ENCODING);
             webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
             webView.getSettings().setJavaScriptEnabled(true);
+            webView.getSettings().setDomStorageEnabled(true);
+
         }
         return this;
     }

@@ -7,7 +7,6 @@
     <com.sn.controlers.slidingtab.blocktab.SNBlockTabItemBox
         android:id="@+id/tabItemBox"
         style="@style/HomeSlidingTabBoxStyle"
-
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp">
 

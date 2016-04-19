@@ -108,7 +108,7 @@
     <style name="HomeSlidingTabStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:background">#fff</item>
+        <item name="android:background">@color/trans</item>
     </style>
     <style name="HomeSlidingTabBoxStyle">
         <item name="android:layout_width">match_parent</item>

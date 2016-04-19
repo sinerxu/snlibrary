@@ -135,7 +135,7 @@ public class SNSlidingTabBar extends SNLinearLayout {
                     if (fragmentName.contains(".")) {
                         all_f_name = $.packageName() + fragmentName;
                     } else {
-                        all_f_name = $.packageName() + ".app.controllers.fragments." + fragmentName;
+                        all_f_name = $.packageName() + ".controllers.fragments." + fragmentName;
                     }
                 }
                 SNFragment fragment = null;
