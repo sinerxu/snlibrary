@@ -43,6 +43,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
 import java.math.BigDecimal;
@@ -802,6 +803,81 @@ public class SNUtility {
     //endregion
 
     //region files(file)
+
+    /**
+     * 写入文件
+     * @param path
+     * @param name
+     * @param content
+     * @return
+     */
+    public boolean fileWrite(String path, String name, String content) {
+        //生成文件夹之后，再生成文件，不然会出错
+        if (fileMake(path, name) != null) {
+            String strFilePath = path + name;
+            // 每次写入时，都换行写
+            String strContent = content + "\r\n";
+            try {
+                File file = new File(strFilePath);
+                if (!file.exists()) {
+                    file.getParentFile().mkdirs();
+                    file.createNewFile();
+                }
+                RandomAccessFile raf = new RandomAccessFile(file, "rwd");
+                raf.seek(file.length());
+                raf.write(strContent.getBytes());
+                raf.close();
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+    }
+
+    /**
+     * 创建文件
+     * @param path
+     * @param name
+     * @return
+     */
+    public File fileMake(String path, String name) {
+        File file = null;
+        if (fileMakeDirectory(path)) {
+            try {
+                file = new File(path + name);
+                if (!file.exists()) {
+                    file.createNewFile();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return file;
+        } else {
+            return null;
+        }
+
+    }
+
+    /**
+     * 创建目录
+     * @param path
+     * @return
+     */
+    public boolean fileMakeDirectory(String path) {
+        File file = null;
+        try {
+            file = new File(path);
+            if (!file.exists()) {
+                file.mkdir();
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     /**
      * asset files copy to sd card

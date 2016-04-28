@@ -683,18 +683,16 @@ public class SNElement extends SNManager {
             LayoutParams lp = this.elem.getLayoutParams();
             if (lp != null) {
                 Context context = getContext();
-
                 if (n > 0 && dip) {
                     n = px(n);
                 }
-
                 if (width) {
                     lp.width = n;
                 } else {
                     lp.height = n;
                 }
-
                 this.elem.setLayoutParams(lp);
+                this.elem.requestLayout();
             }
         }
         return this;
