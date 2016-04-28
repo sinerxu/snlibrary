@@ -866,6 +866,33 @@ public class SNUtility {
     //region files(file)
 
     /**
+     * 读取文件
+     *
+     * @param path
+     * @param name
+     * @return
+     */
+    public String fileRead(String path, String name) {
+        //生成文件夹之后，再生成文件，不然会出错
+        String strFilePath = path + name;
+        try {
+            File file = new File(strFilePath);
+            if (!file.exists()) {
+                return null;
+            }
+            RandomAccessFile raf = new RandomAccessFile(file, "rw");
+            byte[] read_bytes = new byte[(int) file.length()];
+            raf.readFully(read_bytes);
+            String content = new String(read_bytes);
+            raf.close();
+            return content;
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
      * 写入文件
      *
      * @param path
@@ -881,10 +908,11 @@ public class SNUtility {
             String strContent = content + "\r\n";
             try {
                 File file = new File(strFilePath);
-                if (!file.exists()) {
-                    file.getParentFile().mkdirs();
-                    file.createNewFile();
+                if (file.exists()) {
+                    file.delete();
                 }
+                file.getParentFile().mkdirs();
+                file.createNewFile();
                 RandomAccessFile raf = new RandomAccessFile(file, "rwd");
                 raf.seek(file.length());
                 raf.write(strContent.getBytes());
