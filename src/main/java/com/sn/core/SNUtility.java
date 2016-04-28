@@ -435,7 +435,7 @@ public class SNUtility {
                     } catch (Exception ex) {
                         fieldNames = field.getName();
                     }
-                }
+                } 
                 String[] fns = fieldNames.split(",");
                 for (String fieldName : fns) {
 
