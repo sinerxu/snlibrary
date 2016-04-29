@@ -18,7 +18,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.1.0'
+    compile 'com.android.support:support-v4:23.1.1'
     compile files('libs/gson-2.2.4.jar')
     compile files('libs/Mob/ShareSdk/MobLogCollector.jar')
     compile files('libs/Mob/ShareSdk/MobTools.jar')

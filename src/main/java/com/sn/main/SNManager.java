@@ -20,8 +20,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -295,6 +297,33 @@ public class SNManager extends SNConfig {
         return m_szUniqueID;
     }
 
+    /**
+     * 验证是否有权限
+     * @param permission
+     * @return
+     */
+    public boolean checkHasPermission(String permission) {
+        return ContextCompat.checkSelfPermission(getActivity(), permission) == PackageManager.PERMISSION_GRANTED;
+    }
+
+
+    /**
+     * 验证用户是否同意获取权限
+     * @param grantResult
+     * @return
+     */
+    public boolean checkGrantedPermission(int grantResult) {
+        return grantResult == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
+     * 请求权限
+     * @param permissions
+     * @param requestCode
+     */
+    public void requestPermission(String[] permissions, int requestCode) {
+        ActivityCompat.requestPermissions(getActivity(), permissions, requestCode);
+    }
 
     /**
      * 移除
