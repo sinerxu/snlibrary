@@ -18,10 +18,13 @@ import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -62,6 +65,7 @@ import org.apache.http.Header;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -295,6 +299,49 @@ public class SNManager extends SNConfig {
         return m_szUniqueID;
     }
 
+    /**
+     * 验证是否有权限
+     *
+     * @param permission
+     * @return
+     */
+    public boolean checkHasPermission(String permission) {
+        return ContextCompat.checkSelfPermission(getActivity(), permission) == PackageManager.PERMISSION_GRANTED;
+    }
+
+
+    /**
+     * 验证用户是否同意获取权限
+     *
+     * @param grantResult
+     * @return
+     */
+    public boolean checkGrantedPermission(int grantResult) {
+        return grantResult == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
+     * 请求权限
+     *
+     * @param permissions
+     * @param requestCode
+     */
+    public void requestPermission(String[] permissions, int requestCode) {
+        ActivityCompat.requestPermissions(getActivity(), permissions, requestCode);
+    }
+
+    public String externalStorageDirectory() {
+        File sdDir = null;
+        boolean sdCardExist = Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED); //判断sd卡是否存在
+        if (sdCardExist) {
+            sdDir = Environment.getExternalStorageDirectory();//获取跟目录
+        }
+        if (sdDir != null) {
+            return sdDir.toString();
+        } else {
+            return "";
+        }
+    }
 
     /**
      * 移除
