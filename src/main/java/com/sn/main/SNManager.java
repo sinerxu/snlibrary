@@ -18,6 +18,7 @@ import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
@@ -64,6 +65,7 @@ import org.apache.http.Header;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -299,6 +301,7 @@ public class SNManager extends SNConfig {
 
     /**
      * 验证是否有权限
+     *
      * @param permission
      * @return
      */
@@ -309,6 +312,7 @@ public class SNManager extends SNConfig {
 
     /**
      * 验证用户是否同意获取权限
+     *
      * @param grantResult
      * @return
      */
@@ -318,11 +322,25 @@ public class SNManager extends SNConfig {
 
     /**
      * 请求权限
+     *
      * @param permissions
      * @param requestCode
      */
     public void requestPermission(String[] permissions, int requestCode) {
         ActivityCompat.requestPermissions(getActivity(), permissions, requestCode);
+    }
+
+    public String externalStorageDirectory() {
+        File sdDir = null;
+        boolean sdCardExist = Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED); //判断sd卡是否存在
+        if (sdCardExist) {
+            sdDir = Environment.getExternalStorageDirectory();//获取跟目录
+        }
+        if (sdDir != null) {
+            return sdDir.toString();
+        } else {
+            return "";
+        }
     }
 
     /**
