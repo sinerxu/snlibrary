@@ -21,6 +21,12 @@
             android:src="@drawable/nav_bar_menu" />
     </RelativeLayout>
 
+
+    <RelativeLayout
+        android:id="@+id/leftBox"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"></RelativeLayout>
+
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
@@ -68,4 +74,12 @@
             android:textSize="16dp"
             android:visibility="gone" />
     </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/rightBox"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"></RelativeLayout>
+
 </RelativeLayout>

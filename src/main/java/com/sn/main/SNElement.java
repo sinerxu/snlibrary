@@ -182,6 +182,20 @@ public class SNElement extends SNManager {
         return this;
     }
 
+
+    /**
+     * remove all child elem.
+     *
+     * @param _elem a child elem.
+     * @return
+     */
+    public SNElement removeAllChild() {
+        ViewGroup viewGroup = (ViewGroup) toView();
+        viewGroup.removeAllViews();
+        return this;
+    }
+
+
     /**
      * add a elem
      *
@@ -1022,6 +1036,37 @@ public class SNElement extends SNManager {
         return this;
     }
 
+    public SNElement webGoForward() {
+        if (elem instanceof WebView) {
+            WebView webView = (WebView) elem;
+            webView.goForward();
+        }
+        return this;
+    }
+
+    public boolean webCanGoForward() {
+        if (elem instanceof WebView) {
+            WebView webView = (WebView) elem;
+            return webView.canGoForward();
+        }
+        return false;
+    }
+
+    public SNElement webGoBack() {
+        if (elem instanceof WebView) {
+            WebView webView = (WebView) elem;
+            webView.goBack();
+        }
+        return this;
+    }
+
+    public boolean webCanGoBack() {
+        if (elem instanceof WebView) {
+            WebView webView = (WebView) elem;
+            return webView.canGoBack();
+        }
+        return false;
+    }
 
     public SNElement jsInterface(Object object, String objectName) {
         if (elem instanceof WebView) {
@@ -1923,6 +1968,40 @@ public class SNElement extends SNManager {
         }
         return this;
     }
+
+    /**
+     * 显示左侧按钮
+     *
+     * @return
+     */
+    public SNElement showNavLeftView(SNElement view) {
+        if (elem != null) {
+            if (elem instanceof SNNavTitleBar) {
+                ((SNNavTitleBar) elem).setLeftView(view);
+            } else {
+                errorNullOrNotInstance("SNNavTitleBar");
+            }
+        }
+        return this;
+    }
+
+
+    /**
+     * 显示左侧按钮
+     *
+     * @return
+     */
+    public SNElement showNavRightView(SNElement view) {
+        if (elem != null) {
+            if (elem instanceof SNNavTitleBar) {
+                ((SNNavTitleBar) elem).setRightView(view);
+            } else {
+                errorNullOrNotInstance("SNNavTitleBar");
+            }
+        }
+        return this;
+    }
+
 
     /**
      * 显示后退

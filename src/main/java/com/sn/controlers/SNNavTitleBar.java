@@ -25,6 +25,8 @@ public class SNNavTitleBar extends ViewGroup {
     SNElement $rightButtonText;
     SNElement $title;
     SNElement $logo;
+    SNElement $leftBox;
+    SNElement $rightBox;
     String title;
     Drawable logo;
 
@@ -50,6 +52,8 @@ public class SNNavTitleBar extends ViewGroup {
         $rightButtonText = $navTitleBarBox.find(R.id.rightButtonText);
         $title = $navTitleBarBox.find(R.id.title);
         $logo = $navTitleBarBox.find(R.id.logo);
+        $leftBox = $navTitleBarBox.find(R.id.leftBox);
+        $rightBox = $navTitleBarBox.find(R.id.rightBox);
         TypedArray a = $.obtainStyledAttr(attrs, R.styleable.SNNavTitleBar);
         title = a.getString(R.styleable.SNNavTitleBar_nav_title);
         updateTitle();
@@ -244,6 +248,16 @@ public class SNNavTitleBar extends ViewGroup {
             $logo.visible(SNManager.SN_UI_NONE);
             $title.visible(SNManager.SN_UI_NONE);
         }
+    }
+
+    public void setLeftView(SNElement element) {
+        $leftBox.removeAllChild();
+        $leftBox.add(element);
+    }
+
+    public void setRightView(SNElement element) {
+        $rightBox.removeAllChild();
+        $rightBox.add(element);
     }
     //endregion
 }

@@ -30,6 +30,8 @@ public class SNSlipNavigation extends RelativeLayout {
     SNElement menuView;
     SNElement coverView;
     SNElement contentView;
+
+
     private VelocityTracker mVelocityTracker;
     private final static int POP_MODE_LEFT = 0;
     private final static int POP_MODE_RIGHT = 1;
@@ -514,4 +516,6 @@ public class SNSlipNavigation extends RelativeLayout {
     public boolean isShow() {
         return isMenuShow;
     }
+
+
 }
