@@ -523,7 +523,7 @@ public class SNManager extends SNConfig {
      * @param layoutResID layout id
      */
     public void contentView(int layoutResID) {
-        contentView(layoutResID, null);
+        contentView(layoutResID, getContext());
     }
 
     /**
