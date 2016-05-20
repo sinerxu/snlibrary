@@ -7,6 +7,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -214,6 +216,24 @@ public class SNManager extends SNConfig {
     // endregion
 
     //region App
+    public String metaDataApplication(String name) {
+        try {
+            ApplicationInfo info = getContext().getPackageManager().getApplicationInfo(getContext().getPackageName(), PackageManager.GET_META_DATA);
+            return info.metaData.getString(name);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public String metaDataActivity(String name) {
+        try {
+            ActivityInfo info = getContext().getPackageManager().getActivityInfo(getActivity().getComponentName(), PackageManager.GET_META_DATA);
+            return info.metaData.getString(name);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     public boolean appOnForeground() {
         Context context = getContext();
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
@@ -247,6 +267,27 @@ public class SNManager extends SNConfig {
         }
     }
 
+    /**
+     * get app version code
+     *
+     * @return
+     */
+    public int appVersionCode() {
+        try {
+            PackageManager manager = getContext().getPackageManager();
+            PackageInfo info = manager.getPackageInfo(getContext().getPackageName(), 0);
+            int version = info.versionCode;
+            return version;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * get device code
+     * @return
+     */
     public String deviceCode() {
 
         TelephonyManager TelephonyMgr = (TelephonyManager) getContext()
@@ -1699,12 +1740,6 @@ public class SNManager extends SNConfig {
 
     //region http
 
-    public void loadImage(SNElement listView, int position, String imageUrl, SNOnSetImageListenter onSetImageListenter, SNOnImageLoadListener _onImageLoadListener) {
-        AbsListView absListView = null;
-        if (listView != null && listView.toView() instanceof AbsListView)
-            absListView = listView.toView(AbsListView.class);
-        SNLoadBitmapManager.instance(this).loadImageFromUrl(absListView, position, imageUrl, onSetImageListenter, _onImageLoadListener);
-    }
 
     public void loadImage(String imageUrl, SNOnSetImageListenter onSetImageListenter, SNOnImageLoadListener _onImageLoadListener) {
         SNLoadBitmapManager.instance(this).loadImageFromUrl(imageUrl, onSetImageListenter, _onImageLoadListener);

@@ -68,14 +68,6 @@ public class SNLoadBitmapManager {
         }
     }
 
-    /**
-     * 保存图片
-     *
-     * @return
-     */
-    public void loadImageFromUrl(final String imageUrl, final SNOnSetImageListenter onSetImageListenter, final SNOnImageLoadListener _onImageLoadListener) {
-        loadImageFromUrl(null, 0, imageUrl, onSetImageListenter, _onImageLoadListener);
-    }
 
     static boolean allow = true;
     static Object lock = new Object();
@@ -85,7 +77,7 @@ public class SNLoadBitmapManager {
      *
      * @return
      */
-    public void loadImageFromUrl(final AbsListView listView, final int position, final String imageUrl, final SNOnSetImageListenter onSetImageListenter, final SNOnImageLoadListener _onImageLoadListener) {
+    public void loadImageFromUrl(final String imageUrl, final SNOnSetImageListenter onSetImageListenter, final SNOnImageLoadListener _onImageLoadListener) {
 
         if ($.util.strIsNullOrEmpty(imageUrl)) {
             _onImageLoadListener.onFailure();
@@ -98,21 +90,6 @@ public class SNLoadBitmapManager {
                 final SNUtility.SNTask task = $.util.taskRun(new SNTaskListener() {
                     @Override
                     public Object onTask(SNUtility.SNTask task, Object param) {
-                        if (listView != null) {
-                            if (!allow) {
-                                synchronized (lock) {
-                                    try {
-                                        lock.wait();
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                            //$.util.logInfo(SNLoadBitmapManager.class, $.util.strFormat("position:{0},getFirstVisiblePosition:{1},getLastVisiblePosition:{2}", position, listView.getFirstVisiblePosition(), listView.getLastVisiblePosition()));
-                            if (position < listView.getFirstVisiblePosition() - 1 || position > listView.getLastVisiblePosition() - 1)
-                                return null;
-                        }
-
                         try {
                             String imageUrl = param.toString();
                             String key = getImageNameByUrl(imageUrl);
@@ -196,9 +173,7 @@ public class SNLoadBitmapManager {
     public void unlock() {
         allow = true;
         synchronized (lock) {
-
             lock.notifyAll();
-
         }
     }
 
@@ -345,6 +320,5 @@ public class SNLoadBitmapManager {
         }
         return new File(cachePath + File.separator + uniqueName);
     }
-
 
 }

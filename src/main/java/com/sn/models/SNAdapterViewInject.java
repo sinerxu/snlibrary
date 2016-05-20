@@ -50,6 +50,7 @@ public class SNAdapterViewInject {
 
 
     public SNAdapterViewInject(SNElement _v) {
+        $ = SNManager.instence(_v.getContext());
         this.view = _v;
         this.view.inject(this);
     }

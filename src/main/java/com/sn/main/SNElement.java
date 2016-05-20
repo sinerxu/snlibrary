@@ -1416,7 +1416,7 @@ public class SNElement extends SNManager {
         return this;
     }
 
-    public SNElement image(SNElement listview, int position, final String url, int def_resource, final int err_resource, SNOnSetImageListenter onSetImageListenter, final SNOnGetImageUrlListener onGetImageUrlListener, final SNOnLoadImageFinishListener onLoadImageFinishListener) {
+    public SNElement image(final String url, int def_resource, final int err_resource, SNOnSetImageListenter onSetImageListenter, final SNOnGetImageUrlListener onGetImageUrlListener, final SNOnLoadImageFinishListener onLoadImageFinishListener) {
         if (def_resource != 0)
             image(def_resource);
 
@@ -1424,7 +1424,7 @@ public class SNElement extends SNManager {
             if (def_resource != 0)
                 image(def_resource);
         } else {
-            loadImage(listview, position, url, onSetImageListenter, new SNOnImageLoadListener() {
+            loadImage(url, onSetImageListenter, new SNOnImageLoadListener() {
                 @Override
                 public void onSuccess(Bitmap map) {
                     if (onLoadImageFinishListener != null) onLoadImageFinishListener.onFinish(map);
@@ -1446,25 +1446,7 @@ public class SNElement extends SNManager {
         return this;
     }
 
-    /**
-     * 设置远程图片
-     *
-     * @param url                 url
-     * @param def_resource        默认图片
-     * @param err_resource        错误图片
-     * @param onSetImageListenter 设置图片样式
-     * @return SNElement
-     */
-    public SNElement image(final String url, int def_resource, final int err_resource, SNOnSetImageListenter onSetImageListenter, final SNOnGetImageUrlListener onGetImageUrlListener, final SNOnLoadImageFinishListener onLoadImageFinishListener) {
-        image(null, 0, url, def_resource, err_resource, onSetImageListenter, onGetImageUrlListener, onLoadImageFinishListener);
-        return this;
-    }
 
-
-    public SNElement image(SNElement listview, int position, String url, int def_redId, final SNOnSetImageListenter onSetImageListenter, final SNOnGetImageUrlListener onGetImageUrlListener) {
-        image(listview, position, url, def_redId, 0, onSetImageListenter, onGetImageUrlListener, null);
-        return this;
-    }
 
 
     public SNElement image(String url) {
@@ -1579,31 +1561,19 @@ public class SNElement extends SNManager {
                 listView.setOnScrollListener(new AbsListView.OnScrollListener() {
                     @Override
                     public void onScrollStateChanged(AbsListView view, int scrollState) {
+                        util.logDebug(SNElement.class, "scrollstate==" + scrollState);
                         switch (scrollState) {
-
                             case AbsListView.OnScrollListener.SCROLL_STATE_FLING:
-
                                 SNLoadBitmapManager.instance(SNElement.this).lock();
-
                                 break;
-
                             case AbsListView.OnScrollListener.SCROLL_STATE_IDLE:
-
-
                                 SNLoadBitmapManager.instance(SNElement.this).unlock();
-
                                 break;
-
                             case AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
-
                                 SNLoadBitmapManager.instance(SNElement.this).lock();
-
                                 break;
-
                             default:
-
                                 break;
-
                         }
                     }
 
