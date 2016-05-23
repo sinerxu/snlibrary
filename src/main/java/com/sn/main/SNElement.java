@@ -668,12 +668,9 @@ public class SNElement extends SNManager {
      * @return
      */
     public SNElement size(boolean width, int n, boolean dip) {
-
         if (this.elem != null) {
             LayoutParams lp = this.elem.getLayoutParams();
             if (lp != null) {
-                Context context = getContext();
-
                 if (n > 0 && dip) {
                     n = px(n);
                 }
@@ -683,6 +680,20 @@ public class SNElement extends SNManager {
                 } else {
                     lp.height = n;
                 }
+                this.elem.setLayoutParams(lp);
+            }
+        }
+        return this;
+    }
+
+    public SNElement size(SNSize size) {
+        if (this.elem != null) {
+            LayoutParams lp = this.elem.getLayoutParams();
+            if (lp != null) {
+
+                lp.width = size.getWidth();
+
+                lp.height = size.getHeight();
 
                 this.elem.setLayoutParams(lp);
             }
@@ -1374,7 +1385,6 @@ public class SNElement extends SNManager {
             if (drawable != null)
                 iv.setImageDrawable(drawable);
         }
-
         return this;
     }
 
@@ -2030,7 +2040,13 @@ public class SNElement extends SNManager {
      * @return
      */
     public SNElement showNavLogo(int resId) {
-        showNavLogo(drawableResId(resId));
+        if (elem != null) {
+            if (elem instanceof SNNavTitleBar) {
+                ((SNNavTitleBar) elem).setLogo(resId);
+            } else {
+                errorNullOrNotInstance("SNNavTitleBar");
+            }
+        }
         return this;
     }
 

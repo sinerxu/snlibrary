@@ -29,7 +29,7 @@ public class SNNavTitleBar extends ViewGroup {
     SNElement $rightBox;
     String title;
     Drawable logo;
-
+    int logoResId;
 
     public SNNavTitleBar(Context context) {
         this(context, null, 0);
@@ -205,7 +205,8 @@ public class SNNavTitleBar extends ViewGroup {
      * @param resId
      */
     public void setLogo(int resId) {
-        setLogo($.drawableResId(resId));
+        this.logoResId = resId;
+        updateLogo();
     }
 
     /**
@@ -242,6 +243,10 @@ public class SNNavTitleBar extends ViewGroup {
     void updateLogo() {
         if (logo != null) {
             $logo.image(logo);
+            $title.visible(SNManager.SN_UI_NONE);
+            $logo.visible(SNManager.SN_UI_VISIBLE);
+        } else if (logoResId > 0) {
+            $logo.image(logoResId);
             $title.visible(SNManager.SN_UI_NONE);
             $logo.visible(SNManager.SN_UI_VISIBLE);
         } else {
