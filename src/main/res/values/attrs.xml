@@ -114,5 +114,6 @@
 
     <declare-styleable name="SNImageView">
         <attr name="image" format="reference" />
+        <attr name="adjustWidth" format="boolean"></attr>
     </declare-styleable>
 </resources>

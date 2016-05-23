@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import com.sn.lib.R;
 import com.sn.main.SNElement;
 import com.sn.main.SNManager;
+import com.sn.models.SNSize;
 
 /**
  * Created by xuhui on 15/12/31.
@@ -21,6 +22,7 @@ public class SNImageView extends ImageView {
     boolean isInit = false;
     int imgResid = 0;
     Bitmap bitmap;
+    Boolean adjustWidth;
 
     public SNImageView(Context context) {
         super(context);
@@ -45,6 +47,7 @@ public class SNImageView extends ImageView {
         if (attrs != null) {
             TypedArray array = $.obtainStyledAttr(attrs, R.styleable.SNImageView);
             imgResid = array.getResourceId(R.styleable.SNImageView_image, 0);
+            adjustWidth = array.getBoolean(R.styleable.SNImageView_adjustWidth, false);
             array.recycle();
             if (imgResid != 0)
                 imageResource(imgResid);
@@ -63,21 +66,9 @@ public class SNImageView extends ImageView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (!isInitSize) {
-            if (bitmap != null && $this.adjustViewBounds()) {
-                //获取宽度
-                int w = $this.width();
-                int ih = bitmap.getHeight();
-                int iw = bitmap.getWidth();
-                int h = (int) ((float) w / (float) iw * (float) ih);
-                $.util.logInfo(SNImageView.class, $.util.strFormat("h={3},w={0},ih={1},iw={2}", w, ih, iw, h));
-                $this.height(h);
-            } else {
-                $.util.logInfo(SNImageView.class, "bitmap = null");
-            }
-            isInitSize = true;
-        }
+
     }
+
 
     protected void onInit() {
 
@@ -86,6 +77,33 @@ public class SNImageView extends ImageView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (!isInitSize) {
+            if (bitmap != null) {
+                $this.scaleType(ScaleType.FIT_XY);
+                //获取宽度
+                int w = $this.width();
+                int h = $this.height();
+                $.util.logInfo(SNImageView.class, $.util.strFormat("adjustWidth===width:{0},height:{1}", w, h));
+                int ih = bitmap.getHeight();
+                int iw = bitmap.getWidth();
+                if (adjustWidth) {
+                    int result_width = 0;
+                    result_width = (int) ((float) h / (float) ih * (float) iw);
+                    // $this.width(result_width);
+                    $this.size(new SNSize(result_width, h));
+                    $.util.logInfo(SNImageView.class, $.util.strFormat("adjustWidth===width:{0},height:{1}====bwidth:{2},bheight:{3}", result_width, h, iw, ih));
+                } else {
+                    int result_height = 0;
+                    result_height = (int) ((float) w / (float) iw * (float) ih);
+                    // $this.height(result_height);
+                    $this.size(new SNSize(w, result_height));
+                    $.util.logInfo(SNImageView.class, $.util.strFormat("adjustHeight===width:{0},height:{1}====bwidth:{2},bheight:{3}", w, result_height, iw, ih));
+                }
+            } else {
+                $.util.logInfo(SNImageView.class, "bitmap = null");
+            }
+            isInitSize = true;
+        }
         if (!isInit) {
             isInit = true;
             onInit();

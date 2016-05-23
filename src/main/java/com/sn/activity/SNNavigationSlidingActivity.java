@@ -116,7 +116,8 @@ public class SNNavigationSlidingActivity extends SlidingActivity {
     public void loadNavBar(int height, int background_color_id) {
         navTitleBar = $.create(new SNNavTitleBar(this));
         navTitleBarContainer.add(navTitleBar);
-        navTitleBar.backgroundColorResId(background_color_id);
+        //navTitleBar.backgroundColorResId(background_color_id);
+        navTitleBar.background(background_color_id);
         navTitleBar.width(SNConfig.SN_UI_FILL);
         navTitleBar.height(height);
     }
