@@ -3,9 +3,11 @@ package com.sn.main;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
@@ -286,6 +288,7 @@ public class SNManager extends SNConfig {
 
     /**
      * get device code
+     *
      * @return
      */
     public String deviceCode() {
@@ -384,14 +387,22 @@ public class SNManager extends SNConfig {
         }
     }
 
+
+    static HashMap<String, BroadcastReceiver> broadcastReceiverHashMap;
+
     /**
      * 移除
      *
      * @param key
      */
-
     public void removeAppEventListener(String key) {
-        SNAppEventListenerManager.instance().remove(key);
+        if (broadcastReceiverHashMap == null)
+            broadcastReceiverHashMap = new HashMap<String, BroadcastReceiver>();
+        if (broadcastReceiverHashMap.containsKey(key)) {
+            getContext().unregisterReceiver(broadcastReceiverHashMap.get(key));
+            broadcastReceiverHashMap.remove(key);
+        }
+        //SNAppEventListenerManager.instance().remove(key);
     }
 
     /**
@@ -399,8 +410,18 @@ public class SNManager extends SNConfig {
      *
      * @param key
      */
-    public void setAppEventListener(String key, SNAppEventListener appEventListener) {
-        SNAppEventListenerManager.instance().set(key, appEventListener);
+    public void setAppEventListener(String key, final SNAppEventListener appEventListener) {
+
+        BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                appEventListener.onEvent(intent);
+            }
+        };
+        removeAppEventListener(key);
+        broadcastReceiverHashMap.put(key, broadcastReceiver);
+        getContext().registerReceiver(broadcastReceiver, new IntentFilter(key));
+        // SNAppEventListenerManager.instance().set(key, appEventListener);
     }
 
     /**
@@ -410,8 +431,10 @@ public class SNManager extends SNConfig {
      * @return
      */
 
-    public void fireAppEventListener(String key, HashMap<String, Object> args) {
-        fireAppEventListener(key, args, false);
+    public void fireAppEventListener(String key, Intent intent) {
+        intent.setAction(key);
+        getContext().sendBroadcast(intent);
+        //fireAppEventListener(key, args, false);
     }
 
     /**
@@ -422,18 +445,20 @@ public class SNManager extends SNConfig {
      */
 
     public void fireAppEventListener(String key) {
-        fireAppEventListener(key, null);
+        fireAppEventListener(key, new Intent(key));
     }
 
     /**
      * 执行
      *
      * @param key
-     * @param args
+     * @param intent
      * @param isRemove @return
      */
-    public void fireAppEventListener(String key, HashMap<String, Object> args, boolean isRemove) {
-        SNAppEventListenerManager.instance().fire(key, args, isRemove);
+    public void fireAppEventListener(String key, Intent intent, boolean isRemove) {
+        fireAppEventListener(key, intent);
+        if (isRemove) removeAppEventListener(key);
+        //SNAppEventListenerManager.instance().fire(key, args, isRemove);
     }
 
     //endregion

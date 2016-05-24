@@ -1,5 +1,7 @@
 package com.sn.core;
 
+import android.content.Intent;
+
 import com.sn.interfaces.SNAppEventListener;
 
 import java.util.HashMap;
@@ -49,8 +51,8 @@ public class SNAppEventListenerManager {
      * @param key
      * @return
      */
-    public void fire(String key, HashMap<String, Object> args) {
-        fire(key, args, false);
+    public void fire(String key, Intent intent) {
+        fire(key, intent, false);
     }
 
     /**
@@ -68,12 +70,11 @@ public class SNAppEventListenerManager {
      * 执行
      *
      * @param key
-     * @param args
      * @param isRemove @return
      */
-    public void fire(String key, HashMap<String, Object> args, boolean isRemove) {
+    public void fire(String key, Intent intent, boolean isRemove) {
         if (appEventListeners != null && appEventListeners.containsKey(key)) {
-            appEventListeners.get(key).onEvent(args);
+            appEventListeners.get(key).onEvent(intent);
             if (isRemove) appEventListeners.remove(key);
         }
     }

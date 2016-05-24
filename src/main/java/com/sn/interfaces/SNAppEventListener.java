@@ -1,10 +1,10 @@
 package com.sn.interfaces;
 
-import java.util.HashMap;
+import android.content.Intent;
 
 /**
  * Created by xuhui on 16/1/17.
  */
 public interface SNAppEventListener {
-    void onEvent(HashMap<String, Object> args);
+    void onEvent(Intent args);
 }

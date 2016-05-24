@@ -32,6 +32,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.sn.controlers.SNFragmentScrollable;
@@ -49,6 +50,7 @@ import com.sn.controlers.wheel.adapters.WheelViewAdapter;
 import com.sn.controlers.wheel.views.OnWheelChangedListener;
 import com.sn.controlers.wheel.views.OnWheelScrollListener;
 import com.sn.controlers.wheel.views.WheelView;
+import com.sn.core.ProgressBarManager;
 import com.sn.core.SNLoadBitmapManager;
 import com.sn.core.SNPullRefreshManager;
 import com.sn.core.SNXListManager;
@@ -993,7 +995,6 @@ public class SNElement extends SNManager {
 
     //endregion　
 
-    // region controler
 
     //region webview
 
@@ -2537,6 +2538,26 @@ public class SNElement extends SNManager {
     }
 
     // endregion
+
+    //region progressbar
+    public SNElement progressMax(int max) {
+        if (elem != null && elem instanceof ProgressBar) {
+            toView(ProgressBar.class).setMax(max);
+        }
+        return this;
+    }
+
+    public SNElement progress(int val) {
+        return progress(val, true);
+    }
+
+    public SNElement progress(int val, boolean animated) {
+        if (elem != null && elem instanceof ProgressBar) {
+            ProgressBarManager.instance(this).progress(val, animated);
+        }
+        return this;
+    }
+    //endregion
 
 
 }

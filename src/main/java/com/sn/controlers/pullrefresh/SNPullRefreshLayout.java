@@ -114,6 +114,13 @@ public class SNPullRefreshLayout extends LinearLayout {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
 
+                if (mRefreshState == REFRESH_STATE_LOADING || mLoadState == LOAD_STATE_LOADING) {
+                    $this.toViewGroup().setEnabled(false);
+                    return true;
+                }
+                $this.toViewGroup().setEnabled(true);
+
+
                 if (refreshEnable && mRefreshState == REFRESH_STATE_LOADING) {
                     if (content.toView() instanceof AbsListView)
                         content.toView(AbsListView.class).smoothScrollToPosition(0);
@@ -193,10 +200,8 @@ public class SNPullRefreshLayout extends LinearLayout {
                             if (currTop != mBeginHeaderMarginTop)
                                 mScrollState = SCROLL_STATE_BACK_SCROLLING;
                             else {
-
                                 return false;
                             }
-
                             //进入刷新状态
                             setRefreshState(REFRESH_STATE_LOADING);
                             int bt = mBeginHeaderMarginTop;
@@ -215,10 +220,8 @@ public class SNPullRefreshLayout extends LinearLayout {
                                         plHeader.marginTop(v);
                                         mScrollState = SCROLL_STATE_BACK_SCROLLING;
                                         if (v == mBeginHeaderMarginTop) {
-
                                             mScrollState = SCROLL_STATE_NORMAL;
                                         }
-
                                     } else {
                                         valueAnimator.cancel();
                                         plArrow.toView().clearAnimation();
