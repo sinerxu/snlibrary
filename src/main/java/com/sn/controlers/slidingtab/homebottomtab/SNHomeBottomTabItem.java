@@ -23,10 +23,11 @@ public class SNHomeBottomTabItem extends SNSlidingTabItem {
     String text;
     Drawable src;
     int textColor;
+    int splitColor;
     Drawable selectedSrc;
 
 
-    SNElement viewBedgeBox, tvBedge;
+    SNElement viewBedgeBox, tvBedge, viewSplit;
 
     public int getSelectedColor() {
         return selectedColor;
@@ -81,13 +82,14 @@ public class SNHomeBottomTabItem extends SNSlidingTabItem {
         $this = $.layoutInflateResId(R.layout.controler_home_bottomtabitem, (ViewGroup) $this.toView());
         viewBedgeBox = $this.find(R.id.viewBedgeBox);
         tvBedge = $this.find(R.id.tvBedge);
+        viewSplit = $this.find(R.id.viewSplit);
         TypedArray array = $.obtainStyledAttr(attrs, R.styleable.SNImageTextTabItem);
         text = array.getString(R.styleable.SNImageTextTabItem_android_text);
         src = array.getDrawable(R.styleable.SNImageTextTabItem_android_src);
         textColor = array.getColor(R.styleable.SNImageTextTabItem_android_textColor, 0xFF000000);
         selectedSrc = array.getDrawable(R.styleable.SNImageTextTabItem_selected_src);
         selectedColor = array.getColor(R.styleable.SNImageTextTabItem_selected_color, 0xFF555555);
-
+        splitColor = array.getColor(R.styleable.SNImageTextTabItem_split_color, 0xFFDDDDDD);
         array.recycle();
 
         if (!$.util.strIsNullOrEmpty(text))
@@ -95,6 +97,7 @@ public class SNHomeBottomTabItem extends SNSlidingTabItem {
         if (src != null)
             setSrc(src);
         setTextColor(textColor);
+        viewSplit.backgroundColor(splitColor);
         setBedge(0);
     }
 

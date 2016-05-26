@@ -116,8 +116,7 @@ public class SNNavigationSlidingActivity extends SlidingActivity {
     public void loadNavBar(int height, int background_color_id) {
         navTitleBar = $.create(new SNNavTitleBar(this));
         navTitleBarContainer.add(navTitleBar);
-        //navTitleBar.backgroundColorResId(background_color_id);
-        navTitleBar.background(background_color_id);
+        navTitleBar.backgroundColorResId(background_color_id);
         navTitleBar.width(SNConfig.SN_UI_FILL);
         navTitleBar.height(height);
     }
@@ -130,7 +129,11 @@ public class SNNavigationSlidingActivity extends SlidingActivity {
      */
     public void loadNavBarResId(int height_id, int background_id) {
         int height = $.resources().getDimensionPixelSize(height_id);
-        loadNavBar(height, background_id);
+        navTitleBar = $.create(new SNNavTitleBar(this));
+        navTitleBarContainer.add(navTitleBar);
+        navTitleBar.background(background_id);
+        navTitleBar.width(SNConfig.SN_UI_FILL);
+        navTitleBar.height(height);
     }
 
     public SNElement getAdContainer() {

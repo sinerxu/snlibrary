@@ -734,6 +734,19 @@ public class SNElement extends SNManager {
         return this.elem.getMeasuredWidth();
     }
 
+    public SNSize size() {
+        SNSize size = new SNSize();
+        if (this.elem != null) {
+            LayoutParams lp = this.elem.getLayoutParams();
+            if (lp != null) {
+                size.setWidth(lp.width);
+                size.setHeight(lp.height);
+            }
+        }
+        return size;
+    }
+
+
     /**
      * Set elem measured width
      *
@@ -1419,7 +1432,11 @@ public class SNElement extends SNManager {
      * @return
      */
     public SNElement image(Bitmap bm) {
-        if (elem instanceof ImageView) {
+        if (elem instanceof SNImageView) {
+            SNImageView iv = (SNImageView) elem;
+            if (bm != null)
+                iv.imageBitmap(bm);
+        } else if (elem instanceof ImageView) {
             ImageView iv = (ImageView) elem;
             if (bm != null)
                 iv.setImageBitmap(bm);

@@ -92,6 +92,7 @@
         <attr name="android:textColor" />
         <attr name="selected_src" format="reference" />
         <attr name="selected_color" format="color" />
+        <attr name="split_color" format="color" />
     </declare-styleable>
 
     <declare-styleable name="SNSlidingTabBar">
@@ -100,6 +101,7 @@
             <enum name="home_sliding" value="1"></enum>
             <enum name="under_line_sliding" value="2"></enum>
             <enum name="block_sliding" value="3"></enum>
+            <enum name="customer" value="1000"></enum>
         </attr>
         <attr name="underline_color" format="color" />
         <attr name="selected_index" format="integer" />
@@ -114,6 +116,8 @@
 
     <declare-styleable name="SNImageView">
         <attr name="image" format="reference" />
+        <attr name="circle" format="boolean" />
+        <attr name="circleBorder" format="dimension" />
         <attr name="adjustWidth" format="boolean"></attr>
     </declare-styleable>
 </resources>

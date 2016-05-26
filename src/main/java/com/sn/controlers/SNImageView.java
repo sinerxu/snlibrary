@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
@@ -23,6 +24,9 @@ public class SNImageView extends ImageView {
     int imgResid = 0;
     Bitmap bitmap;
     Boolean adjustWidth;
+    Boolean circle;
+    int circleBorder;
+
 
     public SNImageView(Context context) {
         super(context);
@@ -40,7 +44,6 @@ public class SNImageView extends ImageView {
 
     }
 
-
     public void init$(Context context, AttributeSet attrs) {
         $ = SNManager.instence(context);
         $this = $.create(this);
@@ -48,10 +51,12 @@ public class SNImageView extends ImageView {
             TypedArray array = $.obtainStyledAttr(attrs, R.styleable.SNImageView);
             imgResid = array.getResourceId(R.styleable.SNImageView_image, 0);
             adjustWidth = array.getBoolean(R.styleable.SNImageView_adjustWidth, false);
+            circle = array.getBoolean(R.styleable.SNImageView_circle, false);
+            circleBorder = array.getDimensionPixelOffset(R.styleable.SNImageView_circleBorder, 0);
             array.recycle();
-            if (imgResid != 0)
-                imageResource(imgResid);
         }
+        if (imgResid != 0)
+            imageResource(imgResid);
     }
 
 
@@ -66,7 +71,6 @@ public class SNImageView extends ImageView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
     }
 
 
@@ -78,6 +82,7 @@ public class SNImageView extends ImageView {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (!isInitSize) {
+            updateImage();
             if (bitmap != null) {
                 $this.scaleType(ScaleType.FIT_XY);
                 //获取宽度
@@ -112,7 +117,21 @@ public class SNImageView extends ImageView {
 
     public void imageResource(int resId) {
         bitmap = $.readBitMap(resId);
-        $this.image(bitmap);
+        updateImage();
     }
 
+
+    public void imageBitmap(Bitmap bm) {
+        bitmap = bm;
+        updateImage();
+    }
+
+    void updateImage() {
+        if (bitmap != null) {
+            if (circle && $this.width() != 0) {
+                bitmap = $.util.imgCircleBorder(bitmap, bitmap.getWidth() / $this.width() * circleBorder, Color.BLACK);
+                setImageBitmap(bitmap);
+            }
+        }
+    }
 }

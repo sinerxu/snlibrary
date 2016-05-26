@@ -23,12 +23,8 @@ import java.util.List;
  */
 public class SNSlidingTabBar extends SNLinearLayout {
     SNElement $tab;
-
-
     SNElement tabItemHover;
-
     SNElement tabItemBox;
-
     SNElement tabContainer;
 
 
@@ -47,7 +43,6 @@ public class SNSlidingTabBar extends SNLinearLayout {
 
     public SNSlidingTabBar(Context context, AttributeSet attrs) {
         super(context, attrs);
-
         int childCount = getChildCount();
         TypedArray a = $.obtainStyledAttr(attrs, R.styleable.SNSlidingTabBar);
         style = a.getInt(R.styleable.SNSlidingTabBar_style, 0);
@@ -56,7 +51,6 @@ public class SNSlidingTabBar extends SNLinearLayout {
         parentFragment = a.getString(R.styleable.SNSlidingTabBar_parent_fragment);
         a.recycle();
     }
-
 
     @Override
     protected void onFinishInflate() {
@@ -108,6 +102,8 @@ public class SNSlidingTabBar extends SNLinearLayout {
                 tab_layout = R.layout.controler_underline_slidingtabbar;
             } else if (style == 3) {
                 tab_layout = R.layout.controler_block_slidingtabbar;
+            } else if (style == 1000) {
+                tab_layout = onTabLayout();
             }
             $tab = $.layoutInflateResId(tab_layout, this, false);
 
@@ -116,7 +112,6 @@ public class SNSlidingTabBar extends SNLinearLayout {
             tabItemBox = $tab.create(R.id.tabItemBox);
 
             tabContainer = $tab.create(R.id.tabContainer);
-
 
             $this.add($tab);
             if (this.slidingTabBarListener != null) setTabListener(this.slidingTabBarListener);
@@ -159,6 +154,10 @@ public class SNSlidingTabBar extends SNLinearLayout {
             slidingTabBarListener.onInitFinish();
     }
 
+    public int onTabLayout() {
+        return 0;
+    }
+
     public Fragment getContentItem(int i) {
         if (fragments != null && i < fragments.size()) {
             return fragments.get(i);
@@ -187,7 +186,6 @@ public class SNSlidingTabBar extends SNLinearLayout {
     public void setFragmentManager(FragmentManager _fragmentManager) {
         this.fragmentManager = _fragmentManager;
     }
-
 
     public void updateTabItemSize() {
         tabItemBox.toView(SNSlidingTabItemBox.class).updateSize();

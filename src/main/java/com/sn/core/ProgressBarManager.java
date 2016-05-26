@@ -40,7 +40,7 @@ public class ProgressBarManager {
             if (currentValueAnimator != null)
                 currentValueAnimator.cancel();
             currentValueAnimator = ValueAnimator.ofInt(progressBar.toView(ProgressBar.class).getProgress(), val);
-            currentValueAnimator.setDuration(500);
+            currentValueAnimator.setDuration(1000);
             currentValueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {

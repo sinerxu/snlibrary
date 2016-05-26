@@ -542,7 +542,40 @@ public class SNUtility {
                         sourceBitmap.getHeight()),
                 new Rect(0, 0, targetWidth, targetHeight), null);
         return targetBitmap;
+    }
 
+    public Bitmap imgCircleBorder(Bitmap bitmap, int width, int color) {
+        int targetWidth = bitmap.getWidth();
+        int targetHeight = bitmap.getHeight();
+        Bitmap targetBitmap = Bitmap.createBitmap(targetWidth,
+                targetHeight, Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(targetBitmap);
+        Path path = new Path();
+
+        path.addCircle(((float) targetWidth - 1) / 2,
+                ((float) targetHeight - 1) / 2,
+                (Math.min(((float) targetWidth),
+                        ((float) targetHeight)) / 2),
+                Path.Direction.CCW);
+        canvas.clipPath(path);
+        Paint paint = new Paint();
+        /* 去锯齿 */
+        paint.setAntiAlias(true);
+        paint.setFilterBitmap(true);
+        paint.setDither(true);
+        paint.setColor(color);
+        /* 设置paint的　style　为STROKE：空心 */
+        paint.setStyle(Paint.Style.STROKE);
+        /* 设置paint的外框宽度 */
+        paint.setStrokeWidth(targetBitmap.getWidth());
+        Bitmap sourceBitmap = bitmap;
+        canvas.drawBitmap(sourceBitmap,
+                new Rect(0, 0, sourceBitmap.getWidth(),
+                        sourceBitmap.getHeight()),
+                new Rect(0, 0, targetWidth, targetHeight), null);
+        canvas.drawCircle(targetBitmap.getWidth() / 2, targetBitmap.getHeight() / 2, width, paint);
+        return targetBitmap;
     }
 
     /**
