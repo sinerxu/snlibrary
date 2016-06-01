@@ -13,7 +13,7 @@ public class SNShare implements SNShareInterface {
 
 
     Context context;
-    Activity activity;
+
     SNShareListener _shareListener;
     public static final int SDKTYPE_MOB = 0;
 
@@ -24,27 +24,32 @@ public class SNShare implements SNShareInterface {
     /**
      * 创建分享对象
      *
-     * @param _activity
+     * @param _context
      * @param _shareSDKType
      * @return
      */
-    public static SNShare instance(Activity _activity, int _shareSDKType) {
+    public static SNShare instance(Context _context, int _shareSDKType) {
         SNShare _result = null;
         switch (_shareSDKType) {
             case SDKTYPE_MOB:
-                _result = SNMobShare.instance(_activity, _shareSDKType);
+                _result = SNMobShare.instance(_context, _shareSDKType);
                 break;
             default:
-                _result = SNMobShare.instance(_activity, _shareSDKType);
+                _result = SNMobShare.instance(_context, _shareSDKType);
                 break;
         }
         return _result;
     }
 
 
-    SNShare(Activity _activity) {
-        activity = _activity;
-        context = _activity.getBaseContext();
+    SNShare(Context _context) {
+
+        context = _context;
+    }
+
+    @Override
+    public void shareImageArray(String title, String content, String url, String[] imageArray, SNShareListener shareListener) {
+        this._shareListener = shareListener;
     }
 
     @Override
@@ -52,6 +57,10 @@ public class SNShare implements SNShareInterface {
         this._shareListener = shareListener;
     }
 
+    @Override
+    public void shareImagePath(String title, String content, String url, String imagePath, SNShareListener shareListener) {
+        this._shareListener = shareListener;
+    }
 
     @Override
     public void setShareListener(SNShareListener listener) {

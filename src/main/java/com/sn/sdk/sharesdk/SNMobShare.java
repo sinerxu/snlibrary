@@ -1,6 +1,7 @@
 package com.sn.sdk.sharesdk;
 
 import android.app.Activity;
+import android.content.Context;
 
 import com.sn.main.SNManager;
 import com.sn.sdk.interfaces.SNShareListener;
@@ -21,22 +22,22 @@ public class SNMobShare extends SNShare implements PlatformActionListener {
     static SNMobShare snMobShare;
     SNManager $;
 
-    public static SNShare instance(Activity _activity, int _shareSDKType) {
+    public static SNShare instance(Context _context, int _shareSDKType) {
         SNMobShare _result = null;
         if (snMobShare == null)
-            snMobShare = new SNMobShare(_activity);
+            snMobShare = new SNMobShare(_context);
         _result = snMobShare;
         return _result;
     }
 
-    SNMobShare(Activity _activity) {
-        super(_activity);
+    SNMobShare(Context _context) {
+        super(_context);
         if (!isInitShareSDK) {
             isInitShareSDK = true;
             //初始化shareSDK
-            ShareSDK.initSDK(_activity);
+            ShareSDK.initSDK(_context);
 
-            $ = new SNManager(_activity);
+            $ = new SNManager(_context);
         }
     }
 
@@ -59,6 +60,31 @@ public class SNMobShare extends SNShare implements PlatformActionListener {
         oks.show(this.context);
     }
 
+
+    @Override
+    public void shareImagePath(String title, String content, String url, String imagePath, SNShareListener shareListener) {
+        super.shareImagePath(title, content, url, imagePath, shareListener);
+        OnekeyShare oks = new OnekeyShare();
+        oks.setTitle(title);
+        oks.setText(content);
+        oks.setUrl(url);
+        oks.setCallback(this);
+        oks.setImagePath(imagePath);
+        oks.show(this.context);
+    }
+
+    @Override
+    public void shareImageArray(String title, String content, String url, String[] imageArray, SNShareListener shareListener) {
+        super.shareImageArray(title, content, url, imageArray, shareListener);
+        OnekeyShare oks = new OnekeyShare();
+        oks.setTitle(title);
+        oks.setText(content);
+        oks.setUrl(url);
+        oks.setCallback(this);
+        oks.setImageArray(imageArray);
+        oks.show(this.context);
+    }
+
     @Override
     public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
         if (this._shareListener != null)
@@ -76,4 +102,6 @@ public class SNMobShare extends SNShare implements PlatformActionListener {
         if (this._shareListener != null)
             this._shareListener.onCallback(SHARE_RESULT_CANCEL);
     }
+
+
 }

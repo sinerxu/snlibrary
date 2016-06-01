@@ -1447,7 +1447,6 @@ public class SNElement extends SNManager {
     public SNElement image(final String url, int def_resource, final int err_resource, SNOnSetImageListenter onSetImageListenter, final SNOnGetImageUrlListener onGetImageUrlListener, final SNOnLoadImageFinishListener onLoadImageFinishListener) {
         if (def_resource != 0)
             image(def_resource);
-
         if (util.strIsNullOrEmpty(url)) {
             if (def_resource != 0)
                 image(def_resource);
@@ -1455,13 +1454,13 @@ public class SNElement extends SNManager {
             loadImage(url, onSetImageListenter, new SNOnImageLoadListener() {
                 @Override
                 public void onSuccess(Bitmap map) {
-                    if (onLoadImageFinishListener != null) onLoadImageFinishListener.onFinish(map);
                     if (onGetImageUrlListener != null) {
                         String u = onGetImageUrlListener.onGetRealUrl();
                         if (u != null && u.equals(url)) image(map);
                     } else {
                         image(map);
                     }
+                    if (onLoadImageFinishListener != null) onLoadImageFinishListener.onFinish(map);
                 }
 
                 @Override
@@ -1474,6 +1473,11 @@ public class SNElement extends SNManager {
         return this;
     }
 
+
+    public SNElement image(String url, SNOnLoadImageFinishListener onLoadImageFinishListener) {
+        image(url, 0, 0, null, null, onLoadImageFinishListener);
+        return this;
+    }
 
     public SNElement image(String url) {
         image(url, 0, 0, null, null, null);

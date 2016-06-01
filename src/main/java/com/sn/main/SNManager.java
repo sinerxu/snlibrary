@@ -399,7 +399,12 @@ public class SNManager extends SNConfig {
         if (broadcastReceiverHashMap == null)
             broadcastReceiverHashMap = new HashMap<String, BroadcastReceiver>();
         if (broadcastReceiverHashMap.containsKey(key)) {
-            getContext().unregisterReceiver(broadcastReceiverHashMap.get(key));
+            try {
+
+                getContext().unregisterReceiver(broadcastReceiverHashMap.get(key));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             broadcastReceiverHashMap.remove(key);
         }
         //SNAppEventListenerManager.instance().remove(key);
@@ -411,7 +416,6 @@ public class SNManager extends SNConfig {
      * @param key
      */
     public void setAppEventListener(String key, final SNAppEventListener appEventListener) {
-
         BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -420,7 +424,11 @@ public class SNManager extends SNConfig {
         };
         removeAppEventListener(key);
         broadcastReceiverHashMap.put(key, broadcastReceiver);
-        getContext().registerReceiver(broadcastReceiver, new IntentFilter(key));
+        try {
+            getContext().registerReceiver(broadcastReceiver, new IntentFilter(key));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         // SNAppEventListenerManager.instance().set(key, appEventListener);
     }
 
