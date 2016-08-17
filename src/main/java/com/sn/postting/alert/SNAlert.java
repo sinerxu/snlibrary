@@ -11,9 +11,11 @@ import com.sn.lib.R;
 public class SNAlert {
     public static final int ALERT_TYPE_DEFAULT = 0;
     public static final int ALERT_TYPE_IOS = 1;
-    Context context;
+    public static final int ALERT_TYPE_CUSTOMER = 100;
+    public Context context;
     static SNDefaultAlert defaultAlert;
     static SNUIAlert uiAlert;
+
 
     public static SNAlert instance(Context _context, int uiType) {
         SNAlert _result;
@@ -31,6 +33,7 @@ public class SNAlert {
         return _result;
     }
 
+
     static SNDefaultAlert instanceDefault(Context _context) {
         if (defaultAlert == null) {
             defaultAlert = new SNDefaultAlert(_context);
@@ -47,7 +50,11 @@ public class SNAlert {
         return uiAlert;
     }
 
-    SNAlert(Context _context) {
+    public SNAlert() {
+
+    }
+
+    public SNAlert(Context _context) {
         this.context = _context;
     }
 

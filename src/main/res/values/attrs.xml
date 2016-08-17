@@ -15,6 +15,18 @@
 -->
 
 <resources>
+    <attr name="cropImageStyle" format="reference" />
+
+    <declare-styleable name="CropImageView">
+        <attr name="highlightColor" format="reference|color" />
+        <attr name="showThirds" format="boolean" />
+        <attr name="showCircle" format="boolean" />
+        <attr name="showHandles">
+            <enum name="changing" value="0" />
+            <enum name="always" value="1" />
+            <enum name="never" value="2" />
+        </attr>
+    </declare-styleable>
     <declare-styleable name="wheel">
         <attr name="lineSplitHeight" format="reference|integer" />
         <attr name="textColorFirst" format="reference|color" />
@@ -84,7 +96,7 @@
     </declare-styleable>
 
     <declare-styleable name="SNSlidingTabItem">
-        <attr name="fragment" format="string"></attr>
+        <attr name="android:name" ></attr>
     </declare-styleable>
     <declare-styleable name="SNImageTextTabItem">
         <attr name="android:text" />

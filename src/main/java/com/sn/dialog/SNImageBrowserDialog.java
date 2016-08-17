@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.sn.interfaces.SNOnClickListener;
@@ -23,7 +24,7 @@ public class SNImageBrowserDialog extends SNDialog {
     SNElement scroImages;
     SNElement viewMain;
     SNElement tvInfo;
-
+    SNElement pbLoadingMain;
     int defaultShow = 0;
     ArrayList<SNElement> elements;
     int currentPage = 0;
@@ -38,10 +39,19 @@ public class SNImageBrowserDialog extends SNDialog {
         elements = new ArrayList<SNElement>();
         for (Bitmap bitmap : bitmaps) {
             SNElement elem = $.create(new ImageView(this.getContext()));
+
+            final PhotoViewAttacher photoViewAttacher = new PhotoViewAttacher(elem.toView(ImageView.class));
+            photoViewAttacher.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
+                @Override
+                public void onViewTap(View view, float x, float y) {
+                    SNImageBrowserDialog.this.dismiss();
+                }
+            });
             elem.image(bitmap);
             elem.scaleType(ImageView.ScaleType.FIT_XY);
             elem.adjustViewBounds(true);
             elements.add(elem);
+            photoViewAttacher.update();
         }
     }
 
@@ -74,6 +84,12 @@ public class SNImageBrowserDialog extends SNDialog {
             elem.find(R.id.ivImage).visible($.SN_UI_INVISIBLE);
             elem.find(R.id.pbLoading).visible($.SN_UI_VISIBLE);
             final PhotoViewAttacher photoViewAttacher = new PhotoViewAttacher(elem.find(R.id.ivImage).toView(ImageView.class));
+            photoViewAttacher.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
+                @Override
+                public void onViewTap(View view, float x, float y) {
+                    SNImageBrowserDialog.this.dismiss();
+                }
+            });
             attachers.add(photoViewAttacher);
             elem.find(R.id.ivImage).image(url, new SNOnLoadImageFinishListener() {
                 @Override
@@ -83,11 +99,13 @@ public class SNImageBrowserDialog extends SNDialog {
                     load_count++;
                     if (load_count == urls.size() && scroImages != null) {
                         scroImages.bindScrollable(elements);
+                        pbLoadingMain.visible($.SN_UI_INVISIBLE);
                         setInfo();
                         for (SNElement elem : elements) {
                             elem.find(R.id.ivImage).visible($.SN_UI_VISIBLE);
                             elem.find(R.id.pbLoading).visible($.SN_UI_INVISIBLE);
                         }
+                        scroImages.currentItem(defaultShow);
                     }
                 }
             });
@@ -103,9 +121,15 @@ public class SNImageBrowserDialog extends SNDialog {
         scroImages = $.create(R.id.scroImages);
         viewMain = $.create(R.id.viewMain);
         tvInfo = $.create(R.id.tvInfo);
+        pbLoadingMain = $.create(R.id.pbLoadingMain);
         if (elements != null && elements.size() > 0) {
-            scroImages.bindScrollable(elements);
-            if (!isLoadUrl) {
+            if (!isLoadUrl || load_count > 0) {
+                pbLoadingMain.visible($.SN_UI_INVISIBLE);
+                scroImages.bindScrollable(elements);
+            }
+
+            if (isLoadUrl && load_count > 0) {
+                pbLoadingMain.visible($.SN_UI_INVISIBLE);
                 for (SNElement elem : elements) {
                     elem.find(R.id.ivImage).visible($.SN_UI_VISIBLE);
                     elem.find(R.id.pbLoading).visible($.SN_UI_INVISIBLE);
@@ -135,12 +159,7 @@ public class SNImageBrowserDialog extends SNDialog {
             }
         });
 
-        $.util.threadDelayed(500, new SNThreadDelayedListener() {
-            @Override
-            public void onFinish() {
-                scroImages.toView(ViewPager.class).requestLayout();
-            }
-        });
+
     }
 
 

@@ -23,8 +23,8 @@ public class SNImageView extends ImageView {
     boolean isInit = false;
     int imgResid = 0;
     Bitmap bitmap;
-    Boolean adjustWidth;
-    Boolean circle;
+    boolean adjustWidth;
+    boolean circle;
     int circleBorder;
 
 
@@ -71,16 +71,8 @@ public class SNImageView extends ImageView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    }
 
 
-    protected void onInit() {
-
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
         if (!isInitSize) {
             updateImage();
             if (bitmap != null) {
@@ -115,6 +107,17 @@ public class SNImageView extends ImageView {
         }
     }
 
+
+    protected void onInit() {
+
+    }
+
+//    @Override
+//    protected void onDraw(Canvas canvas) {
+//        super.onDraw(canvas);
+//
+//    }
+
     public void imageResource(int resId) {
         bitmap = $.readBitMap(resId);
         updateImage();
@@ -128,8 +131,9 @@ public class SNImageView extends ImageView {
 
     void updateImage() {
         if (bitmap != null) {
-            if (circle && $this.width() != 0) {
-                bitmap = $.util.imgCircleBorder(bitmap, bitmap.getWidth() / $this.width() * circleBorder, Color.BLACK);
+            if ($this.width() != 0) {
+                if (circle)
+                    bitmap = $.util.imgCircleBorder(bitmap, bitmap.getWidth() / $this.width() * circleBorder, Color.BLACK);
                 setImageBitmap(bitmap);
             }
         }

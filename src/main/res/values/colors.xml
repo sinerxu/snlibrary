@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+
+
+    <color name="crop__button_bar">#f3f3f3</color>
+    <color name="crop__button_text">#666666</color>
+    <color name="crop__selector_pressed">#1a000000</color>
+    <color name="crop__selector_focused">#77000000</color>
     <color name="sliding_menu_item_down">#ff39393b</color>
     <color name="sliding_menu_item_release">#00000000</color>
     <color name="sliding_menu_background">#ff2c2c2e</color>

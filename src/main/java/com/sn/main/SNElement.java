@@ -22,6 +22,8 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.TranslateAnimation;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -1008,7 +1010,6 @@ public class SNElement extends SNManager {
 
     //endregion　
 
-
     //region webview
 
     public SNElement webChromeClient(WebChromeClient webChromeClient) {
@@ -1018,7 +1019,6 @@ public class SNElement extends SNManager {
         }
         return this;
     }
-
 
     public SNElement webViewClient(WebViewClient webViewClient) {
         if (elem instanceof WebView) {
@@ -1047,6 +1047,17 @@ public class SNElement extends SNManager {
             return webView.getSettings();
         }
         return null;
+    }
+
+    public SNElement webCookie(String url, String cookie) {
+        if (elem instanceof WebView) {
+            CookieSyncManager.createInstance(getActivity());
+            CookieManager cookieManager = CookieManager.getInstance();
+            cookieManager.setAcceptCookie(true);
+            cookieManager.setCookie(url, cookie);//cookies是在HttpClient中获得的cookie
+            CookieSyncManager.getInstance().sync();
+        }
+        return this;
     }
 
     public SNElement webResponsive() {

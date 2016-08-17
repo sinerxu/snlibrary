@@ -57,7 +57,6 @@ public class SNAdapter extends BaseAdapter {
 
     @Override
     public View getView(int pos, View view, ViewGroup viewGroup) {
-        $.util.logDebug(SNAdapter.class, "position=" + pos);
         // TODO Auto-generated method stub
         SNAdapterViewInject inject = null;
         if (view == null) {

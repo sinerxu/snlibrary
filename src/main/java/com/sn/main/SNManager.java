@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -39,7 +42,6 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
 import android.widget.Toast;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
@@ -47,11 +49,12 @@ import com.jeremyfeinstein.slidingmenu.lib.app.SlidingActivity;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-import com.sn.annotation.SNIOC;
+import com.sn.activity.SNActivity;
+import com.sn.activity.listeners.SNOnActivityResult;
 import com.sn.annotation.SNInjectElement;
-import com.sn.core.SNAppEventListenerManager;
-import com.sn.core.SNBindInjectManager;
+import com.sn.core.SNHeaderManager;
 import com.sn.core.SNLoadBitmapManager;
+import com.sn.core.SNLoadingBuilder;
 import com.sn.core.SNLoadingDialogManager;
 import com.sn.core.SNUtility;
 import com.sn.interfaces.SNAppEventListener;
@@ -61,8 +64,12 @@ import com.sn.interfaces.SNOnHttpResultListener;
 import com.sn.interfaces.SNOnImageLoadListener;
 import com.sn.interfaces.SNOnSetImageListenter;
 import com.sn.lib.R;
+import com.sn.main.listeners.SNOnCropPhotoListener;
+import com.sn.main.listeners.SNOnPhotoListener;
 import com.sn.models.SNSize;
-import com.sn.postting.alert.SNAlert;
+import com.sn.postting.alert.SNAlertBuilder;
+import com.soundcloud.android.crop.Crop;
+
 
 import org.apache.http.Header;
 
@@ -75,7 +82,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Constructor;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -120,7 +127,114 @@ public class SNManager extends SNConfig {
         return new SNManager(dialog, context);
     }
 
-    // region message
+    //region Common
+
+    public void takePhoto(final SNOnPhotoListener onPhotoListener) {
+        final SNActivity activity = getActivity(SNActivity.class);
+        Crop.takeImage(activity);
+        activity.setActivityResult(new SNOnActivityResult() {
+            @Override
+            public void onActivityResult(int requestCode, int resultCode, Intent data) {
+                if (requestCode == Crop.REQUEST_PICK) {
+                    if (resultCode == activity.RESULT_OK) {
+                        if (onPhotoListener != null)
+                            onPhotoListener.onResult(Crop.getImageUri());
+                    } else onPhotoListener.onResult(null);
+
+                } else onPhotoListener.onResult(null);
+            }
+        });
+    }
+
+    public void pickPhoto(final SNOnPhotoListener onPhotoListener) {
+        final SNActivity activity = getActivity(SNActivity.class);
+        Crop.pickImage(activity);
+        activity.setActivityResult(new SNOnActivityResult() {
+            @Override
+            public void onActivityResult(int requestCode, int resultCode, Intent data) {
+                if (requestCode == Crop.REQUEST_PICK) {
+                    if (resultCode == activity.RESULT_OK) {
+                        if (onPhotoListener != null)
+                            onPhotoListener.onResult(data.getData());
+                    } else onPhotoListener.onResult(null);
+
+                } else onPhotoListener.onResult(null);
+            }
+        });
+    }
+
+    public void cropPhotoWithPick(final SNOnCropPhotoListener onCropPhotoListener) {
+        pickPhoto(new SNOnPhotoListener() {
+            @Override
+            public void onResult(Uri uri) {
+                cropPhoto(uri, onCropPhotoListener);
+            }
+        });
+    }
+
+    public void cropPhotoWithTake(final SNOnCropPhotoListener onCropPhotoListener) {
+        takePhoto(new SNOnPhotoListener() {
+            @Override
+            public void onResult(Uri uri) {
+                cropPhoto(uri, onCropPhotoListener);
+            }
+        });
+    }
+
+    public void cropPhoto(Uri source, final SNOnCropPhotoListener onCropPhotoListener) {
+        final SNActivity activity = getActivity(SNActivity.class);
+        Uri destination = Uri.fromFile(new File(activity.getCacheDir(), "cropped"));
+        Crop.of(source, destination).asSquare().start(activity);
+        activity.setActivityResult(new SNOnActivityResult() {
+            @Override
+            public void onActivityResult(int requestCode, int resultCode, final Intent data) {
+                if (requestCode == Crop.REQUEST_CROP) {
+                    if (resultCode == activity.RESULT_OK) {
+                        ContentResolver resolver = activity.getContentResolver();
+                        try {
+                            Bitmap bitmap = util.imgParse(resolver.openInputStream(Crop.getOutput(data)));
+                            if (onCropPhotoListener != null) onCropPhotoListener.onResult(bitmap);
+                        } catch (Exception e) {
+                            if (onCropPhotoListener != null) onCropPhotoListener.onResult(null);
+                        }
+                        // resultView.setImageURI(Crop.getOutput(result));
+                    } else if (resultCode == Crop.RESULT_ERROR) {
+                        if (onCropPhotoListener != null) onCropPhotoListener.onResult(null);
+                    }
+                }
+            }
+        });
+    }
+
+    public Bitmap uriToBitmap(Uri uri) {
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
+            return bitmap;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Uri bitmapToUri(Bitmap bitmap) {
+        try {
+            Uri uri = Uri.parse(MediaStore.Images.Media.insertImage(getActivity().getContentResolver(), bitmap, null, null));
+            return uri;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public void clip(String label, String text) {
+        ClipboardManager clipboardManager = (ClipboardManager) getActivity().getSystemService(getActivity().CLIPBOARD_SERVICE);
+        ClipData textCd = ClipData.newPlainText(label, text);
+        clipboardManager.setPrimaryClip(textCd);
+    }
+
+    //endregion
+
+    // region Message
 
 
     /**
@@ -132,7 +246,8 @@ public class SNManager extends SNConfig {
      * @param onClickListener listener of after click
      */
     public void alert(String title, String msg, String buttonTitle, SNOnClickListener onClickListener) {
-        SNAlert.instance(context, SNConfig.SN_UI_ALERT_STYLE).alert(title, msg, buttonTitle, onClickListener);
+
+        SNAlertBuilder.instance(context).create().alert(title, msg, buttonTitle, onClickListener);
     }
 
     /**
@@ -142,7 +257,7 @@ public class SNManager extends SNConfig {
      * @param msg   消息
      */
     public void alert(String title, String msg) {
-        SNAlert.instance(context, SNConfig.SN_UI_ALERT_STYLE).alert(title, msg);
+        SNAlertBuilder.instance(context).create().alert(title, msg);
     }
 
     /**
@@ -152,7 +267,7 @@ public class SNManager extends SNConfig {
      * @param onClickListener 点击按钮后的事件
      */
     public void alert(String msg, SNOnClickListener onClickListener) {
-        SNAlert.instance(context, SNConfig.SN_UI_ALERT_STYLE).alert(msg, onClickListener);
+        SNAlertBuilder.instance(context).create().alert(msg, onClickListener);
     }
 
     /**
@@ -161,7 +276,7 @@ public class SNManager extends SNConfig {
      * @param msg 消息
      */
     public void alert(String msg) {
-        SNAlert.instance(context, SNConfig.SN_UI_ALERT_STYLE).alert(msg);
+        SNAlertBuilder.instance(context).create().alert(msg);
     }
 
     /**
@@ -176,7 +291,7 @@ public class SNManager extends SNConfig {
      */
     public void confirm(String title, String msg, String btnOkTitle, String btnCancelTitle,
                         SNOnClickListener okClick, SNOnClickListener cancelClick) {
-        SNAlert.instance(context, SNConfig.SN_UI_ALERT_STYLE).confirm(title, msg, btnOkTitle, btnCancelTitle, okClick, cancelClick);
+        SNAlertBuilder.instance(context).create().confirm(title, msg, btnOkTitle, btnCancelTitle, okClick, cancelClick);
     }
 
     /**
@@ -188,7 +303,7 @@ public class SNManager extends SNConfig {
      */
     public void confirm(String msg, SNOnClickListener okClick,
                         SNOnClickListener cancelClick) {
-        SNAlert.instance(context, SNConfig.SN_UI_ALERT_STYLE).confirm(msg, okClick, cancelClick);
+        SNAlertBuilder.instance(context).create().confirm(msg, okClick, cancelClick);
     }
 
     /**
@@ -201,10 +316,24 @@ public class SNManager extends SNConfig {
         Toast.makeText(context, text, duration).show();
     }
 
+
+    /**
+     * 弹出加载层，用户等待
+     */
+    public void openLoading(Class classDialog) {
+        SNLoadingBuilder.setCustomerLoadingDialog(classDialog);
+        SNLoadingBuilder.instance(getContext()).create();
+        SNLoadingDialogManager.instance(context).show();
+    }
+
     /**
      * 弹出加载层，用户等待
      */
     public void openLoading() {
+        if (SNLoadingBuilder.getCustomerLoadingDialogClass() != null) {
+
+        }
+        SNLoadingBuilder.instance(getContext()).create();
         SNLoadingDialogManager.instance(context).show();
     }
 
@@ -597,7 +726,11 @@ public class SNManager extends SNConfig {
      * @param layoutResID layout id
      */
     public void contentView(int layoutResID) {
-        contentView(layoutResID, getContext());
+
+        if (manager instanceof Activity || manager instanceof Context)
+            contentView(layoutResID, getContext());
+        else
+            contentView(layoutResID, manager);
     }
 
     /**
@@ -639,39 +772,6 @@ public class SNManager extends SNConfig {
                     } catch (Exception ex) {
 
                     }
-                } else if (field.isAnnotationPresent(SNIOC.class)) {
-                    SNIOC ioc = (SNIOC) field.getAnnotation(SNIOC.class);
-                    Class c = field.getType();
-                    Class t = SNBindInjectManager.instance().to(c);
-                    if (t != null) {
-                        util.logInfo(SNManager.class, "t != null");
-                        try {
-                            util.logInfo(SNManager.class, "getDeclaredConstructor start==" + t.getName());
-                            Constructor c1 = t.getDeclaredConstructor(SNManager.class);
-                            util.logInfo(SNManager.class, "getDeclaredConstructor" + c1);
-                            c1.setAccessible(true);
-                            util.logInfo(SNManager.class, "setAccessible success");
-                            Object obj = c1.newInstance(this);
-                            util.logInfo(SNManager.class, "newInstance success");
-                            field.setAccessible(true);
-                            util.logInfo(SNManager.class, "setAccessible success");
-                            field.set(_holder, obj);
-                            util.logInfo(SNManager.class, "field set");
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                            throw new IllegalStateException("IOC class constructor parameter must be SNManager class." + ex.getMessage());
-                        }
-                    }
-                } else {
-//                    int id = resourceId(fieldName);
-//                    if (id != 0) {
-//                        field.setAccessible(true);
-//                        try {
-//                            field.set(_holder, create(id));
-//                        } catch (Exception ex2) {
-//
-//                        }
-//                    }
                 }
             }
             if (injectListener != null) injectListener.onFinish(_holder);
@@ -684,30 +784,30 @@ public class SNManager extends SNConfig {
      *
      * @param _holder
      */
-    public void injectIOC(Object _holder) {
-        if (_holder != null) {
-            Field[] fields = _holder.getClass().getDeclaredFields();
-            for (Field field : fields) {
-                String fieldName = field.getName();
-                if (field.isAnnotationPresent(SNIOC.class)) {
-                    SNIOC ioc = (SNIOC) field.getAnnotation(SNIOC.class);
-                    Class c = field.getType();
-                    Class t = SNBindInjectManager.instance().to(c);
-                    if (t != null) {
-                        try {
-                            Constructor c1 = t.getDeclaredConstructor(SNManager.class);
-                            c1.setAccessible(true);
-                            Object obj = c1.newInstance(this);
-                            field.setAccessible(true);
-                            field.set(_holder, obj);
-                        } catch (Exception ex) {
-                            throw new IllegalStateException("IOC class constructor parameter must be SNManager class:" + ex.getMessage());
-                        }
-                    }
-                }
-            }
-        }
-    }
+//    public void injectIOC(Object _holder) {
+//        if (_holder != null) {
+//            Field[] fields = _holder.getClass().getDeclaredFields();
+//            for (Field field : fields) {
+//                String fieldName = field.getName();
+//                if (field.isAnnotationPresent(SNIOC.class)) {
+//                    SNIOC ioc = (SNIOC) field.getAnnotation(SNIOC.class);
+//                    Class c = field.getType();
+//                    Class t = SNBindInjectManager.instance().to(c);
+//                    if (t != null) {
+//                        try {
+//                            Constructor c1 = t.getDeclaredConstructor(SNManager.class);
+//                            c1.setAccessible(true);
+//                            Object obj = c1.newInstance(this);
+//                            field.setAccessible(true);
+//                            field.set(_holder, obj);
+//                        } catch (Exception ex) {
+//                            throw new IllegalStateException("IOC class constructor parameter must be SNManager class:" + ex.getMessage());
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     // endregion
 
@@ -980,6 +1080,12 @@ public class SNManager extends SNConfig {
     // endregion
 
     //region Intent
+    public Intent intent() {
+        Activity activity = getActivity();
+        if (activity != null) return getActivity().getIntent();
+        else return null;
+    }
+
     public Intent weChatIntent() {
         Intent intent = new Intent();
         intent.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI"));
@@ -1011,7 +1117,7 @@ public class SNManager extends SNConfig {
     }
     //endregion
 
-    // region resource manager
+    // region Resource Manager
 
     /**
      * dp to px
@@ -1771,7 +1877,7 @@ public class SNManager extends SNConfig {
 
     // endregion
 
-    //region http
+    //region Http
 
 
     public void loadImage(String imageUrl, SNOnSetImageListenter onSetImageListenter, SNOnImageLoadListener _onImageLoadListener) {
@@ -1791,19 +1897,29 @@ public class SNManager extends SNConfig {
      * @param requestHeader        http request header
      * @param onHttpResultListener call back
      */
-    public void post(final String url, final HashMap<String, String> bodys, String contentType, final HashMap<String, String> requestHeader,
+    public void post(final String url, final HashMap<String, String> bodys, String contentType, final String bodyEncodeType, final String responseEncodeType, final HashMap<String, String> requestHeader,
                      final SNOnHttpResultListener onHttpResultListener) {
-        AsyncHttpClient client = util.httpCreateAsyncHttpClient(requestHeader, contentType);
 
-        client.post(this.context, url, new RequestParams(bodys), new AsyncHttpResponseHandler() {
+        AsyncHttpClient client = util.httpCreateAsyncHttpClient(requestHeader, contentType);
+        RequestParams requestParams = new RequestParams(bodys);
+        requestParams.setContentEncoding(bodyEncodeType);
+        client.post(this.context, url, requestParams, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 if (onHttpResultListener != null) {
                     String r = "";
-                    if (responseBody != null)
-                        r = new String(responseBody);
+                    if (responseBody != null) {
+                        try {
+                            r = new String(responseBody, responseEncodeType);
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+
                     httpLog("POST", url, bodys, requestHeader, statusCode, r);
-                    onHttpResultListener.onSuccess(statusCode, r);
+                    onHttpResultListener.onSuccess(statusCode, SNHeaderManager.parse(headers), r);
                 }
             }
 
@@ -1814,7 +1930,7 @@ public class SNManager extends SNConfig {
                     if (responseBody != null)
                         r = new String(responseBody);
                     httpLog("POST", url, bodys, requestHeader, statusCode, r);
-                    onHttpResultListener.onFailure(statusCode, r);
+                    onHttpResultListener.onFailure(statusCode, SNHeaderManager.parse(headers), r);
                 }
             }
         });
@@ -1829,12 +1945,27 @@ public class SNManager extends SNConfig {
      * @param bodys                post request body
      * @param onHttpResultListener call back
      */
+    public void post(String url, HashMap<String, String> bodys, String bodyEncodeType, String responseEncodeType, SNOnHttpResultListener onHttpResultListener) {
+        post(url, bodys, SN_HTTP_REQUEST_CONTENT_TYPE_FORM, bodyEncodeType, responseEncodeType, null, onHttpResultListener);
+    }
+
+    public void post(String url, HashMap<String, String> bodys, HashMap<String, String> headers, String bodyEncodeType, String responseEncodeType, SNOnHttpResultListener onHttpResultListener) {
+        post(url, bodys, SN_HTTP_REQUEST_CONTENT_TYPE_FORM, bodyEncodeType, responseEncodeType, headers, onHttpResultListener);
+    }
+
+    /**
+     * http post
+     *
+     * @param url                  url
+     * @param bodys                post request body
+     * @param onHttpResultListener call back
+     */
     public void post(String url, HashMap<String, String> bodys, SNOnHttpResultListener onHttpResultListener) {
-        post(url, bodys, SN_HTTP_REQUEST_CONTENT_TYPE_FORM, null, onHttpResultListener);
+        post(url, bodys, SN_HTTP_REQUEST_CONTENT_TYPE_FORM, "UTF-8", "UTF-8", null, onHttpResultListener);
     }
 
     public void post(String url, HashMap<String, String> bodys, HashMap<String, String> headers, SNOnHttpResultListener onHttpResultListener) {
-        post(url, bodys, SN_HTTP_REQUEST_CONTENT_TYPE_FORM, headers, onHttpResultListener);
+        post(url, bodys, SN_HTTP_REQUEST_CONTENT_TYPE_FORM, "UTF-8", "UTF-8", headers, onHttpResultListener);
     }
 
     /**
@@ -1846,17 +1977,24 @@ public class SNManager extends SNConfig {
      * @param requestHeader        request headers
      * @param onHttpResultListener call back
      */
-    public void get(final String url, final HashMap<String, String> requestParams, String contentType, final HashMap<String, String> requestHeader, final SNOnHttpResultListener onHttpResultListener) {
+    public void get(final String url, final HashMap<String, String> requestParams, String contentType, final String bodyEncodeType, final String responseEncodeType, final HashMap<String, String> requestHeader, final SNOnHttpResultListener onHttpResultListener) {
         AsyncHttpClient client = util.httpCreateAsyncHttpClient(requestHeader, contentType);
-        client.get(url, new RequestParams(requestParams), new AsyncHttpResponseHandler() {
+        RequestParams r = new RequestParams(requestParams);
+        r.setContentEncoding(bodyEncodeType);
+        client.get(url, r, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 if (onHttpResultListener != null) {
                     String r = "";
-                    if (responseBody != null)
-                        r = new String(responseBody);
+                    if (responseBody != null) {
+                        try {
+                            r = new String(responseBody, responseEncodeType);
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     httpLog("GET", url, null, requestHeader, statusCode, r);
-                    onHttpResultListener.onSuccess(statusCode, r);
+                    onHttpResultListener.onSuccess(statusCode, SNHeaderManager.parse(headers), r);
                 }
             }
 
@@ -1867,7 +2005,7 @@ public class SNManager extends SNConfig {
                     if (responseBody != null)
                         r = new String(responseBody);
                     httpLog("GET", url, null, requestHeader, statusCode, r);
-                    onHttpResultListener.onFailure(statusCode, r);
+                    onHttpResultListener.onFailure(statusCode, SNHeaderManager.parse(headers), r);
                 }
             }
         });
@@ -1880,17 +2018,24 @@ public class SNManager extends SNConfig {
      * @param requestHeader        request headers
      * @param onHttpResultListener call back
      */
-    public void get(final String url, final HashMap<String, String> requestHeader, final SNOnHttpResultListener onHttpResultListener) {
+    public void get(final String url, final HashMap<String, String> requestHeader, final String responseEncodeType, final SNOnHttpResultListener onHttpResultListener) {
         AsyncHttpClient client = util.httpCreateAsyncHttpClient(requestHeader, SNConfig.SN_HTTP_REQUEST_CONTENT_TYPE_FORM);
+
+
         client.get(this.context, url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 if (onHttpResultListener != null) {
                     String r = "";
-                    if (responseBody != null)
-                        r = new String(responseBody);
+                    if (responseBody != null) {
+                        try {
+                            r = new String(responseBody, responseEncodeType);
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     httpLog("GET", url, null, requestHeader, statusCode, r);
-                    onHttpResultListener.onSuccess(statusCode, r);
+                    onHttpResultListener.onSuccess(statusCode, SNHeaderManager.parse(headers), r);
                 }
             }
 
@@ -1901,7 +2046,7 @@ public class SNManager extends SNConfig {
                     if (responseBody != null)
                         r = new String(responseBody);
                     httpLog("GET", url, null, requestHeader, statusCode, r);
-                    onHttpResultListener.onFailure(statusCode, r);
+                    onHttpResultListener.onFailure(statusCode, SNHeaderManager.parse(headers), r);
                 }
             }
         });
@@ -1935,6 +2080,29 @@ public class SNManager extends SNConfig {
         util.logInfo(SNManager.class, "============Request END============");
     }
 
+
+    /**
+     * http get
+     *
+     * @param url                  url
+     * @param onHttpResultListener call back
+     */
+    public void get(String url, HashMap<String, String> requestHeader, final SNOnHttpResultListener onHttpResultListener) {
+        get(url, requestHeader, "UTF-8", onHttpResultListener);
+    }
+
+
+    /**
+     * http get
+     *
+     * @param url                  url
+     * @param onHttpResultListener call back
+     */
+    public void get(String url, String responseEncodeType, final SNOnHttpResultListener onHttpResultListener) {
+        get(url, null, responseEncodeType, onHttpResultListener);
+    }
+
+
     /**
      * http get
      *
@@ -1942,18 +2110,18 @@ public class SNManager extends SNConfig {
      * @param onHttpResultListener call back
      */
     public void get(String url, final SNOnHttpResultListener onHttpResultListener) {
-        get(url, null, onHttpResultListener);
+        get(url, null, "UTF-8", onHttpResultListener);
     }
     //endregion
 
-    //region create manager
+    //region Create Manager
     public LocationManager locationManager() {
 
         return (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
     }
     //endregion
 
-    //region input
+    //region Input
     public InputMethodManager inputMethodManager() {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         return imm;

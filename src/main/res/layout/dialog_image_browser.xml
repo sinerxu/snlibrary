@@ -8,9 +8,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="30dp"
-        android:layout_marginTop="20dp">
+        android:layout_height="match_parent">
 
         <com.sn.controlers.SNScrollable xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/scroImages"
@@ -19,8 +17,14 @@
             android:layout_centerVertical="true">
 
         </com.sn.controlers.SNScrollable>
-    </RelativeLayout>
 
+        <ProgressBar
+            android:id="@+id/pbLoadingMain"
+            style="@android:style/Widget.ProgressBar.Large"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/tvInfo"

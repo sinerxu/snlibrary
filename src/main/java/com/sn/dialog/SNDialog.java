@@ -9,11 +9,11 @@ public class SNDialog extends Dialog {
     public SNManager $;
 
     public SNDialog(SNManager $) {
-        super($.getActivity());
+        super($.getContext());
     }
 
     public SNDialog(SNManager $, int theme) {
-        super($.getActivity(), theme);
+        super($.getContext(), theme);
     }
 
     public SNDialog(Context context) {

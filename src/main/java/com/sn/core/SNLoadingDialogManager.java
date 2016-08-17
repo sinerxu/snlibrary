@@ -12,6 +12,8 @@ import com.sn.lib.R;
 
 public class SNLoadingDialogManager {
 
+    public static final int LOADING_TYPE_DEFAULT = 0;
+    public static final int LOADING_TYPE_CUSTOMER = 100;
     public static Dialog currentLoadingDialog;
 
 
@@ -38,20 +40,25 @@ public class SNLoadingDialogManager {
     }
 
 
+    public static void setLoadingDialog(Dialog dialog) {
+        currentLoadingDialog = dialog;
+        currentLoadingDialog.setCancelable(false);// 不可以用“返回键”取消
+    }
+
+
     public void show() {
         if (currentLoadingDialog == null) {
             LayoutInflater inflater = LayoutInflater.from(context);
             View v = inflater.inflate(R.layout.sn_loading, null);// 得到加载view
             RelativeLayout layout = (RelativeLayout) v.findViewById(R.id.loadingBox);// 加载布局
             // main.xml中的ImageView
-            currentLoadingDialog = new Dialog(this.context, R.style.LoadingDialog);// 创建自定义样式dialog
+            setLoadingDialog(new Dialog(this.context, R.style.LoadingDialog));
             currentLoadingDialog.setContentView(layout, new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.MATCH_PARENT));
-            currentLoadingDialog.setCancelable(false);// 不可以用“返回键”取消
-            if (!currentLoadingDialog.isShowing()) {
-                currentLoadingDialog.show();
-            }
+        }
+        if (!currentLoadingDialog.isShowing()) {
+            currentLoadingDialog.show();
         }
     }
 

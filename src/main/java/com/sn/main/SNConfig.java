@@ -4,16 +4,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
+import com.sn.core.SNLoadingDialogManager;
 import com.sn.postting.alert.SNAlert;
 
 public class SNConfig {
 
 
-
-    public static final String IMAGE_CATCH_PATH ="/mnt/sdcard/img/catch/";
+    public static final String IMAGE_CATCH_PATH = "/mnt/sdcard/img/catch/";
 
     public static final String DEFAULT_ENCODING = "utf-8";
-    public static final String SHAREDPREFERENCES_KEY="SHAREDPREFERENCES_KEY";
+    public static final String SHAREDPREFERENCES_KEY = "SHAREDPREFERENCES_KEY";
 
     public static final String SN_VERSION = "1.0.0";
 
@@ -38,8 +38,9 @@ public class SNConfig {
     public static final int SN_ANIMATE_ACTIVITY_TEST = 1000;
     //endregion
 
-    //region alert style
-    public static final int SN_UI_ALERT_STYLE = SNAlert.ALERT_TYPE_IOS;
+    //region  style
+    public static int SN_UI_ALERT_STYLE = SNAlert.ALERT_TYPE_DEFAULT;
+    public static int SN_UI_LOADING_STYLE = SNLoadingDialogManager.LOADING_TYPE_DEFAULT;
     //endregion
 
     //region visibility value

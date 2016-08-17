@@ -99,6 +99,51 @@ public class SNUtility {
         return utility;
     }
 
+    //region color
+    public int colorParse(String color) {
+        int red = 0;
+        int green = 0;
+        int blue = 0;
+        int alpha = 0;
+        String color_str = color.replace("#", "");
+        if (color_str.length() == 6) {
+            alpha = 255;
+            red = hexToDecimal(color_str.substring(0, 2));
+            green = hexToDecimal(color_str.substring(2, 4));
+            blue = hexToDecimal(color_str.substring(4, 6));
+        } else if (color_str.length() == 3) {
+            alpha = 255;
+            red = hexToDecimal(color_str.substring(0, 1) + color_str.substring(0, 1));
+            green = hexToDecimal(color_str.substring(1, 2) + color_str.substring(1, 2));
+            blue = hexToDecimal(color_str.substring(2, 3) + color_str.substring(2, 3));
+        } else {
+            alpha = hexToDecimal(color_str.substring(0, 2));
+            red = hexToDecimal(color_str.substring(2, 4));
+            green = hexToDecimal(color_str.substring(4, 6));
+            blue = hexToDecimal(color_str.substring(6, 8));
+        }
+        return colorParse(red, green, blue, alpha);
+    }
+
+    public int colorParse(int red, int green, int blue, int alpha) {
+        return Color.argb(alpha, red, green, blue);
+    }
+
+    public int colorParse(int red, int green, int blue) {
+        return Color.rgb(red, green, blue);
+    }
+    //enregion
+
+
+    //region hex decimal binary
+    public int hexToDecimal(String hex) {
+        return Integer.parseInt(hex, 16);
+    }
+
+    public String decToHex(int dec) {
+        return Integer.toHexString(dec);
+    }
+    //endregion
 
     //region url
     public String urlDecode(String url) {
@@ -218,6 +263,11 @@ public class SNUtility {
     public String strParse(Object object) {
         return object.toString();
     }
+
+    public String strParse(byte[] bytes) {
+        return new String(bytes);
+    }
+
 
     /**
      * get string is null or empty?
@@ -1234,7 +1284,7 @@ public class SNUtility {
     //endregion
 
     //region des(des)
-    private final static String DES = "DES";
+
 
     /**
      * Description 根据键值进行加密
@@ -1245,9 +1295,7 @@ public class SNUtility {
      * @throws Exception
      */
     public String desEncrypt(String data, String key) throws Exception {
-        byte[] bt = desEncrypt(data.getBytes(), key.getBytes());
-        String strs = base64EncodeStr(bt);
-        return strs;
+        return DES.encrypt(data, key);
     }
 
     /**
@@ -1261,70 +1309,10 @@ public class SNUtility {
      */
     public String desDecrypt(String data, String key) throws IOException,
             Exception {
-        if (data == null)
-            return null;
-
-        byte[] buf = base64Decode(data);
-        byte[] bt = desDecrypt(buf, key.getBytes());
-        return new String(bt);
+        return DES.decrypt(data, key);
     }
 
-    /**
-     * Description 根据键值进行加密
-     *
-     * @param data
-     * @param key  加密键byte数组
-     * @return
-     * @throws Exception
-     */
-    private byte[] desEncrypt(byte[] data, byte[] key) throws Exception {
-        // 生成一个可信任的随机数源
-        SecureRandom sr = new SecureRandom();
 
-        // 从原始密钥数据创建DESKeySpec对象
-        DESKeySpec dks = new DESKeySpec(key);
-
-        // 创建一个密钥工厂，然后用它把DESKeySpec转换成SecretKey对象
-        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(DES);
-        SecretKey securekey = keyFactory.generateSecret(dks);
-
-        // Cipher对象实际完成加密操作
-        Cipher cipher = Cipher.getInstance(DES);
-
-        // 用密钥初始化Cipher对象
-        cipher.init(Cipher.ENCRYPT_MODE, securekey, sr);
-
-        return cipher.doFinal(data);
-    }
-
-    /**
-     * Description 根据键值进行解密
-     *
-     * @param data
-     * @param key  加密键byte数组
-     * @return
-     * @throws Exception
-     */
-    private byte[] desDecrypt(byte[] data, byte[] key) throws Exception {
-        // 生成一个可信任的随机数源
-        SecureRandom sr = new SecureRandom();
-
-        // 从原始密钥数据创建DESKeySpec对象
-        DESKeySpec dks = new DESKeySpec(key);
-
-        // 创建一个密钥工厂，然后用它把DESKeySpec转换成SecretKey对象
-        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(DES);
-        SecretKey securekey = keyFactory.generateSecret(dks);
-
-        // Cipher对象实际完成解密操作
-        Cipher cipher = Cipher.getInstance(DES);
-
-        // 用密钥初始化Cipher对象
-        cipher.init(Cipher.DECRYPT_MODE, securekey, sr);
-
-        return cipher.doFinal(data);
-    }
-    //endregion
     //endregion
 
     //region datetime(date)
