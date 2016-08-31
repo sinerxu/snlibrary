@@ -43,8 +43,13 @@
         android:layout_height="28dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-
         app:adjustWidth="true" />
+
+    <RelativeLayout
+        android:id="@+id/contentBox"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"></RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/rightButton"

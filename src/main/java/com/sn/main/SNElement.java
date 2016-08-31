@@ -44,6 +44,7 @@ import com.sn.controlers.SNListView;
 import com.sn.controlers.SNNavTitleBar;
 import com.sn.controlers.SNScrollable;
 import com.sn.controlers.SNSlipNavigation;
+import com.sn.controlers.SNWebView;
 import com.sn.controlers.pullrefresh.SNPullRefreshLayout;
 import com.sn.controlers.slidingtab.SNSlidingTabBar;
 import com.sn.controlers.slidingtab.homebottomtab.SNHomeBottomTabItem;
@@ -1116,6 +1117,9 @@ public class SNElement extends SNManager {
         if (elem instanceof WebView) {
             WebView webView = (WebView) elem;
             webView.loadUrl(url);
+        } else if (elem instanceof SNWebView) {
+            SNWebView webView = (SNWebView) elem;
+            webView.loadUrl(url);
         }
         return this;
     }
@@ -1129,8 +1133,29 @@ public class SNElement extends SNManager {
         if (elem instanceof WebView) {
             WebView webView = (WebView) elem;
             webView.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl);
+        } else if (elem instanceof SNWebView) {
+            SNWebView webView = (SNWebView) elem;
+            webView.loadHtml(baseUrl, data, mimeType, encoding, historyUrl);
         }
         return this;
+    }
+
+    public SNElement getWebView() {
+        if (elem instanceof SNWebView) {
+            SNWebView webView = (SNWebView) elem;
+            return webView.getWebView();
+        } else {
+            return null;
+        }
+    }
+
+    public SNElement getProgress(String html) {
+        if (elem instanceof SNWebView) {
+            SNWebView webView = (SNWebView) elem;
+            return webView.getProgress();
+        } else {
+            return null;
+        }
     }
     //endregion
 

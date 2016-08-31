@@ -27,6 +27,7 @@ public class SNNavTitleBar extends ViewGroup {
     SNElement $logo;
     SNElement $leftBox;
     SNElement $rightBox;
+    SNElement $contentBox;
     String title;
     Drawable logo;
     int logoResId;
@@ -54,12 +55,12 @@ public class SNNavTitleBar extends ViewGroup {
         $logo = $navTitleBarBox.find(R.id.logo);
         $leftBox = $navTitleBarBox.find(R.id.leftBox);
         $rightBox = $navTitleBarBox.find(R.id.rightBox);
+        $contentBox = $navTitleBarBox.find(R.id.contentBox);
         TypedArray a = $.obtainStyledAttr(attrs, R.styleable.SNNavTitleBar);
         title = a.getString(R.styleable.SNNavTitleBar_nav_title);
         updateTitle();
         logo = a.getDrawable(R.styleable.SNNavTitleBar_nav_logo);
         updateLogo();
-
     }
 
     @Override
@@ -74,8 +75,6 @@ public class SNNavTitleBar extends ViewGroup {
         // TODO Auto-generated method stub
         $navTitleBarBox.layout(0, 0, $this.width(), $this.height());
     }
-
-
     //region 左侧按钮
 
     /**
@@ -126,9 +125,7 @@ public class SNNavTitleBar extends ViewGroup {
         this.$leftButton.background(drawable);
     }
 
-
     //endregion
-
     //region 右侧按钮
 
     /**
@@ -177,7 +174,6 @@ public class SNNavTitleBar extends ViewGroup {
         showRightImage(R.drawable.nav_bar_write, onClickListener);
     }
     //endregion
-
     //region 中部内容
 
     /**
@@ -218,8 +214,8 @@ public class SNNavTitleBar extends ViewGroup {
         this.logo = drawable;
         updateLogo();
     }
-    //endregion
 
+    //endregion
     //region private
     void showLeftButton() {
         $leftButton.visible(SNConfig.SN_UI_VISIBLE);
@@ -263,6 +259,11 @@ public class SNNavTitleBar extends ViewGroup {
     public void setRightView(SNElement element) {
         $rightBox.removeAllChild();
         $rightBox.add(element);
+    }
+
+    public void setContentView(SNElement element) {
+        $contentBox.removeAllChild();
+        $contentBox.add(element);
     }
     //endregion
 }
