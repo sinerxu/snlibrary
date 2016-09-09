@@ -96,7 +96,7 @@
     </declare-styleable>
 
     <declare-styleable name="SNSlidingTabItem">
-        <attr name="android:name" ></attr>
+        <attr name="android:name"></attr>
     </declare-styleable>
     <declare-styleable name="SNImageTextTabItem">
         <attr name="android:text" />
@@ -131,5 +131,15 @@
         <attr name="circle" format="boolean" />
         <attr name="circleBorder" format="dimension" />
         <attr name="adjustWidth" format="boolean"></attr>
+    </declare-styleable>
+
+    <declare-styleable name="XRefreshView">
+        <attr name="isHeightMatchParent" format="boolean" />
+        <attr name="isWidthMatchParent" format="boolean" />
+        <attr name="autoRefresh" format="boolean" />
+        <attr name="autoLoadMore" format="boolean" />
+    </declare-styleable>
+    <declare-styleable name="SNWebView">
+        <attr name="refreshEable" format="boolean" />
     </declare-styleable>
 </resources>

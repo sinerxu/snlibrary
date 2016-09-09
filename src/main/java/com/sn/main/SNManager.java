@@ -57,12 +57,14 @@ import com.sn.core.SNLoadBitmapManager;
 import com.sn.core.SNLoadingBuilder;
 import com.sn.core.SNLoadingDialogManager;
 import com.sn.core.SNUtility;
+import com.sn.core.SNXPullRefreshManager;
 import com.sn.interfaces.SNAppEventListener;
 import com.sn.interfaces.SNInjectListener;
 import com.sn.interfaces.SNOnClickListener;
 import com.sn.interfaces.SNOnHttpResultListener;
 import com.sn.interfaces.SNOnImageLoadListener;
 import com.sn.interfaces.SNOnSetImageListenter;
+import com.sn.interfaces.SNPullRefreshManagerListener;
 import com.sn.lib.R;
 import com.sn.main.listeners.SNOnCropPhotoListener;
 import com.sn.main.listeners.SNOnPhotoListener;
@@ -581,8 +583,34 @@ public class SNManager extends SNConfig {
      * @return
      */
 
+    public void fireAppEventListener(String[] keys, Intent intent) {
+
+        for (String key : keys) {
+            fireAppEventListener(key, intent);
+        }
+
+    }
+
+    /**
+     * 执行
+     *
+     * @param key
+     * @return
+     */
+
     public void fireAppEventListener(String key) {
-        fireAppEventListener(key, new Intent(key));
+        fireAppEventListener(key, new Intent());
+    }
+
+    /**
+     * 执行
+     *
+     * @param keys
+     * @return
+     */
+
+    public void fireAppEventListener(String[] keys) {
+        fireAppEventListener(keys, new Intent());
     }
 
     /**
@@ -598,6 +626,20 @@ public class SNManager extends SNConfig {
         //SNAppEventListenerManager.instance().fire(key, args, isRemove);
     }
 
+    /**
+     * 执行
+     *
+     * @param keys
+     * @param intent
+     * @param isRemove @return
+     */
+    public void fireAppEventListener(String[] keys, Intent intent, boolean isRemove) {
+        fireAppEventListener(keys, intent);
+        for (String key : keys) {
+            if (isRemove) removeAppEventListener(key);
+        }
+        //SNAppEventListenerManager.instance().fire(key, args, isRemove);
+    }
     //endregion
 
     // region View
@@ -2152,4 +2194,13 @@ public class SNManager extends SNConfig {
         imm.hideSoftInputFromWindow(element.windowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
     //endregion
+
+
+    public void createRefreshManager(SNElement _element, int _pageSize, SNPullRefreshManagerListener listener) {
+        SNXPullRefreshManager.create(_element, _pageSize, listener);
+    }
+
+    public void createRefreshManager(SNElement _element, SNPullRefreshManagerListener listener) {
+        SNXPullRefreshManager.create(_element, listener);
+    }
 }

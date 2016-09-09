@@ -37,6 +37,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.andview.refreshview.XRefreshView;
 import com.sn.controlers.SNFragmentScrollable;
 import com.sn.controlers.SNGridView;
 import com.sn.controlers.SNImageView;
@@ -56,6 +57,7 @@ import com.sn.controlers.wheel.views.WheelView;
 import com.sn.core.ProgressBarManager;
 import com.sn.core.SNLoadBitmapManager;
 import com.sn.core.SNPullRefreshManager;
+import com.sn.core.SNRefreshManager;
 import com.sn.core.SNXListManager;
 import com.sn.interfaces.SNAdapterListener;
 import com.sn.interfaces.SNAdapterOnItemClickListener;
@@ -1659,7 +1661,7 @@ public class SNElement extends SNManager {
         return bindListAdapter($, listManager.getData(), layout_id, injectClass);
     }
 
-    public SNElement bindListAdapter(SNPullRefreshManager listManager, final int layout_id, final Class injectClass) {
+    public SNElement bindListAdapter(SNRefreshManager listManager, final int layout_id, final Class injectClass) {
         return bindListAdapter(this, listManager.getData(), layout_id, injectClass);
     }
 
@@ -2353,6 +2355,8 @@ public class SNElement extends SNManager {
         if (elem != null) {
             if (elem instanceof ViewPager) {
                 return ((ViewPager) elem).getCurrentItem();
+            } else if (elem instanceof SNSlidingTabBar) {
+                return ((SNSlidingTabBar) elem).getCurrentItem();
             } else {
                 errorNullOrNotInstance("ViewPager");
             }
@@ -2616,5 +2620,49 @@ public class SNElement extends SNManager {
     }
     //endregion
 
+
+    //region refresh
+    public SNElement refreshStop() {
+        if (elem != null) {
+            if (elem instanceof XRefreshView) {
+                XRefreshView temp = (XRefreshView) elem;
+
+                temp.stopRefresh();
+            }
+        }
+        return this;
+    }
+
+    public SNElement loadStop() {
+        if (elem != null) {
+            if (elem instanceof XRefreshView) {
+                XRefreshView temp = (XRefreshView) elem;
+                temp.stopLoadMore();
+            }
+        }
+        return this;
+    }
+
+    public SNElement loadDone() {
+        if (elem != null) {
+            if (elem instanceof XRefreshView) {
+                XRefreshView temp = (XRefreshView) elem;
+                temp.setLoadComplete(true);
+            }
+        }
+        return this;
+    }
+
+
+    public SNElement loadMoreEnable(boolean enable) {
+        if (elem != null) {
+            if (elem instanceof XRefreshView) {
+                XRefreshView temp = (XRefreshView) elem;
+                temp.setPullLoadEnable(enable);
+            }
+        }
+        return this;
+    }
+    //endregion
 
 }

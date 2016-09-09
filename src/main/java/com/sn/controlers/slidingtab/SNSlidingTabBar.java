@@ -173,6 +173,10 @@ public class SNSlidingTabBar extends SNLinearLayout {
         else return null;
     }
 
+    public int getCurrentItem() {
+        return $tab.toView(SNSlidingTab.class).getCurrentPage();
+    }
+
     public void setCurrentItem(int selectedItem) {
         this.selectedItem = selectedItem;
         $tab.toView(SNSlidingTab.class).setCurrentPage(selectedItem);

@@ -1,6 +1,8 @@
 package com.sn.core;
 
-import com.sn.controlers.pullrefresh.SNPullRefreshLayout;
+import com.andview.refreshview.XRefreshView;
+import com.andview.refreshview.XRefreshViewFooter;
+import com.andview.refreshview.XRefreshViewHeader;
 import com.sn.interfaces.SNPullRefreshManagerListener;
 import com.sn.main.SNElement;
 
@@ -8,32 +10,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by xuhui on 15/10/25.
+ * Created by xuhui on 16/9/2.
  */
-public class SNPullRefreshManager<T> implements SNRefreshManager<T> {
+public class SNXPullRefreshManager<T> implements SNRefreshManager<T> {
+
+
     SNElement pullRefreshLayout;
     int page;
 
     int pageSize;
     boolean isDone;
     List<T> data;
+
+
     SNPullRefreshManagerListener<T> listener;
 
-    SNPullRefreshManager(SNElement _element, int _pageSize, SNPullRefreshManagerListener<T> listener) {
+    SNXPullRefreshManager(SNElement _element, int _pageSize, SNPullRefreshManagerListener<T> listener) {
         this.pullRefreshLayout = _element;
         this.page = 1;
         this.pageSize = _pageSize;
         this.listener = listener;
-        getPullRefreshLayout().setRefreshEnable(true);
-        getPullRefreshLayout().setLoadMoreEnable(true);
-        getPullRefreshLayout().setPullRefreshListener(new SNPullRefreshLayout.SNPullRefreshListener() {
+        init();
+        getPullRefreshLayout().loadMoreEnable(true);
+        getPullRefreshLayout().toView(XRefreshView.class).setXRefreshViewListener(new XRefreshView.SimpleXRefreshListener() {
             @Override
-            public void onRefresh(SNPullRefreshLayout pullRefreshLayout) {
+            public void onRefresh() {
                 refresh();
             }
 
             @Override
-            public void onLoadMore(SNPullRefreshLayout pullRefreshLayout) {
+            public void onLoadMore(boolean isSilence) {
                 loadMore();
             }
         });
@@ -41,36 +47,43 @@ public class SNPullRefreshManager<T> implements SNRefreshManager<T> {
         if (listener != null) listener.onCreate(this);
     }
 
-    SNPullRefreshManager(SNElement _element, SNPullRefreshManagerListener<T> listener) {
+    SNXPullRefreshManager(SNElement _element, SNPullRefreshManagerListener<T> listener) {
         this.page = 1;
         this.pullRefreshLayout = _element;
         this.listener = listener;
-        getPullRefreshLayout().setRefreshEnable(true);
-        getPullRefreshLayout().setLoadMoreEnable(false);
-        getPullRefreshLayout().setPullRefreshListener(new SNPullRefreshLayout.SNPullRefreshListener() {
+        init();
+        getPullRefreshLayout().loadMoreEnable(false);
+        getPullRefreshLayout().toView(XRefreshView.class).setXRefreshViewListener(new XRefreshView.SimpleXRefreshListener() {
             @Override
-            public void onRefresh(SNPullRefreshLayout pullRefreshLayout) {
+            public void onRefresh() {
                 refresh();
             }
 
             @Override
-            public void onLoadMore(SNPullRefreshLayout pullRefreshLayout) {
+            public void onLoadMore(boolean isSilence) {
                 loadMore();
             }
         });
         data = new ArrayList<T>();
 
         if (listener != null) listener.onCreate(this);
+
     }
 
 
-    public SNPullRefreshLayout getPullRefreshLayout() {
-        return pullRefreshLayout.toView(SNPullRefreshLayout.class);
+    void init() {
+        XRefreshView refreshView = getPullRefreshLayout().toView(XRefreshView.class);
+        refreshView.setPinnedContent(true);
+        refreshView.setPinnedTime(200);
+        refreshView.setHideFooterWhenComplete(false);
     }
 
+    public SNElement getPullRefreshLayout() {
+        return pullRefreshLayout;
+    }
 
     public static void create(SNElement _element, int _pageSize, SNPullRefreshManagerListener listener) {
-        new SNPullRefreshManager(_element, _pageSize, listener);
+        new SNXPullRefreshManager(_element, _pageSize, listener);
     }
 
     public static void create(SNElement _element, SNPullRefreshManagerListener listener) {
@@ -173,11 +186,11 @@ public class SNPullRefreshManager<T> implements SNRefreshManager<T> {
      * 加载成功后调用
      */
     public void success() {
-        this.getPullRefreshLayout().setRefreshState(SNPullRefreshLayout.REFRESH_STATE_NORMAL);
-        this.getPullRefreshLayout().setLoadState(SNPullRefreshLayout.LOAD_STATE_NORMAL);
+        this.getPullRefreshLayout().loadStop();
+        this.getPullRefreshLayout().refreshStop();
         this.page++;
         this.isDone = false;
-        getPullRefreshLayout().notifyDataSetChanged();
+        getPullRefreshLayout().toView(XRefreshView.class).notifyDataSetChanged();
     }
 
     /**
@@ -203,9 +216,9 @@ public class SNPullRefreshManager<T> implements SNRefreshManager<T> {
      */
     public void done(String msg) {
         this.isDone = true;
-        this.getPullRefreshLayout().setRefreshState(SNPullRefreshLayout.REFRESH_STATE_NORMAL);
-        this.getPullRefreshLayout().setLoadState(SNPullRefreshLayout.LOAD_STATE_DONE, msg);
-        getPullRefreshLayout().notifyDataSetChanged();
+        setMessage(msg);
+        this.getPullRefreshLayout().loadDone();
+        notifyDataSetChanged();
     }
 
     /**
@@ -214,9 +227,9 @@ public class SNPullRefreshManager<T> implements SNRefreshManager<T> {
      * @param msg msg string
      */
     public void error(String msg) {
-        this.getPullRefreshLayout().setRefreshState(SNPullRefreshLayout.REFRESH_STATE_NORMAL);
-        this.getPullRefreshLayout().setLoadState(SNPullRefreshLayout.LOAD_STATE_ERROR, msg);
-        getPullRefreshLayout().notifyDataSetChanged();
+        setMessage(msg);
+        this.getPullRefreshLayout().loadStop();
+        notifyDataSetChanged();
     }
 
     /**
@@ -236,4 +249,21 @@ public class SNPullRefreshManager<T> implements SNRefreshManager<T> {
         error(null);
     }
 
+
+    void setFooterMessage(String msg) {
+        this.getPullRefreshLayout().toView(XRefreshView.class).getCustomFooterView(XRefreshViewFooter.class).setMessage(msg);
+    }
+
+    void setHeaderMessage(String msg) {
+        this.getPullRefreshLayout().toView(XRefreshView.class).getCustomHeaderView(XRefreshViewHeader.class).setMessage(msg);
+    }
+
+    void setMessage(String msg) {
+        setHeaderMessage(msg);
+        setFooterMessage(msg);
+    }
+
+    void notifyDataSetChanged() {
+        getPullRefreshLayout().toView(XRefreshView.class).notifyDataSetChanged();
+    }
 }

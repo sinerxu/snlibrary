@@ -3,11 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <WebView
+    <com.sn.controlers.SNExWebView
         android:id="@+id/wvMain"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></WebView>
+        android:layout_height="match_parent"></com.sn.controlers.SNExWebView>
 
     <RelativeLayout
         android:id="@+id/viewProgress"
