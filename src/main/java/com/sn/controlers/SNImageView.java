@@ -22,7 +22,7 @@ public class SNImageView extends ImageView {
     boolean isInit = false;
     int imgResid = 0;
     Bitmap bitmap;
-    Boolean adjustWidth;
+    boolean adjustWidth;
 
     public SNImageView(Context context) {
         super(context);
