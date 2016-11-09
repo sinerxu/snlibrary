@@ -1,5 +1,7 @@
 package com.sn.core;
 
+import android.widget.BaseAdapter;
+
 import com.sn.interfaces.SNXListListener;
 import com.sn.main.SNElement;
 
@@ -170,7 +172,13 @@ public class SNXListManager<T> {
         this.listView.pullStop();
         this.page++;
         this.isDone = false;
-        listView.listAdapter().notifyDataSetChanged();
+
+
+        if (listView.listAdapter() != null) {
+            if (listView.listAdapter() instanceof BaseAdapter) {
+                ((BaseAdapter) listView.listAdapter()).notifyDataSetChanged();
+            }
+        }
     }
 
     /**
@@ -199,7 +207,14 @@ public class SNXListManager<T> {
     public void done() {
         this.listView.pullLoadFinish();
         this.isDone = true;
-        listView.listAdapter().notifyDataSetChanged();
+
+        if (listView.listAdapter() != null) {
+            if (listView.listAdapter() instanceof BaseAdapter) {
+                ((BaseAdapter) listView.listAdapter()).notifyDataSetChanged();
+            }
+        }
+
+
     }
 
     /**
@@ -247,7 +262,15 @@ public class SNXListManager<T> {
      */
     public void error() {
         this.listView.pullStop();
-        listView.listAdapter().notifyDataSetChanged();
+
+
+        if (listView.listAdapter() != null) {
+            if (listView.listAdapter() instanceof BaseAdapter) {
+                ((BaseAdapter) listView.listAdapter()).notifyDataSetChanged();
+            }
+        }
+
+
         this.listView.pullLoadError();
     }
 

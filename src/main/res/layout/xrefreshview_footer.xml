@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="50dp"
 
-    android:background="@android:color/white">
+    android:background="@android:color/transparent">
 
     <ProgressBar
         android:id="@+id/xrefreshview_footer_progressbar"

@@ -17,6 +17,7 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.LinearInterpolator;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.Scroller;
 
@@ -1264,8 +1265,13 @@ public class XRefreshView extends LinearLayout {
     public void notifyDataSetChanged() {
         SNElement element = SNManager.instence(getContext()).create(mContentView.getContentView());
         if (element.toView() instanceof AbsListView) {
-            if (element.listAdapter() != null)
-                element.listAdapter().notifyDataSetChanged();
+            if (element.listAdapter() != null) {
+                if (element.listAdapter() instanceof BaseAdapter) {
+                    ((BaseAdapter) element.listAdapter()).notifyDataSetChanged();
+                }
+            }
+
+
         }
     }
 }

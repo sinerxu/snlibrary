@@ -87,7 +87,7 @@ public class SNXPullRefreshManager<T> implements SNRefreshManager<T> {
     }
 
     public static void create(SNElement _element, SNPullRefreshManagerListener listener) {
-        new SNPullRefreshManager(_element, listener);
+        new SNXPullRefreshManager(_element, listener);
     }
 
 

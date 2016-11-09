@@ -297,6 +297,7 @@ public class SNSlideBanner extends SNLinearLayout {
                         if (interval.equals(SNSlideBanner.this.interval)) {
                             if (scroll_state == SCROLL_STATE_SCROLLING)
                                 return;
+                            if (dataBanners == null || dataBanners.size() < 2) return;
                             if (dataBanners.size() <= 2) {
                                 int p = currentPosition + 1;
                                 if (p >= dataBanners.size()) p = 0;

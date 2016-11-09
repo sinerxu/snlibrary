@@ -9,7 +9,10 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.AbsListView;
+import android.widget.BaseAdapter;
+import android.widget.HeaderViewListAdapter;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.sn.lib.R;
@@ -577,8 +580,15 @@ public class SNPullRefreshLayout extends LinearLayout {
 
     public void notifyDataSetChanged() {
         if (content.toView() instanceof AbsListView) {
-            if (content.listAdapter() != null)
-                content.listAdapter().notifyDataSetChanged();
+            if (content.listAdapter() != null) {
+                if (content.listAdapter() instanceof BaseAdapter) {
+                    ((BaseAdapter) content.listAdapter()).notifyDataSetChanged();
+                } else if (content.listAdapter() instanceof HeaderViewListAdapter) {
+                    ListAdapter adapter = ((HeaderViewListAdapter) content.listAdapter()).getWrappedAdapter();
+                    if (adapter instanceof BaseAdapter)
+                        ((BaseAdapter) adapter).notifyDataSetChanged();
+                }
+            }
         }
     }
 }

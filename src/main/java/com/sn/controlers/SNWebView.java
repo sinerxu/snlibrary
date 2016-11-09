@@ -24,10 +24,12 @@ public class SNWebView extends SNRefreshLayout {
     SNElement $progress;
     ValueAnimator animation;
     OnLoadFinishListener onLoadFinishListener;
+
     boolean mAllowRefresh = true;
     boolean mRefreshEnable = true;
     float mCurrY = 0;
     SNOnPullRefreshListener onPullRefreshListener;
+
 
     public void setOnLoadFinishListener(OnLoadFinishListener onLoadFinishListener) {
         this.onLoadFinishListener = onLoadFinishListener;
@@ -87,8 +89,8 @@ public class SNWebView extends SNRefreshLayout {
                 });
                 animation.start();
                 if (newProgress == 100) {
-                    if (onLoadFinishListener != null)
-                        onLoadFinishListener.onLoadFinish($wv);
+                    if (onLoadFinishListener != null) onLoadFinishListener.onLoadFinish($wv);
+                    stopRefresh();
                 }
             }
         });
@@ -179,12 +181,7 @@ public class SNWebView extends SNRefreshLayout {
             final SNWebView outView = this;
             outView.setPullLoadEnable(false);
             outView.setPinnedTime(200);
-            outView.setOnLoadFinishListener(new SNWebView.OnLoadFinishListener() {
-                @Override
-                public void onLoadFinish(SNElement wv) {
-                    outView.stopRefresh();
-                }
-            });
+
             outView.setPinnedContent(true);
             outView.setXRefreshViewListener(new XRefreshView.SimpleXRefreshListener() {
                 @Override

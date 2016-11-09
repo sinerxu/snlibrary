@@ -1688,16 +1688,12 @@ public class SNElement extends SNManager {
     }
 
 
-    public SNAdapter listAdapter() {
+    public ListAdapter listAdapter() {
         if (elem != null) {
             if (elem instanceof AbsListView) {
                 AbsListView temp = (AbsListView) elem;
                 ListAdapter adapter = temp.getAdapter();
-                if (adapter instanceof SNAdapter) {
-                    return (SNAdapter) temp.getAdapter();
-                } else {
-                    errorNullOrNotInstance("is not a SNAdapter");
-                }
+                return adapter;
             } else {
                 errorNullOrNotInstance("AbsListView");
             }
