@@ -80,9 +80,12 @@ public class SNSlideBanner extends SNLinearLayout {
     void init() {
         if (dataBanners != null) {
             dots = new ArrayList<SNElement>();
+
+
             $main = $.layoutInflateResId(R.layout.controler_slide_banner, $this.toViewGroup());
             $main.inject(inject);
             setSelectedPage(0);
+            inject.viewDotBox.removeAllChild();
             for (int i = 0; i < dataBanners.size(); i++) {
                 SNElement banner = dataBanners.get(i);
                 banner.adjustViewBounds(true);
@@ -297,6 +300,7 @@ public class SNSlideBanner extends SNLinearLayout {
                         if (interval.equals(SNSlideBanner.this.interval)) {
                             if (scroll_state == SCROLL_STATE_SCROLLING)
                                 return;
+                            if (dataBanners == null) return;
                             if (dataBanners.size() <= 2) {
                                 int p = currentPosition + 1;
                                 if (p >= dataBanners.size()) p = 0;
