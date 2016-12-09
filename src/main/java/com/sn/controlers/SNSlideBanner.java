@@ -83,6 +83,8 @@ public class SNSlideBanner extends SNLinearLayout {
             ivShape = $main.create(R.id.ivShape);
 
             setSelectedPage(0);
+            viewDotBox.removeAllChild();
+
             for (int i = 0; i < dataBanners.size(); i++) {
                 SNElement banner = dataBanners.get(i);
                 banner.adjustViewBounds(true);
